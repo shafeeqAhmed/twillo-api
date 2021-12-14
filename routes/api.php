@@ -27,6 +27,7 @@ Route::post('/forgot-password', [\App\Http\Controllers\Api\AuthController::class
 // Route::post('/reset-password', [\App\Http\Controllers\Api\AuthController::class, 'resetPassword']);
 // Route::post('/update-profile', [\App\Http\Controllers\Api\UserController::class, 'updateProfile']);
 
+Route::get('buy-twillio-numbers/{no}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'purchaseTwillioNumbers']);
 Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'userList'])->middleware(['auth:sanctum']);
 Route::get('user-detail/{id}', [\App\Http\Controllers\Api\UserController::class, 'getUserDetail']);
 Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDetail'])->middleware(['auth:sanctum']);
