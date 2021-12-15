@@ -34,6 +34,7 @@ class User extends Authenticatable
         'fname',
         'lname',
         'twilio_number',
+        'country_id'
     ];
 
     /**
@@ -48,7 +49,7 @@ class User extends Authenticatable
         'two_factor_secret',
     ];
     public function country() {
-        return $this->belongsTo('\App\Models\Country', 'country_id', 'id');
+        return $this->belongsTo('\App\Models\Country', 'country_id', 'country_id');
     }
 
     public function twilo() {

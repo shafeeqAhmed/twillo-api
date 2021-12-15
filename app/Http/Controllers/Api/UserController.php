@@ -30,7 +30,7 @@ class UserController extends Controller
 //            DB::enableQueryLog();
             $data['user_detail'] = User::with(['country','twilo'])->where('user_uuid',$user_uuid)->select('*')->first();
 //           dd(DB::getQueryLog());
-            return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
+            return response()->json(['status' => true, 'message' => 'user have been fetched successfully', 'data' => $data]);
         } catch (Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage(), 'data' => []]);
         }
@@ -47,7 +47,7 @@ class UserController extends Controller
 
     public function createInfluencer(StoreInfluencer $request){
         $input = $request->validated();
-
+    
         try {
             DB::beginTransaction();
             $data= User::create([
