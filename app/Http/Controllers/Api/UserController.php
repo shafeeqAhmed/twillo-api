@@ -58,7 +58,7 @@ class UserController extends Controller
             'password' => Hash::make('12345678'),
         ]);
 
-         $data->assignRole('admin');
+         $data->assignRole('Influencer');
             return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
         } catch (Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage(), 'data' => []]);
@@ -71,7 +71,7 @@ class UserController extends Controller
      public function getInfluencersList()
     {
         try {
-            $data['list'] = User::role('admin')->get();
+            $data = User::role('Influencer')->get();
             return response()->json(['status' => true, 'message' => 'List of Influencers given below', 'data' => $data]);
         } catch (Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage(), 'data' => []]);

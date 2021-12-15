@@ -41,5 +41,5 @@ Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDet
 Route::post('create-influencer', [\App\Http\Controllers\Api\UserController::class, 'createInfluencer']);
 
 
-Route::get('get-influencer', [\App\Http\Controllers\Api\UserController::class, 'getInfluencersList']);
+Route::get('get-influencers', [\App\Http\Controllers\Api\UserController::class, 'getInfluencersList']);
 
