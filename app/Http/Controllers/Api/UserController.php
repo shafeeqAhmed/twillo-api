@@ -27,9 +27,7 @@ class UserController extends Controller
     public function getUserDetail($user_uuid)
     {
         try {
-//            DB::enableQueryLog();
-            $data['user_detail'] = User::with(['country','twilo'])->where('user_uuid',$user_uuid)->select('*')->first();
-//           dd(DB::getQueryLog());
+            $data['user_detail'] = User::getUser('user_uuid',$user_uuid);
             return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
         } catch (Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage(), 'data' => []]);
@@ -47,7 +45,6 @@ class UserController extends Controller
 
     public function createInfluencer(StoreInfluencer $request){
         $input = $request->validated();
-
         try {
             DB::beginTransaction();
             $data= User::create([
@@ -58,13 +55,14 @@ class UserController extends Controller
                 'email' => $input['email'],
                 'phone_no' => $input['phone_no'],
                 'country_id' => $input['country_id'],
-                'twilio_number' => $input['twillo_id'],
+                'twilo_id' => $input['twilo_id'],
                 'password' => Hash::make('12345678'),
             ]);
             // assign him influencer role
             $data->assignRole('Influencer');
             //in activate the twilo numbert so that we can not assign this number to other user
-//            TwilioNumbers::where('id',$input)
+            TwilioNumbers::updateTwilo('id',$input['twilo_id'],['status'=>'inactive']);
+
             DB::commit();
             return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
         } catch (Exception $e) {

@@ -13,4 +13,7 @@ class TwilioNumbers extends Model
         'phone_no',
         'status'
     ];
+    public static function updateTwilo($column,$value,$data){
+        return self::where($column,$value)->update($data);
+    }
 }

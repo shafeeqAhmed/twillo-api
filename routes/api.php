@@ -34,7 +34,7 @@ Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'userList'
 
 Route::get('users/{user_uuid}', [\App\Http\Controllers\Api\UserController::class, 'getUserDetail']);
 
-Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDetail'])->middleware(['auth:sanctum']);
+Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDetail']);
 Route::post('create-influencer', [\App\Http\Controllers\Api\UserController::class, 'createInfluencer']);
 Route::post('update-influencer', [\App\Http\Controllers\Api\UserController::class, 'updateInfluencer']);
 Route::get('get-influencers', [\App\Http\Controllers\Api\UserController::class, 'getInfluencersList']);

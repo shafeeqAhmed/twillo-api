@@ -14,7 +14,7 @@ class DropDownController extends Controller
     {
         try {
             $data['countries'] = Country::all();
-            $data['twillio_numbers'] = TwilioNumbers::all();
+            $data['twillio_numbers'] = TwilioNumbers::where('status','Influencer')->get();
             return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
         } catch (Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage(), 'data' => []]);

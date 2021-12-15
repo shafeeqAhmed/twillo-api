@@ -54,6 +54,12 @@ class User extends Authenticatable
     public function twilo() {
         return $this->belongsTo(TwilioNumbers::class, 'twilo_id', 'id');
     }
+    public static function getUser($column,$value){
+        return self::where($column,$value)->with(['country','twilo'])->first();
+    }
+    public static function updateUser($column,$value,$data){
+        return self::where($column,$value)->update($data);
+    }
     /**
      * The attributes that should be cast.
      *
