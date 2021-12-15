@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Country extends Model
 {
-    protected $table = 'twilio_numbers';
+    protected $table = 'countries';
     protected $guarded = ['id'];
     use HasFactory;
 }
