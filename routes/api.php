@@ -28,7 +28,18 @@ Route::post('/forgot-password', [\App\Http\Controllers\Api\AuthController::class
 // Route::post('/update-profile', [\App\Http\Controllers\Api\UserController::class, 'updateProfile']);
 
 Route::get('buy-twillio-numbers/{no}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'purchaseTwillioNumbers']);
+
 Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'userList'])->middleware(['auth:sanctum']);
+
+Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout'])->middleware(['auth:sanctum']);
+
+
+
 Route::get('user-detail/{id}', [\App\Http\Controllers\Api\UserController::class, 'getUserDetail']);
 Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDetail'])->middleware(['auth:sanctum']);
+
+Route::post('create-influencer', [\App\Http\Controllers\Api\UserController::class, 'createInfluencer']);
+
+
+Route::get('get-influencer', [\App\Http\Controllers\Api\UserController::class, 'getInfluencersList']);
 
