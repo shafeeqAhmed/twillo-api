@@ -15,6 +15,8 @@ use Exception;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
+
 
 class AuthController extends Controller
 {
@@ -44,6 +46,7 @@ class AuthController extends Controller
     {
         $auth = new CreateNewUser();
         $data = $auth->create($request->all());
+         
         return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
     }
     public function resendVerificationEmail(Request $request)
