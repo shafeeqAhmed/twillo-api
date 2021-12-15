@@ -29,7 +29,7 @@ class StoreInfluencer extends FormRequest
             'lname' =>  'required|string|max:50',
             'phone_no' =>  'required|string|max:15',
             'country_id' =>  'required|integer',
-            'twilio_number' =>  'required|string',
+            'twillo_id' =>  'required|string',
         ];
     }
 }

@@ -10,7 +10,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
-
+use App\Models\TwilioNumbers;
 class User extends Authenticatable
 {
     use HasApiTokens;
@@ -47,7 +47,13 @@ class User extends Authenticatable
         'two_factor_recovery_codes',
         'two_factor_secret',
     ];
+    public function country() {
+        return $this->belongsTo('\App\Models\Country', 'country_id', 'id');
+    }
 
+    public function twilo() {
+        return $this->belongsTo(TwilioNumbers::class, 'twilo_id', 'id');
+    }
     /**
      * The attributes that should be cast.
      *
@@ -56,6 +62,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
 
     /**
      * The accessors to append to the model's array form.

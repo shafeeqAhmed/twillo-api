@@ -15,6 +15,7 @@ class CreateTwilioNumbersTable extends Migration
     {
         Schema::create('twilio_numbers', function (Blueprint $table) {
             $table->id();
+            $table->uuid('twillo_uuid')->unique();
             $table->string('phone_no')->nullable();
             $table->enum('status',['active','inactive']);
             $table->timestamps();

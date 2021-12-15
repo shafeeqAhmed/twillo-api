@@ -14,7 +14,9 @@ class AddCountryToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->integer('country_id')->default(0);
+            $table->unsignedBigInteger('country_id')->nullable();
+            $table->foreign('country_id')->on('countries')->references('id');
+            
             
         });
     }
