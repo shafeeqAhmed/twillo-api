@@ -46,7 +46,8 @@ class AuthController extends Controller
     {
         $auth = new CreateNewUser();
         $data = $auth->create($request->all());
-         
+        $data->assignRole('Influencer');
+
         return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
     }
     public function resendVerificationEmail(Request $request)

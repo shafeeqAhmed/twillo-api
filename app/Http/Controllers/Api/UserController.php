@@ -55,13 +55,13 @@ class UserController extends Controller
                 'email' => $input['email'],
                 'phone_no' => $input['phone_no'],
                 'country_id' => $input['country_id'],
-                'twilo_id' => $input['twilo_id'],
-                'password' => Hash::make('12345678'),
+                'twilio_id' => $input['twilio_id'],
+                'password' => Hash::make($input['twilio_id']),
             ]);
             // assign him influencer role
             $data->assignRole('Influencer');
             //in activate the twilo numbert so that we can not assign this number to other user
-            TwilioNumbers::updateTwilo('id',$input['twilo_id'],['status'=>'inactive']);
+            TwilioNumbers::updateTwilo('id',$input['twilio_id'],['status'=>'inactive']);
 
             DB::commit();
             return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
@@ -102,7 +102,7 @@ class UserController extends Controller
      public function getInfluencersList()
     {
         try {
-            $data['list'] = User::role('admin')->get();
+            $data['list'] = User::role('Influencer')->with(['country','twilio'])->get();
             return response()->json(['status' => true, 'message' => 'List of Influencers given below', 'data' => $data]);
         } catch (Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage(), 'data' => []]);

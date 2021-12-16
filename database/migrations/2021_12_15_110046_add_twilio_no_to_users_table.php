@@ -16,8 +16,8 @@ class AddTwilioNoToUsersTable extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('fname')->nullable();
             $table->string('lname')->nullable();
-            $table->unsignedBigInteger('twilo_id')->nullable();
-            $table->foreign('twilo_id')->on('twilio_numbers')->references('id');
+            $table->unsignedBigInteger('twilio_id')->nullable();
+            $table->foreign('twilio_id')->on('twilio_numbers')->references('id');
 
         });
     }

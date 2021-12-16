@@ -31,12 +31,12 @@ Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout'
 
 Route::get('buy-twillio-numbers/{no}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'purchaseTwillioNumbers']);
 Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'userList'])->middleware(['auth:sanctum']);
-
 Route::get('users/{user_uuid}', [\App\Http\Controllers\Api\UserController::class, 'getUserDetail']);
 
 Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDetail']);
 Route::post('create-influencer', [\App\Http\Controllers\Api\UserController::class, 'createInfluencer']);
 Route::post('update-influencer', [\App\Http\Controllers\Api\UserController::class, 'updateInfluencer']);
+
 Route::get('get-influencers', [\App\Http\Controllers\Api\UserController::class, 'getInfluencersList']);
 Route::get('get-influencers-dropdowns', [\App\Http\Controllers\Api\DropDownController::class, 'getCountriesTWillioNumbers']);
 

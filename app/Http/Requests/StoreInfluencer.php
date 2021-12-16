@@ -25,11 +25,12 @@ class StoreInfluencer extends FormRequest
     {
         return [
             'email' => 'required|email|unique:users',
+            'password' => 'required',
             'fname' => 'required|string|max:50',
             'lname' =>  'required|string|max:50',
             'phone_no' =>  'required|string|max:15',
             'country_id' =>  'required|integer',
-            'twilo_id' =>  'required|string',
+            'twilio_id' =>  'required',
         ];
     }
 }
