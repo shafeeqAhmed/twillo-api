@@ -33,7 +33,8 @@ class User extends Authenticatable
         'password',
         'fname',
         'lname',
-        'twilio_number',
+        'twilo_id',
+        'country_id'
     ];
 
     /**
@@ -60,6 +61,8 @@ class User extends Authenticatable
     public static function updateUser($column,$value,$data){
         return self::where($column,$value)->update($data);
     }
+
+
     /**
      * The attributes that should be cast.
      *

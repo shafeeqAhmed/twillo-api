@@ -85,7 +85,7 @@ class UserController extends Controller
                 'email' => $input['email'],
                 'phone_no' => $input['phone_no'],
                 'country_id' => $input['country_id'],
-                'twilio_number' => $input['twilio_number'],
+                'twilo_id' => $input['twilo_id'],
                 'password' => Hash::make('12345678'),
             ]);
 
@@ -102,7 +102,7 @@ class UserController extends Controller
      public function getInfluencersList()
     {
         try {
-            $data['list'] = User::role('admin')->get();
+            $data['list'] = User::role('Influencer')->with('country','twilo')->get();
             return response()->json(['status' => true, 'message' => 'List of Influencers given below', 'data' => $data]);
         } catch (Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage(), 'data' => []]);
