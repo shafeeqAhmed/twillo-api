@@ -33,7 +33,7 @@ class User extends Authenticatable
         'password',
         'fname',
         'lname',
-        'twilo_id',
+        'twilio_id',
         'country_id'
     ];
 
@@ -52,11 +52,11 @@ class User extends Authenticatable
         return $this->belongsTo('\App\Models\Country', 'country_id', 'id');
     }
 
-    public function twilo() {
-        return $this->belongsTo(TwilioNumbers::class, 'twilo_id', 'id');
+    public function twilio() {
+        return $this->belongsTo(TwilioNumbers::class, 'twilio_id', 'id');
     }
     public static function getUser($column,$value){
-        return self::where($column,$value)->with(['country','twilo'])->first();
+        return self::where($column,$value)->with(['country','twilio'])->first();
     }
     public static function updateUser($column,$value,$data){
         return self::where($column,$value)->update($data);

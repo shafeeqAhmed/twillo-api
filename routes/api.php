@@ -31,7 +31,6 @@ Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout'
 
 Route::get('buy-twillio-numbers/{no}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'purchaseTwillioNumbers']);
 Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'userList'])->middleware(['auth:sanctum']);
-
 Route::get('users/{user_uuid}', [\App\Http\Controllers\Api\UserController::class, 'getUserDetail']);
 
 Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDetail']);
