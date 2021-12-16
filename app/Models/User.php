@@ -49,7 +49,7 @@ class User extends Authenticatable
         'two_factor_secret',
     ];
     public function country() {
-        return $this->belongsTo('\App\Models\Country', 'country_id', 'country_id');
+        return $this->belongsTo('\App\Models\Country', 'country_id', 'id');
     }
 
     public function twilo() {
@@ -62,7 +62,7 @@ class User extends Authenticatable
         return self::where($column,$value)->update($data);
     }
 
-
+    
     /**
      * The attributes that should be cast.
      *

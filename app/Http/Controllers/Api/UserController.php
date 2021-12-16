@@ -72,31 +72,7 @@ class UserController extends Controller
 
 
     }
-    public function updateInfluencer(StoreInfluencer $request){
-        $input = $request->validated();
-
-        try {
-
-            $data= User::create([
-                'user_uuid' => Str::uuid()->toString(),
-                'fname' => $input['fname'],
-                'lname' => $input['lname'],
-                'name' => $input['fname'].' '.$input['lname'],
-                'email' => $input['email'],
-                'phone_no' => $input['phone_no'],
-                'country_id' => $input['country_id'],
-                'twilo_id' => $input['twilo_id'],
-                'password' => Hash::make('12345678'),
-            ]);
-
-            $data->assignRole('Influencer');
-            return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
-        } catch (Exception $e) {
-            return response()->json(['status' => false, 'message' => $e->getMessage(), 'data' => []]);
-        }
-
-
-    }
+    
 
 
      public function getInfluencersList()
