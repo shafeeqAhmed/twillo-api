@@ -67,5 +67,39 @@ class TwilioNumbersController extends ApiController
         
     }
 
+    public function msgTracking(Request $request){
+   
+
+$messages = $this->client->messages
+                   ->read([
+                            
+                              "from" => $request->from,
+                            
+                          ],
+                          20
+                   );
+ 
+$data['total_messages']=count($messages);
+$message_history=array();
+foreach ($messages as $index =>$record) {
+    
+$mess= $this->client->messages($record->sid)
+                  ->fetch();
+$message_history['to'][$index]=$mess->to;
+$message_history['body'][$index]=$mess->body;
+$message_history['status'][$index]=$mess->status;
+
+}
+
+
+$data['message_history']=$message_history;
+
+
+ return $this->respond([
+            'data' => $data
+        ]);
+
+    }
+
     
 }

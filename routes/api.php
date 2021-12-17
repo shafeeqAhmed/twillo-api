@@ -39,3 +39,6 @@ Route::post('create-influencer', [\App\Http\Controllers\Api\UserController::clas
 Route::post('update-influencer', [\App\Http\Controllers\Api\InfluencerController::class, 'updateInfluencer']);
 Route::get('get-influencers', [\App\Http\Controllers\Api\UserController::class, 'getInfluencersList']);
 Route::get('get-influencers-dropdowns', [\App\Http\Controllers\Api\DropDownController::class, 'getCountriesTWillioNumbers']);
+
+
+Route::post('msg-tracking', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'msgTracking']);
