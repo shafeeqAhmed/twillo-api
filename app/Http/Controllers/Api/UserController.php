@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\TwilioNumbers;
 use App\Models\User;
 use Exception;
@@ -13,7 +12,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 
-class UserController extends Controller
+class UserController extends ApiController
 {
     public function myDetail(Request $request)
     {
@@ -26,12 +25,11 @@ class UserController extends Controller
     }
     public function getUserDetail($user_uuid)
     {
-        try {
-            $data['user_detail'] = User::getUser('user_uuid',$user_uuid);
-            return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
-        } catch (Exception $e) {
-            return response()->json(['status' => false, 'message' => $e->getMessage(), 'data' => []]);
-        }
+        
+        $data['user_detail'] = User::getUser('user_uuid',$user_uuid);
+        return $this->respond([
+        'data' => $data
+        ]);
     }
 	 public function userList()
     {
@@ -45,42 +43,30 @@ class UserController extends Controller
 
     public function createInfluencer(StoreInfluencer $request){
         $input = $request->validated();
-        try {
-            DB::beginTransaction();
-            $data= User::create([
-                'user_uuid' => Str::uuid()->toString(),
-                'fname' => $input['fname'],
-                'lname' => $input['lname'],
-                'name' => $input['fname'].' '.$input['lname'],
-                'email' => $input['email'],
-                'phone_no' => $input['phone_no'],
-                'country_id' => $input['country_id'],
-                'password' => Hash::make($input['password']),
-            ]);
-            // assign him influencer role
-            $data->assignRole('Influencer');
+       
+        $data= User::create([
+            'user_uuid' => Str::uuid()->toString(),
+            'fname' => $input['fname'],
+            'lname' => $input['lname'],
+            'name' => $input['fname'].' '.$input['lname'],
+            'email' => $input['email'],
+            'phone_no' => $input['phone_no'],
+            'country_id' => $input['country_id'],
+            'password' => Hash::make($input['password']),
+        ]);
 
-
-            DB::commit();
-            return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
-        } catch (Exception $e) {
-            DB::rollBack();
-            return response()->json(['status' => false, 'message' => $e->getMessage(), 'data' => []]);
-        }
-
-
+        // assign him influencer role
+        $data->assignRole('Influencer');
+       return $this->respondCreated();
     }
     
 
-
      public function getInfluencersList()
     {
-        try {
-            $data['list'] = User::role('Influencer')->with(['country'])->get();
-            return response()->json(['status' => true, 'message' => 'List of Influencers given below', 'data' => $data]);
-        } catch (Exception $e) {
-            return response()->json(['status' => false, 'message' => $e->getMessage(), 'data' => []]);
-        }
+          $data['list'] = User::role('Influencer')->with(['country'])->get();
+           return $this->respond([
+            'data' => $data
+        ]);
     }
 
 }
