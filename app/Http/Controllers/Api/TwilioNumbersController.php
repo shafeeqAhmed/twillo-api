@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use App\Models\TwilioNumbers;
 use Twilio\Rest\Client;
 
 
-class TwilioNumbersController extends Controller
+class TwilioNumbersController extends ApiController
 {
      private $client;
     const COUNTRY = 'US';
@@ -34,26 +33,39 @@ class TwilioNumbersController extends Controller
     {
            
           $twilioPhoneNumbers = $this->getTwillioNumbers($nosToBuy);
+             $data=array();
             for ($loop = 0; $loop < $nosToBuy; $loop++) {
-              $this->_buy($twilioPhoneNumbers[$loop]->phoneNumber);
+                         
+
+            $data['number']=  $this->buy($twilioPhoneNumbers[$loop]->phoneNumber);
             }
+         
+           return $this->respond([
+            'data' => $data
+        ]);
+
+
+          
     }
 
-        private function _buy($twilioPhoneNumber)
+        public function buy($twilioPhoneNumber)
     {
-        try {
-            $this->client->incomingPhoneNumbers->create(
+      
+
+     $this->client->incomingPhoneNumbers->create(
                 ['phoneNumber' => $twilioPhoneNumber]
             );
-            echo "<br>Bought successful: {$twilioPhoneNumber}";
+    
 
       TwilioNumbers::create([
             'phone_no' => $twilioPhoneNumber,
             'status' => 'active'      
         ]);
 
-        } catch (Exception $exception) {
-            echo 'ERROR!' . $exception->getMessage();
-        }
+
+       return $twilioPhoneNumber;
+        
     }
+
+    
 }
