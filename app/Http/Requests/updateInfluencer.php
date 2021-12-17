@@ -30,7 +30,6 @@ class updateInfluencer extends FormRequest
             'lname' =>  'required|string|max:50',
             'phone_no' =>  'required|string|max:15',
             'country_id' =>  'required|integer',
-            'twilo_id' =>  'required|integer',
-        ];   
+        ];
     }
 }

@@ -35,6 +35,7 @@ Route::get('users/{user_uuid}', [\App\Http\Controllers\Api\UserController::class
 
 Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDetail']);
 Route::post('create-influencer', [\App\Http\Controllers\Api\UserController::class, 'createInfluencer']);
+
 Route::post('update-influencer', [\App\Http\Controllers\Api\InfluencerController::class, 'updateInfluencer']);
 Route::get('get-influencers', [\App\Http\Controllers\Api\UserController::class, 'getInfluencersList']);
 Route::get('get-influencers-dropdowns', [\App\Http\Controllers\Api\DropDownController::class, 'getCountriesTWillioNumbers']);
