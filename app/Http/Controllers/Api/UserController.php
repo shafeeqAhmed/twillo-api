@@ -43,33 +43,6 @@ class UserController extends Controller
         }
     }
 
-    public function createInfluencer(StoreInfluencer $request){
-        $input = $request->validated();
-        try {
-            DB::beginTransaction();
-            $data= User::create([
-                'user_uuid' => Str::uuid()->toString(),
-                'fname' => $input['fname'],
-                'lname' => $input['lname'],
-                'name' => $input['fname'].' '.$input['lname'],
-                'email' => $input['email'],
-                'phone_no' => $input['phone_no'],
-                'country_id' => $input['country_id'],
-                'password' => Hash::make($input['password']),
-            ]);
-            // assign him influencer role
-            $data->assignRole('Influencer');
-
-
-            DB::commit();
-            return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
-        } catch (Exception $e) {
-            DB::rollBack();
-            return response()->json(['status' => false, 'message' => $e->getMessage(), 'data' => []]);
-        }
-
-
-    }
     
 
 
