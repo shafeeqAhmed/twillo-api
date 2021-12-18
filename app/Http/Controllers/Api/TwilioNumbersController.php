@@ -16,8 +16,11 @@ class TwilioNumbersController extends ApiController
      public function __construct()
     {
         
-        $sid = "AC193fd584652e4c3bb7c3e918f06b065e";
-        $token = "f145377b27ea5a13624d4ea6ebf87a57";
+//        $sid = "AC193fd584652e4c3bb7c3e918f06b065e";
+//        $token = "f145377b27ea5a13624d4ea6ebf87a57";
+
+        $sid = config('general.twilio_sid');
+        $token = config('general.twilio_token');
         $this->client = new Client($sid, $token);
 
     }
