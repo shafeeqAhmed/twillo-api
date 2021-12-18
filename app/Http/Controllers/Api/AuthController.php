@@ -34,11 +34,18 @@ class AuthController extends Controller
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
+        $detail = collect($user)->only(['user_uuid','name','email','phone_no']);
+        if (count($user->getRoleNames()) > 0) {
+            $detail['role'] = $user->getRoleNames()[0];
+        } else {
+            $detail['role'] = 'Influencer';
+        }
 
-        $token = $user->createToken('pizza_app_token')->plainTextToken;
+        $token = $user->createToken('twilio-chat-app')->plainTextToken;
 
-        $data['userData'] = collect($user)->only(['user_uuid','name','email','phone_no','created_at']);
-        $data['token'] = $token;
+        $data['userData'] = $detail;
+        $data['accessToken'] = $token;
+        $data['refreshToken'] = $token;
         return response()->json(['status' => true, 'message' => '', 'data' => $data]);
     }
 
