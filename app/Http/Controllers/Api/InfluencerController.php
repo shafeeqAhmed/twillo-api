@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 
 class InfluencerController extends ApiController
 {
+       
    public function updateInfluencer(updateInfluencer $request){
      User::updateUser('user_uuid',$request['user_uuid'],$request->except('user_uuid'));
      return $this->respondUpdated();

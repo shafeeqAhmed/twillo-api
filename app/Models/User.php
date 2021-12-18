@@ -48,6 +48,12 @@ class User extends Authenticatable
         'two_factor_recovery_codes',
         'two_factor_secret',
     ];
+
+    public function getNameAttribute()
+        {
+    return "{$this->fname} {$this->lname}";
+        }
+
     public function country() {
         return $this->belongsTo('\App\Models\Country', 'country_id', 'id');
     }
