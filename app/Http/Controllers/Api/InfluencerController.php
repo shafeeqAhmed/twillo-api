@@ -24,10 +24,11 @@ class InfluencerController extends ApiController
         $input = $request->validated();
         $input['password'] = Hash::make($input['password']);
         $input['user_uuid'] = Str::uuid()->toString();
+        $input['name'] = $input['fname'].' '.$input['lname'];
         $data= User::create($input);
 
         // assign him influencer role
-        $data->assignRole('Influencer');
+        $data->assignRole('influencer');
         return $this->respondCreated();
     }
 }

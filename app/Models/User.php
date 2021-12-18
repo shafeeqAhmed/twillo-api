@@ -50,9 +50,10 @@ class User extends Authenticatable
     ];
 
     public function getNameAttribute()
-        {
-    return "{$this->fname} {$this->lname}";
-        }
+    {
+            return "{$this->fname} {$this->lname}";
+    }
+
 
     public function country() {
         return $this->belongsTo('\App\Models\Country', 'country_id', 'id');

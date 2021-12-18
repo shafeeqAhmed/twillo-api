@@ -45,7 +45,7 @@ class UserController extends ApiController
 
      public function getInfluencersList()
     {
-          $data['list'] = User::role('Influencer')->with(['country'])->get();
+          $data['list'] = User::role('influencer')->with(['country'])->get();
            return $this->respond([
             'data' => $data
         ]);

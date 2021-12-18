@@ -36,10 +36,11 @@ class AuthController extends Controller
         }
         $detail = collect($user)->only(['user_uuid','name','email','phone_no']);
         if (count($user->getRoleNames()) > 0) {
-            $detail['role'] = $user->getRoleNames()[0];
+            $detail['scope'] = $user->getRoleNames();
         } else {
-            $detail['role'] = 'Influencer';
+            $detail['scope'] = array('influencer');
         }
+//        $detail['scope'] = array('admin');
 
         $token = $user->createToken('twilio-chat-app')->plainTextToken;
 
@@ -53,7 +54,7 @@ class AuthController extends Controller
     {
         $auth = new CreateNewUser();
         $data = $auth->create($request->all());
-        $data->assignRole('Influencer');
+        $data->assignRole('influencer');
 
         return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
     }
