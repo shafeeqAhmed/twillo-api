@@ -16,12 +16,12 @@ class UserController extends ApiController
 {
     public function myDetail(Request $request)
     {
-        try {
+       
             $data['my_detail'] = $request->user();
-            return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
-        } catch (Exception $e) {
-            return response()->json(['status' => false, 'message' => $e->getMessage(), 'data' => []]);
-        }
+            return $this->respond([
+        'data' => $data
+        ]);
+           
     }
     public function getUserDetail($user_uuid)
     {
@@ -33,12 +33,12 @@ class UserController extends ApiController
     }
 	 public function userList()
     {
-        try {
+        
             $data['list'] = User::paginate(10);
-            return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
-        } catch (Exception $e) {
-            return response()->json(['status' => false, 'message' => $e->getMessage(), 'data' => []]);
-        }
+             return $this->respond([
+            'data' => $data
+        ]);  
+
     }
 
     
