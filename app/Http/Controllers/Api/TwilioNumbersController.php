@@ -32,9 +32,9 @@ class TwilioNumbersController extends ApiController
     }
 
 
-    public function purchaseTwillioNumbers($nosToBuy,$country_id)
+    public function purchaseTwillioNumbers($nosToBuy, $country_code)
     {
-         $twilioPhoneNumbers = $this->getTwillioNumbers($nosToBuy,$country_id);
+         $twilioPhoneNumbers = $this->getTwillioNumbers($nosToBuy, $country_code);
              $data=array();
             for ($loop = 0; $loop < $nosToBuy; $loop++) {
            $data['number']=  $this->buy($twilioPhoneNumbers[$loop]->phoneNumber);
