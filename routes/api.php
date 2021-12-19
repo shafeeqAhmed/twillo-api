@@ -29,7 +29,7 @@ Route::post('/forgot-password', [\App\Http\Controllers\Api\AuthController::class
 Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout'])->middleware(['auth:sanctum']);
 
 
-Route::get('buy-twillio-numbers/{no}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'purchaseTwillioNumbers']);
+Route::get('buy-twillio-numbers/{no}/{country_id}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'purchaseTwillioNumbers']);
 Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'userList'])->middleware(['auth:sanctum']);
 Route::get('users/{user_uuid}', [\App\Http\Controllers\Api\UserController::class, 'getUserDetail']);
 

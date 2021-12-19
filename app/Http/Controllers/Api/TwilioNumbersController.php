@@ -6,18 +6,17 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Models\TwilioNumbers;
 use Twilio\Rest\Client;
+use App\Models\Country;
 
 
 class TwilioNumbersController extends ApiController
 {
      private $client;
-    const COUNTRY = 'US';
 
      public function __construct()
     {
 
-//        $sid = "AC193fd584652e4c3bb7c3e918f06b065e";
-//        $token = "f145377b27ea5a13624d4ea6ebf87a57";
+
 
         $sid = config('general.twilio_sid');
         $token = config('general.twilio_token');
@@ -25,22 +24,20 @@ class TwilioNumbersController extends ApiController
 
     }
 
-    public function getTwillioNumbers($nosToBuy){
+    public function getTwillioNumbers($nosToBuy,$country_id){
 
-      return  $this->client->availablePhoneNumbers(self::COUNTRY)->local->read(["areaCode" => 510],$nosToBuy);
+      $country=Country::find($country_id);
+      return  $this->client->availablePhoneNumbers($country->country_sort_name)->local->read([],$nosToBuy);
 
     }
 
 
-    public function purchaseTwillioNumbers($nosToBuy)
+    public function purchaseTwillioNumbers($nosToBuy,$country_id)
     {
-
-          $twilioPhoneNumbers = $this->getTwillioNumbers($nosToBuy);
+         $twilioPhoneNumbers = $this->getTwillioNumbers($nosToBuy,$country_id);
              $data=array();
             for ($loop = 0; $loop < $nosToBuy; $loop++) {
-
-
-            $data['number']=  $this->buy($twilioPhoneNumbers[$loop]->phoneNumber);
+           $data['number']=  $this->buy($twilioPhoneNumbers[$loop]->phoneNumber);
             }
 
            return $this->respond([
