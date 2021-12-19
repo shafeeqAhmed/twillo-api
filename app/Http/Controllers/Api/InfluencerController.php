@@ -28,7 +28,7 @@ class InfluencerController extends ApiController
         $data= User::create($input);
 
         // assign him influencer role
-        $data->assignRole('influencer');
+        $data->assignRole($input['role']);
         return $this->respondCreated();
     }
 }
