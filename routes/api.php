@@ -29,7 +29,7 @@ Route::post('/forgot-password', [\App\Http\Controllers\Api\AuthController::class
 Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout'])->middleware(['auth:sanctum']);
 
 
-Route::get('buy-twillio-numbers/{no}/{country_code}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'purchaseTwillioNumbers']);
+Route::get('buy-twillio-numbers/{no}/{country_id}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'purchaseTwillioNumbers']);
 Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'userList'])->middleware(['auth:sanctum']);
 Route::get('users/{user_uuid}', [\App\Http\Controllers\Api\UserController::class, 'getUserDetail']);
 
@@ -42,3 +42,6 @@ Route::get('get-influencers-dropdowns', [\App\Http\Controllers\Api\DropDownContr
 
 
 Route::post('msg-tracking', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'msgTracking']);
+
+Route::post('upload-single-file', [\App\Http\Controllers\Api\MediaController::class, 'uploadSingleFile']);
+Route::post('update-profile', [\App\Http\Controllers\Api\UserController::class, 'updateProfile'])->middleware(['auth:sanctum']);
