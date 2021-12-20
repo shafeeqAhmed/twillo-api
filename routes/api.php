@@ -42,3 +42,6 @@ Route::get('get-influencers-dropdowns', [\App\Http\Controllers\Api\DropDownContr
 
 
 Route::post('msg-tracking', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'msgTracking']);
+
+Route::post('upload-single-file', [\App\Http\Controllers\Api\MediaController::class, 'uploadSingleFile']);
+Route::post('update-profile', [\App\Http\Controllers\Api\UserController::class, 'updateProfile'])->middleware(['auth:sanctum']);

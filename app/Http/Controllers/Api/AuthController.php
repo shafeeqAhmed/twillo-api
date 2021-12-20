@@ -34,13 +34,12 @@ class AuthController extends Controller
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-        $detail = collect($user)->only(['user_uuid','name','email','phone_no']);
+        $detail = collect($user)->only(['user_uuid','name','email','phone_no', 'profile_photo_path']);
         if (count($user->getRoleNames()) > 0) {
             $detail['scope'] = $user->getRoleNames();
         } else {
             $detail['scope'] = array('influencer');
         }
-//        $detail['scope'] = array('admin');
 
         $token = $user->createToken('twilio-chat-app')->plainTextToken;
 
@@ -132,7 +131,7 @@ class AuthController extends Controller
         return response()->json(['status' => true, 'message' => '', 'data' => $data]);
     }
     public function logout(Request $request) {
-        
+
         $request->user()->currentAccessToken()->delete();
     }
 }

@@ -12,8 +12,8 @@ class DropDownController extends ApiController
 {
     public function getCountriesTWillioNumbers()
     {
-       
-        $data = Country::all();
+
+        $data = Country::where('is_active',1)->get();
            return $this->respond([
             'data' => $data
         ]);

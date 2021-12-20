@@ -34,7 +34,8 @@ class User extends Authenticatable
         'fname',
         'lname',
         'twilio_id',
-        'country_id'
+        'country_id',
+        'profile_photo_path'
     ];
 
     /**
@@ -55,7 +56,8 @@ class User extends Authenticatable
     }
 
 
-    public function country() {
+    public function country()
+    {
         return $this->belongsTo('\App\Models\Country', 'country_id', 'id');
     }
 
@@ -66,7 +68,7 @@ class User extends Authenticatable
         return self::where($column,$value)->update($data);
     }
 
-    
+
     /**
      * The attributes that should be cast.
      *
