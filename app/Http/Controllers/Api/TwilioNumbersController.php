@@ -7,13 +7,13 @@ use Illuminate\Http\Request;
 use App\Models\TwilioNumbers;
 use Twilio\Rest\Client;
 use App\Models\Country;
-
+use App\Models\User;
 
 class TwilioNumbersController extends ApiController
 {
-     private $client;
+    private $client;
 
-     public function __construct()
+    public function __construct()
     {
 
 
@@ -21,84 +21,74 @@ class TwilioNumbersController extends ApiController
         $sid = config('general.twilio_sid');
         $token = config('general.twilio_token');
         $this->client = new Client($sid, $token);
-
     }
 
-    public function getTwillioNumbers($nosToBuy,$country_id){
+    public function getTwillioNumbers($nosToBuy, $country_id)
+    {
 
-      $country=Country::find($country_id);
-      return  $this->client->availablePhoneNumbers($country->country_sort_name)->local->read([],$nosToBuy);
-
+        $country = Country::find($country_id);
+        return  $this->client->availablePhoneNumbers($country->country_sort_name)->local->read([], $nosToBuy);
     }
 
 
     public function purchaseTwillioNumbers($nosToBuy, $country_code)
     {
-         $twilioPhoneNumbers = $this->getTwillioNumbers($nosToBuy, $country_code);
-             $data=array();
-            for ($loop = 0; $loop < $nosToBuy; $loop++) {
-           $data['number']=  $this->buy($twilioPhoneNumbers[$loop]->phoneNumber);
-            }
+        $twilioPhoneNumbers = $this->getTwillioNumbers($nosToBuy, $country_code);
+        $data = array();
+        for ($loop = 0; $loop < $nosToBuy; $loop++) {
+            $data['number'] =  $this->buy($twilioPhoneNumbers[$loop]->phoneNumber);
+        }
 
-           return $this->respond([
+        return $this->respond([
             'data' => $data
         ]);
-
-
-
     }
 
-        public function buy($twilioPhoneNumber)
+    public function buy($twilioPhoneNumber)
     {
 
-//     $this->client->incomingPhoneNumbers->create(
-//                ['phoneNumber' => $twilioPhoneNumber]
-//            );
-    sleep(2);
+        //     $this->client->incomingPhoneNumbers->create(
+        //                ['phoneNumber' => $twilioPhoneNumber]
+        //            );
+        sleep(2);
 
-//      TwilioNumbers::create([
-//            'phone_no' => $twilioPhoneNumber,
-//            'status' => 'active'
-//        ]);
+        //      TwilioNumbers::create([
+        //            'phone_no' => $twilioPhoneNumber,
+        //            'status' => 'active'
+        //        ]);
 
 
-       return $twilioPhoneNumber;
-
+        return $twilioPhoneNumber;
     }
 
-    public function msgTracking(Request $request){
+    public function msgTracking(Request $request)
+    {
+        $from = User::where('user_uuid',$request->uuid)->value('phone_no');
+        $messages = $this->client->messages
+            ->read(
+                [
+                    "from" => $from,
+                ],
+                20
+            );
+
+        $data['total_messages'] = count($messages);
+        $message_history = array();
+        foreach ($messages as $index => $record) {
+
+            $mess = $this->client->messages($record->sid)
+                ->fetch();
+            $message_history['to'][$index] = $mess->to;
+            $message_history['body'][$index] = $mess->body;
+            $message_history['status'][$index] = $mess->status;
+        }
 
 
-$messages = $this->client->messages
-                   ->read([
-
-                              "from" => $request->from,
-
-                          ],
-                          20
-                   );
-
-$data['total_messages']=count($messages);
-$message_history=array();
-foreach ($messages as $index =>$record) {
-
-$mess= $this->client->messages($record->sid)
-                  ->fetch();
-$message_history['to'][$index]=$mess->to;
-$message_history['body'][$index]=$mess->body;
-$message_history['status'][$index]=$mess->status;
-
-}
+        $data['message_history'] = $message_history;
 
 
-$data['message_history']=$message_history;
-
-
- return $this->respond([
+        return $this->respond([
             'data' => $data
         ]);
-
     }
-
-
 }
