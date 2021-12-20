@@ -53,6 +53,10 @@ class UserController extends ApiController
 
     public function updateProfile(Request $request)
     {
+
+     
+        $user_record=User::where('user_uuid',$request->user_uuid)->first();
+          
         $data['fname'] = $request->fname;
         $data['lname'] = $request->lname;
         if (!empty($request->password)) {
@@ -60,13 +64,17 @@ class UserController extends ApiController
         }
         if (request()->hasFile('previewImage')) {
                 $imageUrl = uploadImage('previewImage', 'users/profile', 300, 300);
-                $oldFile = $request->user()->profile_photo_path;
-                removeImage('users/profile', $oldFile);
-
+                $oldFile = $user_record['profile_photo_path'];
+                
+                if($oldFile){
+                      removeImage('users/profile', $oldFile);
+                }
+              
                 $data['profile_photo_path'] = $imageUrl;
             }
-         User::where('id',$request->user()->id)->update($data);
-         $user = User::where('id',$request->user()->id)->first();
+            
+         User::where('id',$user_record['id'])->update($data);
+         $user = User::where('id',$user_record['id'])->first();
         $detail = collect($user)->only(['user_uuid', 'name', 'email', 'phone_no', 'profile_photo_path']);
         if (count($user->getRoleNames()) > 0) {
             $detail['scope'] = $user->getRoleNames();
