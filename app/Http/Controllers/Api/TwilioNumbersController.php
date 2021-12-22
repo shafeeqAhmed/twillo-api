@@ -91,4 +91,59 @@ class TwilioNumbersController extends ApiController
             'data' => $data
         ]);
     }
+
+        public function smsService(Request $request){
+        $message=$this->client->messages
+                  ->create($request->to,
+                           ["body" => $request->sms, "from" => $request->from, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+                  );
+         print($message->sid);
+    }
+    
+    
+    public function twilioWebhook(){
+          $input = (file_get_contents('php://input'));
+          DB::table('twilio_response')->insert([
+                'body_' =>$input
+            ]);
+          
+    }
+
+        public function twilioFeedback(){
+        $input=DB::table('twilio_response')->get();
+        $input=$input->toArray();
+        foreach($input as $key=>$value)
+        {
+            
+            
+         echo '<pre>';  
+         $to=explode('&',$value->body_ )[3];
+         
+         $to=explode('=',$to);
+         //echo '<br>'.$to[1];
+         
+         
+         $from=explode('&',$value->body_ )[6];
+          $from=explode('=',$from);
+         //echo '<br>'.$from[1];
+         
+         
+          $msg_id=explode('&',$value->body_ )[4];
+           $msg_id=explode('=',$msg_id);
+         echo '<br>'.$msg_id[1];
+         
+         echo '<br>';
+         
+          $mess = $this->client->messages($msg_id[1])
+                ->fetch();
+           echo  '<br>to= '. $mess->to;
+           echo  '<br>from= '. $mess->from;
+               echo  '<br>body= '. $mess->body;
+
+         
+        }
+        
+    }
+
+
 }

@@ -45,3 +45,11 @@ Route::post('msg-tracking', [\App\Http\Controllers\Api\TwilioNumbersController::
 
 Route::post('upload-single-file', [\App\Http\Controllers\Api\MediaController::class, 'uploadSingleFile']);
 Route::post('update-profile', [\App\Http\Controllers\Api\UserController::class, 'updateProfile']);
+
+
+Route::post('sms_service', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'smsService']);
+
+
+Route::post('twilio_webhook', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'twilioWebhook']);
+
+Route::get('twilio_feedback', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'twilioFeedback']);
