@@ -26,14 +26,14 @@ Route::post('register', [\App\Http\Controllers\Api\AuthController::class, 'regis
 Route::post('/forgot-password', [\App\Http\Controllers\Api\AuthController::class, 'forgotPassword']);
 // Route::post('/reset-password', [\App\Http\Controllers\Api\AuthController::class, 'resetPassword']);
 // Route::post('/update-profile', [\App\Http\Controllers\Api\UserController::class, 'updateProfile']);
-Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout'])->middleware(['auth:sanctum']);
+
 
 
 Route::get('buy-twillio-numbers/{no}/{country_id}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'purchaseTwillioNumbers']);
-Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'userList'])->middleware(['auth:sanctum']);
+
 Route::get('users/{user_uuid}', [\App\Http\Controllers\Api\UserController::class, 'getUserDetail']);
 
-Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDetail'])->middleware(['auth:sanctum']);
+
 Route::post('create-influencer', [\App\Http\Controllers\Api\InfluencerController::class, 'createInfluencer']);
 
 Route::post('update-influencer', [\App\Http\Controllers\Api\InfluencerController::class, 'updateInfluencer']);
@@ -47,9 +47,28 @@ Route::post('upload-single-file', [\App\Http\Controllers\Api\MediaController::cl
 Route::post('update-profile', [\App\Http\Controllers\Api\UserController::class, 'updateProfile']);
 
 
-Route::post('sms_service', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'smsService']);
+
+//chat routes
+
 
 
 Route::post('twilio_webhook', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'twilioWebhook']);
 
 Route::get('twilio_feedback', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'twilioFeedback']);
+
+
+
+
+Route::group(['middleware' => 'auth:sanctum'], function () {
+
+Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
+
+Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'userList']);
+
+Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDetail']);
+
+Route::post('sms_service', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'smsService']);
+
+Route::get('get_chat_users/{id}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'getChatUsers']);
+
+});
