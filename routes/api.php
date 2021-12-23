@@ -67,8 +67,8 @@ Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'userList'
 
 Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDetail']);
 
-Route::post('sms_service', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'smsService']);
+Route::post('sms_service', [\App\Http\Controllers\Api\TwilioChatController::class, 'smsService']);
 
-Route::get('get_chat_users/{id}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'getChatUsers']);
+Route::get('get_chat_users/{id}', [\App\Http\Controllers\Api\TwilioChatController::class, 'getChatUsers']);
 
 });
