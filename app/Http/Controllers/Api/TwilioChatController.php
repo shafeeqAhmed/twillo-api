@@ -13,6 +13,8 @@ use App\Models\ChatUsers;
 use App\Models\Messages;
 use Illuminate\Support\Str;
 use App\Http\Resources\ChatUserResource;
+use App\Notifications\ChatNotfication;
+use App\Events\ChatEvent;
 
 class TwilioChatController extends ApiController
 {
@@ -35,14 +37,13 @@ class TwilioChatController extends ApiController
 
      public function getInfluencerContacts(Request $request){
 
-     $sender_id=$request->user()->id;
+      $sender_id=$request->user()->id;
 
      $users=User::role('influencer')->where('id','!=',$sender_id)->get();
-
-     dd($users);
-          
+     
+     
         return $this->respond([
-        'data' =>  new ChatUserResource($messages)
+        'data' =>  ($users)
         ]);
 
     }
@@ -85,6 +86,9 @@ class TwilioChatController extends ApiController
             'chat_user_id'=>$chat_user_id
           ]);
 
+         
+          ChatEvent::dispatch($message_record);
+       
           return $this->respond([
             'data' => $message_record->id
         ]);
