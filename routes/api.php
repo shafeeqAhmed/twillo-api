@@ -69,6 +69,8 @@ Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDet
 
 Route::post('sms_service', [\App\Http\Controllers\Api\TwilioChatController::class, 'smsService']);
 
-Route::get('get_chat_users/{id}', [\App\Http\Controllers\Api\TwilioChatController::class, 'getChatUsers']);
+Route::get('get_chat_users/{id}', [\App\Http\Controllers\Api\TwilioChatController::class, 'getChatMessages']);
+
+Route::get('get_chat_contacts', [\App\Http\Controllers\Api\TwilioChatController::class, 'getInfluencerContacts']);
 
 });

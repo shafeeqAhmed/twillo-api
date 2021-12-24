@@ -17,7 +17,7 @@ use App\Http\Resources\ChatUserResource;
 class TwilioChatController extends ApiController
 {
 
-	    public function getChatUsers(Request $request,$id){
+	    public function getChatMessages(Request $request,$id){
 
      $sender_id=$request->user()->id;
      $receiver_id=$id;
@@ -25,6 +25,21 @@ class TwilioChatController extends ApiController
      $messages=ChatUsers::with('chat_messages.user')->where(['sender_id'=>$sender_id,'receiver_id'=>$receiver_id])->first();
 
 
+          
+        return $this->respond([
+        'data' =>  new ChatUserResource($messages)
+        ]);
+
+    }
+
+
+     public function getInfluencerContacts(Request $request){
+
+     $sender_id=$request->user()->id;
+
+     $users=User::role('influencer')->where('id','!=',$sender_id)->get();
+
+     dd($users);
           
         return $this->respond([
         'data' =>  new ChatUserResource($messages)
