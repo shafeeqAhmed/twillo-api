@@ -15,9 +15,10 @@ class ChatUserResource extends JsonResource
      */
     public function toArray($request)
     {
+
         return [
-            'chat_messages'=>  ChatMessageResource::collection($this->chat_messages),
-            'id' => $this->id
+            'chat_messages'=> !empty($this->chat_messages) ? ChatMessageResource::collection($this->chat_messages) : [],
+            'id' => $this->id ?? ''
         ];
     }
 }

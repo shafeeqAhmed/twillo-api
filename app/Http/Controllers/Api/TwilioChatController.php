@@ -24,10 +24,8 @@ class TwilioChatController extends ApiController
      $sender_id=$request->user()->id;
      $receiver_id=$id;
 
-     $messages=ChatUsers::with('chat_messages.user')->where(['sender_id'=>$sender_id,'receiver_id'=>$receiver_id])->first();
-
-
-          
+     $messages=ChatUsers::with('chat_messages.user')->where(['sender_id'=>$sender_id,'receiver_id'=>$receiver_id])->orWhere(['sender_id'=>$receiver_id,'receiver_id'=>$sender_id])->first();
+      
         return $this->respond([
         'data' =>  new ChatUserResource($messages)
         ]);
@@ -39,8 +37,7 @@ class TwilioChatController extends ApiController
 
       $sender_id=$request->user()->id;
 
-     $users=User::role('influencer')->where('id','!=',$sender_id)->get();
-     
+      $users=User::with('message')->role('influencer')->where('id','!=',$sender_id)->get();
      
         return $this->respond([
         'data' =>  ($users)
@@ -85,7 +82,6 @@ class TwilioChatController extends ApiController
             'is_seen'=>0,
             'chat_user_id'=>$chat_user_id
           ]);
-
          
           ChatEvent::dispatch($message_record);
        
