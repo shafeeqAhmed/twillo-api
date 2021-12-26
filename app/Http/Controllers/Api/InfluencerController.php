@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 
 class InfluencerController extends ApiController
 {
-       
+
    public function updateInfluencer(updateInfluencer $request){
      User::updateUser('user_uuid',$request['user_uuid'],$request->except('user_uuid'));
      return $this->respondUpdated();
@@ -24,7 +24,9 @@ class InfluencerController extends ApiController
         $input = $request->validated();
         $input['password'] = Hash::make($input['password']);
         $input['user_uuid'] = Str::uuid()->toString();
-        $input['name'] = $input['fname'].' '.$input['lname'];
+        $input['fname'] = $input['fname'];
+        $input['lname'] = $input['lname'];
+        $input['name'] = $input['fname'] . ' ' . $input['lname'];
         $data= User::create($input);
 
         // assign him influencer role

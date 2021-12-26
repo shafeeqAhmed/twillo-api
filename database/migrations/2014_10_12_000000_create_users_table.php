@@ -17,6 +17,8 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->uuid('user_uuid')->unique();
             $table->string('name');
+            $table->string('fname')->nullable();
+            $table->string('lname')->nullable();
             $table->string('email')->unique();
             $table->string('phone_no');
             $table->timestamp('email_verified_at')->nullable();
@@ -24,6 +26,13 @@ class CreateUsersTable extends Migration
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
+            $table->string('city')->nullable();
+            $table->enum('gender', ['Male', 'Female', 'Other'])->nullable();
+            $table->date('dob')->nullable();
+            $table->text('twitter')->nullable();
+            $table->text('instagram')->nullable();
+            $table->text('ticktok')->nullable();
+
             $table->timestamps();
         });
     }
