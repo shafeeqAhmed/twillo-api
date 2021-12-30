@@ -15,6 +15,8 @@ use Illuminate\Support\Str;
 use App\Http\Resources\ChatUserResource;
 use App\Notifications\ChatNotfication;
 use App\Events\ChatEvent;
+use App\Models\FanClub;
+
 
 class TwilioChatController extends ApiController
 {
@@ -31,11 +33,45 @@ class TwilioChatController extends ApiController
 
 	    public function getChatMessages(Request $request,$id){
 
-     $sender_id=$request->user()->id;
+     $from=$request->user()->phone_no;
      $receiver_id=$id;
 
-     $messages=ChatUsers::with('chat_messages.user')->where(['sender_id'=>$sender_id,'receiver_id'=>$receiver_id])->orWhere(['sender_id'=>$receiver_id,'receiver_id'=>$sender_id])->first();
-      
+     
+       $to = FanClub::where('id',$receiver_id)->value('local_number');
+        $messages = $this->client->messages
+            ->read(
+                [
+                ],
+                20
+            );
+
+                $message_history = array();
+        foreach ($messages as $index => $record) {
+
+            $mess = $this->client->messages($record->sid)
+                ->fetch();
+            
+            if(($mess->from==$from && $mess->to==$to) || ($mess->from==$to && $mess->to==$from)  ){
+             $message_history[$index] ['message']= $mess->body;
+            $message_history[$index] ['direction'] = $mess->direction; 
+           // $message_history[$index] ['time'] = $mess->dateSent;
+            $message_history[$index] ['time'] = '12-2-2021';
+            $message_history[$index] ['align'] = $mess->direction!='inbound' ? 'right' :'';
+            $message_history[$index] ['id'] = 0;  
+            $message_history[$index] ['name'] = 'talha';  
+            $message_history[$index] ['image'] = '';  
+            } 
+        
+        }
+
+    
+           return $this->respond([
+        'data' => $message_history
+        ]);
+    
+
+    /* $messages=ChatUsers::with('chat_messages.user')->where(['sender_id'=>$sender_id,'receiver_id'=>$receiver_id])->orWhere(['sender_id'=>$receiver_id,'receiver_id'=>$sender_id])->first();
+      */
         return $this->respond([
         'data' =>  new ChatUserResource($messages)
         ]);
@@ -47,8 +83,9 @@ class TwilioChatController extends ApiController
 
       $sender_id=$request->user()->id;
 
-      $users=User::with('message')->role('influencer')->where('id','!=',$sender_id)->get();
-     
+      //$users=User::with('message')->role('influencer')->where('id','!=',$sender_id)->get();
+      $users=FanClub::where('user_id',$sender_id)->get();
+       
         return $this->respond([
         'data' =>  ($users)
         ]);
