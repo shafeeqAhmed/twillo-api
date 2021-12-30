@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Broadcast;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -57,9 +61,10 @@ Route::post('twilio_webhook', [\App\Http\Controllers\Api\TwilioNumbersController
 Route::get('twilio_feedback', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'twilioFeedback']);
 
 
+Route::get('port', [\App\Http\Controllers\Api\TwilioChatController::class, 'Port']);
 
 
-Route::group(['middleware' => 'auth:sanctum'], function () {
+//Route::group(['middleware' => 'auth:sanctum'], function () {
 
 Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
 
@@ -73,4 +78,4 @@ Route::get('get_chat_users/{id}', [\App\Http\Controllers\Api\TwilioChatControlle
 
 Route::get('get_chat_contacts', [\App\Http\Controllers\Api\TwilioChatController::class, 'getInfluencerContacts']);
 
-});
+//});

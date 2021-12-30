@@ -19,6 +19,16 @@ use App\Events\ChatEvent;
 class TwilioChatController extends ApiController
 {
 
+
+  private $client;
+
+    public function __construct()
+    {
+        $sid = config('general.twilio_sid');
+        $token = config('general.twilio_token');
+        $this->client = new Client($sid, $token);
+    }
+
 	    public function getChatMessages(Request $request,$id){
 
      $sender_id=$request->user()->id;
@@ -93,5 +103,23 @@ class TwilioChatController extends ApiController
 
 
     }
+    
+
+     public function Port(){
+      
+        $validation_request =  $this->client->validationRequests
+                             ->create("+18725298577", // phoneNumber
+                                      ["friendlyName" => "18725298577"]
+                             );
+echo '<pre>';
+print_r($validation_request);
+    /*  $validation_request =  $this->client->validationRequests
+                             ->create("+12089600415", // phoneNumber
+                                      ["friendlyName" => "12089600415"]
+                             );
+echo '<pre>';
+print_r($validation_request);*/
+    }
+
     
 }
