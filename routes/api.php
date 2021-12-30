@@ -64,7 +64,7 @@ Route::get('twilio_feedback', [\App\Http\Controllers\Api\TwilioNumbersController
 Route::get('port', [\App\Http\Controllers\Api\TwilioChatController::class, 'Port']);
 
 
-//Route::group(['middleware' => 'auth:sanctum'], function () {
+Route::group(['middleware' => 'auth:sanctum'], function () {
 
 Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
 
@@ -78,4 +78,4 @@ Route::get('get_chat_users/{id}', [\App\Http\Controllers\Api\TwilioChatControlle
 
 Route::get('get_chat_contacts', [\App\Http\Controllers\Api\TwilioChatController::class, 'getInfluencerContacts']);
 
-//});
+});
