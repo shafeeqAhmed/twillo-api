@@ -42,12 +42,11 @@ class TwilioChatController extends ApiController
 
         $messages = $this->client->messages
             ->read(
-                [
-                ],
+               ["order" => "desc"],
                 20
             );
-
-                $message_history = array();
+            
+        $message_history = array();
         foreach ($messages as $index => $record) {
 
             $mess = $this->client->messages($record->sid)
@@ -60,15 +59,16 @@ class TwilioChatController extends ApiController
             $message_history[$index] ['time'] = '12-2-2021';
             $message_history[$index] ['align'] = $mess->direction!='inbound' ? 'right' :'';
             $message_history[$index] ['id'] = 0;  
+            $message_history[$index] ['to'] =$mess->to;  
             $message_history[$index] ['name'] = 'talha';  
-            $message_history[$index] ['image'] = '';  
+            $message_history[$index] ['image'] = $mess->direction!='inbound' ? $request->user()->profile_photo_path :asset('storage/users/profile/default.png');  
             } 
         
         }
 
     
       return $this->respond([
-        'data' => $message_history
+        'data' => ($message_history)
         ]);
 
     }
@@ -77,9 +77,6 @@ class TwilioChatController extends ApiController
      public function getInfluencerContacts(Request $request){
 
       $sender_id=$request->user()->id;
-
-      //$users=User::with('message')->role('influencer')->where('id','!=',$sender_id)->get();
-
 
       $users=FanClub::latest()->select('id','fan_uuid','local_number','fan_id','created_at')->groupBy('local_number')->where('user_id',$sender_id)->orderBy('created_at', 'desc')->get();
        

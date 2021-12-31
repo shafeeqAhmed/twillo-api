@@ -53,7 +53,7 @@ class AuthController extends Controller
                 100
             );
 
-        foreach ($messages as $index => $record) {
+       /* foreach ($messages as $index => $record) {
 
             $mess = $this->client->messages($record->sid)
                 ->fetch();
@@ -67,7 +67,7 @@ class AuthController extends Controller
            ]);
 
           
-        }
+        }*/
 
 
     
