@@ -37,7 +37,9 @@ class TwilioChatController extends ApiController
      $receiver_id=$id;
 
      
-       $to = FanClub::where('id',$receiver_id)->value('local_number');
+       $to = FanClub::where('id',$receiver_id)->first();
+      $to= $to->local_number;
+
         $messages = $this->client->messages
             ->read(
                 [
@@ -52,7 +54,7 @@ class TwilioChatController extends ApiController
                 ->fetch();
             
             if(($mess->from==$from && $mess->to==$to) || ($mess->from==$to && $mess->to==$from)  ){
-             $message_history[$index] ['message']= $mess->body;
+            $message_history[$index] ['message']= $mess->body;
             $message_history[$index] ['direction'] = $mess->direction; 
            // $message_history[$index] ['time'] = $mess->dateSent;
             $message_history[$index] ['time'] = '12-2-2021';
@@ -65,15 +67,8 @@ class TwilioChatController extends ApiController
         }
 
     
-           return $this->respond([
+      return $this->respond([
         'data' => $message_history
-        ]);
-    
-
-    /* $messages=ChatUsers::with('chat_messages.user')->where(['sender_id'=>$sender_id,'receiver_id'=>$receiver_id])->orWhere(['sender_id'=>$receiver_id,'receiver_id'=>$sender_id])->first();
-      */
-        return $this->respond([
-        'data' =>  new ChatUserResource($messages)
         ]);
 
     }
@@ -84,7 +79,9 @@ class TwilioChatController extends ApiController
       $sender_id=$request->user()->id;
 
       //$users=User::with('message')->role('influencer')->where('id','!=',$sender_id)->get();
-      $users=FanClub::where('user_id',$sender_id)->get();
+
+
+      $users=FanClub::latest()->select('id','fan_uuid','local_number','fan_id','created_at')->groupBy('local_number')->where('user_id',$sender_id)->orderBy('created_at', 'desc')->get();
        
         return $this->respond([
         'data' =>  ($users)
@@ -96,47 +93,27 @@ class TwilioChatController extends ApiController
        public function smsService(Request $request){
           
        
-        /*$message=$this->client->messages
+        $message=$this->client->messages
                   ->create($request->receiver_number,
                            ["body" => $request->message, "from" =>  $request->user()->phone_no, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
-                  );*/
-     
-       DB::transaction(function() use ($request){
-
-    $chat_users=ChatUsers::where(['sender_id'=>$request->user()->id,'receiver_id'=>$request->receiver_id])->orWhere(['receiver_id'=>$request->user()->id,'sender_id'=>$request->receiver_id])->get();
-           
-
-        if( count($chat_users)==0){
-            $chat_user_record=ChatUsers::create([
-            'sender_id'=>$request->user()->id,
-            'receiver_id'=>$request->receiver_id,
-            'is_active'=>1,
-             'type'=> 'one-to-one'
-           ]);
-
-        $chat_user_id=$chat_user_record->id;
-        }else{
-          $chat_user_id=$chat_users[0]->id;
-        }
+                  );
 
 
-         $message_record=Messages::create([
-           'sms_uuid'=>Str::uuid()->toString(),
-           'sender_id'=>$request->user()->id,
-           'receiver_id'=>$request->receiver_id,
-            'message_id'=>0,
-            'message'=>$request->message,
-            'is_seen'=>0,
-            'chat_user_id'=>$chat_user_id
-          ]);
-         
+                   $message_record=[
+                   'sms_uuid'=>Str::uuid()->toString(),
+                   'sender_id'=>$request->user()->id,
+                   'receiver_id'=>$request->receiver_id,
+                    'message_id'=>0,
+                    'message'=>$request->message,
+                    'is_seen'=>0
+                  ];
+        
           ChatEvent::dispatch($message_record);
        
           return $this->respond([
-            'data' => $message_record->id
+            'data' => $message_record
         ]);
-
-          });
+   
 
 
     }
@@ -144,18 +121,20 @@ class TwilioChatController extends ApiController
 
      public function Port(){
       
-        $validation_request =  $this->client->validationRequests
+      /*  $validation_request =  $this->client->validationRequests
                              ->create("+18725298577", // phoneNumber
                                       ["friendlyName" => "18725298577"]
                              );
 echo '<pre>';
-print_r($validation_request);
-    /*  $validation_request =  $this->client->validationRequests
-                             ->create("+12089600415", // phoneNumber
-                                      ["friendlyName" => "12089600415"]
+print_r($validation_request);*/
+
+  $validation_request =  $this->client->validationRequests
+                             ->create("+923216910563", // phoneNumber
+                                      ["friendlyName" => "923216910563"]
                              );
 echo '<pre>';
-print_r($validation_request);*/
+print_r($validation_request);
+
     }
 
     

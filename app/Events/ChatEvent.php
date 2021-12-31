@@ -10,7 +10,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Messages;
-use App\Models\User;
+use App\Models\FanClub;
 
 class ChatEvent implements ShouldBroadcast
 {
@@ -21,9 +21,9 @@ class ChatEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct(Messages $data)
+    public function __construct($message)
     {
-        $this->data=$data;
+        $this->data=$message;
     }
 
     /**
@@ -33,7 +33,7 @@ class ChatEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-          $user_uuid=User::find($this->data->receiver_id)->user_uuid;
+          $user_uuid=FanClub::find($this->data['receiver_id'])->fan_uuid;
         return  new Channel('chat.'.$user_uuid);
     }
 
