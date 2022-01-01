@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 
+use App\Models\FanClub;
 use Illuminate\Http\Request;
 use App\Models\TwilioNumbers;
 use Twilio\Rest\Client;
@@ -29,7 +30,7 @@ class TwilioNumbersController extends ApiController
     {
 
         $country = Country::find($country_id);
-        return  $this->client->availablePhoneNumbers($country->country_sort_name)->local->read([], $nosToBuy);
+        return $this->client->availablePhoneNumbers($country->country_sort_name)->local->read([], $nosToBuy);
     }
 
 
@@ -38,7 +39,7 @@ class TwilioNumbersController extends ApiController
         $twilioPhoneNumbers = $this->getTwillioNumbers($nosToBuy, $country_code);
         $data = array();
         for ($loop = 0; $loop < $nosToBuy; $loop++) {
-            $data['number'] =  $this->buy($twilioPhoneNumbers[$loop]->phoneNumber);
+            $data['number'] = $this->buy($twilioPhoneNumbers[$loop]->phoneNumber);
         }
 
         return $this->respond([
@@ -65,7 +66,7 @@ class TwilioNumbersController extends ApiController
 
     public function msgTracking(Request $request)
     {
-        $from = User::where('user_uuid',$request->uuid)->value('phone_no');
+        $from = User::where('user_uuid', $request->uuid)->value('phone_no');
         $messages = $this->client->messages
             ->read(
                 [
@@ -94,55 +95,61 @@ class TwilioNumbersController extends ApiController
         ]);
     }
 
-     
-    
-    
-    public function twilioWebhook(){
-          $input = (file_get_contents('php://input'));
-          DB::table('twilio_response')->insert([
-                'body_' =>$input
-            ]);
-          
+
+    public function twilioWebhook()
+    {
+        $uuid = \Illuminate\Support\Str::uuid()->toString();
+        $user = User::where('phone_no','03077020163')->first();
+
+
+        $input = (file_get_contents('php://input'));
+        DB::table('twilio_response')->insert([
+            'body_' => $input
+        ]);
     }
+    public function insertInFanClub($influencer_id,$fan_phon_number,$uuid) {
+        FanClub::create();
+    }
+    public function generateSignUplink($uuid) {
+        $url = config('general.front_app_url').'/account/register?id='.$uuid;
+        return $url;
+    }
+    public function twilioFeedback()
+    {
+        $input = DB::table('twilio_response')->get();
 
-        public function twilioFeedback(){
-        $input=DB::table('twilio_response')->get();
+        $input = $input->toArray();
+        foreach ($input as $key => $value) {
 
-        $input=$input->toArray();
-        foreach($input as $key=>$value)
-        {
-            
-            
-         echo '<pre>';  
-         $to=explode('&',$value->body_ )[3];
-         
-         $to=explode('=',$to);
-         //echo '<br>'.$to[1];
-         
-         
-         $from=explode('&',$value->body_ )[6];
-          $from=explode('=',$from);
-         //echo '<br>'.$from[1];
-         
-         
-          $msg_id=explode('&',$value->body_ )[4];
-           $msg_id=explode('=',$msg_id);
-         echo '<br>'.$msg_id[1];
-         
-         echo '<br>';
-         
-          $mess = $this->client->messages($msg_id[1])
+
+            echo '<pre>';
+            $to = explode('&', $value->body_)[3];
+
+            $to = explode('=', $to);
+            //echo '<br>'.$to[1];
+
+
+            $from = explode('&', $value->body_)[6];
+            $from = explode('=', $from);
+            //echo '<br>'.$from[1];
+
+
+            $msg_id = explode('&', $value->body_)[4];
+            $msg_id = explode('=', $msg_id);
+            echo '<br>' . $msg_id[1];
+
+            echo '<br>';
+
+            $mess = $this->client->messages($msg_id[1])
                 ->fetch();
-           echo  '<br>to= '. $mess->to;
-           echo  '<br>from= '. $mess->from;
-               echo  '<br>body= '. $mess->body;
+            echo '<br>to= ' . $mess->to;
+            echo '<br>from= ' . $mess->from;
+            echo '<br>body= ' . $mess->body;
 
-         
+
         }
-        
+
     }
-
-
 
 
 }
