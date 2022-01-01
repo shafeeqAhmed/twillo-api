@@ -8,6 +8,11 @@ use App\Models\TwilioNumbers;
 use Twilio\Rest\Client;
 use App\Models\Country;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use App\Models\ChatUsers;
+use App\Models\Messages;
+use Illuminate\Support\Str;
+use App\Http\Resources\ChatUserResource;
 
 class TwilioNumbersController extends ApiController
 {
@@ -15,9 +20,6 @@ class TwilioNumbersController extends ApiController
 
     public function __construct()
     {
-
-
-
         $sid = config('general.twilio_sid');
         $token = config('general.twilio_token');
         $this->client = new Client($sid, $token);
@@ -91,4 +93,56 @@ class TwilioNumbersController extends ApiController
             'data' => $data
         ]);
     }
+
+     
+    
+    
+    public function twilioWebhook(){
+          $input = (file_get_contents('php://input'));
+          DB::table('twilio_response')->insert([
+                'body_' =>$input
+            ]);
+          
+    }
+
+        public function twilioFeedback(){
+        $input=DB::table('twilio_response')->get();
+
+        $input=$input->toArray();
+        foreach($input as $key=>$value)
+        {
+            
+            
+         echo '<pre>';  
+         $to=explode('&',$value->body_ )[3];
+         
+         $to=explode('=',$to);
+         //echo '<br>'.$to[1];
+         
+         
+         $from=explode('&',$value->body_ )[6];
+          $from=explode('=',$from);
+         //echo '<br>'.$from[1];
+         
+         
+          $msg_id=explode('&',$value->body_ )[4];
+           $msg_id=explode('=',$msg_id);
+         echo '<br>'.$msg_id[1];
+         
+         echo '<br>';
+         
+          $mess = $this->client->messages($msg_id[1])
+                ->fetch();
+           echo  '<br>to= '. $mess->to;
+           echo  '<br>from= '. $mess->from;
+               echo  '<br>body= '. $mess->body;
+
+         
+        }
+        
+    }
+
+
+
+
 }

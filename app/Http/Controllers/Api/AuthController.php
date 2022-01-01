@@ -16,10 +16,22 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
+use Twilio\Rest\Client;
+use App\Models\FanClub;
 
 
 class AuthController extends Controller
 {
+
+    private $client;
+
+    public function __construct()
+    {
+        $sid = config('general.twilio_sid');
+        $token = config('general.twilio_token');
+        $this->client = new Client($sid, $token);
+    }
+
     public function login(Request $request)
     {
         $request->validate([
@@ -29,6 +41,36 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
+     
+        $fan_club = new FanClub;
+
+        $from = $user->phone_no;
+        $messages = $this->client->messages
+            ->read(
+                [
+                    "from" => $from,
+                ],
+                100
+            );
+
+       /* foreach ($messages as $index => $record) {
+
+            $mess = $this->client->messages($record->sid)
+                ->fetch();
+
+
+     $chat_user_record=FanClub::create([
+            'fan_uuid'=>Str::uuid()->toString(),
+            'user_id'=> $user->id,
+            'local_number'=> $mess->to,
+             'fan_id'=> 0
+           ]);
+
+          
+        }*/
+
+
+    
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],

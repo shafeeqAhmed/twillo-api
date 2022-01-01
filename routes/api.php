@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Broadcast;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -26,14 +30,14 @@ Route::post('register', [\App\Http\Controllers\Api\AuthController::class, 'regis
 Route::post('/forgot-password', [\App\Http\Controllers\Api\AuthController::class, 'forgotPassword']);
 // Route::post('/reset-password', [\App\Http\Controllers\Api\AuthController::class, 'resetPassword']);
 // Route::post('/update-profile', [\App\Http\Controllers\Api\UserController::class, 'updateProfile']);
-Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout'])->middleware(['auth:sanctum']);
+
 
 
 Route::get('buy-twillio-numbers/{no}/{country_id}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'purchaseTwillioNumbers']);
-Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'userList'])->middleware(['auth:sanctum']);
+
 Route::get('users/{user_uuid}', [\App\Http\Controllers\Api\UserController::class, 'getUserDetail']);
 
-Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDetail'])->middleware(['auth:sanctum']);
+
 Route::post('create-influencer', [\App\Http\Controllers\Api\InfluencerController::class, 'createInfluencer']);
 
 Route::post('update-influencer', [\App\Http\Controllers\Api\InfluencerController::class, 'updateInfluencer']);
@@ -44,4 +48,34 @@ Route::get('get-influencers-dropdowns', [\App\Http\Controllers\Api\DropDownContr
 Route::post('msg-tracking', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'msgTracking']);
 
 Route::post('upload-single-file', [\App\Http\Controllers\Api\MediaController::class, 'uploadSingleFile']);
-Route::post('update-profile', [\App\Http\Controllers\Api\UserController::class, 'updateProfile'])->middleware(['auth:sanctum']);
+Route::post('update-profile', [\App\Http\Controllers\Api\UserController::class, 'updateProfile']);
+
+
+
+//chat routes
+
+
+
+Route::post('twilio_webhook', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'twilioWebhook']);
+
+Route::get('twilio_feedback', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'twilioFeedback']);
+
+
+Route::get('port', [\App\Http\Controllers\Api\TwilioChatController::class, 'Port']);
+
+
+Route::group(['middleware' => 'auth:sanctum'], function () {
+
+Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
+
+Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'userList']);
+
+Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDetail']);
+
+Route::post('sms_service', [\App\Http\Controllers\Api\TwilioChatController::class, 'smsService']);
+
+Route::get('get_chat_users/{id}', [\App\Http\Controllers\Api\TwilioChatController::class, 'getChatMessages']);
+
+Route::get('get_chat_contacts', [\App\Http\Controllers\Api\TwilioChatController::class, 'getInfluencerContacts']);
+
+});

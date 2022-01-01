@@ -67,6 +67,10 @@ class User extends Authenticatable
         return $this->belongsTo('\App\Models\Country', 'country_id', 'id');
     }
 
+      public function message(){
+        return $this->hasMany('\App\Models\Messages','receiver_id','id')->orderBy('created_at', 'desc')->limit(1);
+    }
+
     public static function getUser($column,$value){
         return self::where($column,$value)->with(['country'])->first();
     }
