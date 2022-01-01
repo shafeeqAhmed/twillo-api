@@ -15,11 +15,15 @@ class CreateFanClubsTable extends Migration
     {
         Schema::create('fan_clubs', function (Blueprint $table) {
             $table->id();
-            $table->uuid('fan_uuid')->unique();
+            $table->uuid('fan_club_uuid')->unique();
             $table->unsignedBigInteger('user_id')->unsigned();
             $table->foreign('user_id')->on('users')->references('id');
-            $table->string('local_number')->nullable();
-            $table->unsignedBigInteger('fan_id')->default(0);
+            $table->string('local_number');
+            $table->unsignedBigInteger('fan_id')->nullable()->comment('fan id has association with users table');
+            $table->foreign('fan_id')->on('users')->references('id');
+            $table->uuid('temp_id')->nullable();
+            $table->dateTime('temp_id_date_time')->nullable();
+            $table->boolean('is_active')->default(false);
             $table->timestamps();
         });
     }
