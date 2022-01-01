@@ -40,18 +40,15 @@ class AuthController extends Controller
         ]);
 
         $user = User::where('email', $request->email)->first();
-
-     
-        $fan_club = new FanClub;
-
-        $from = $user->phone_no;
-        $messages = $this->client->messages
-            ->read(
-                [
-                    "from" => $from,
-                ],
-                100
-            );
+//        $fan_club = new FanClub;
+//        $from = $user->phone_no;
+//        $messages = $this->client->messages
+//            ->read(
+//                [
+//                    "from" => $from,
+//                ],
+//                100
+//            );
 
        /* foreach ($messages as $index => $record) {
 
@@ -93,10 +90,13 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+
         $auth = new CreateNewUser();
         $data = $auth->create($request->all());
-        $data->assignRole('admin');
-
+        if(isset($data['is_valid_reference']) && $data['is_valid_reference'] == false) {
+            return response()->json(['status' => false, 'message' => 'Your Reference Link Expired', 'data' => $data]);
+        }
+//        $data->assignRole('fan');
         return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
     }
     public function resendVerificationEmail(Request $request)
