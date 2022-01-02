@@ -14,6 +14,7 @@ use App\Models\ChatUsers;
 use App\Models\Messages;
 use Illuminate\Support\Str;
 use App\Http\Resources\ChatUserResource;
+use App\Events\ChatEvent;
 
 class TwilioNumbersController extends ApiController
 {
@@ -101,52 +102,7 @@ class TwilioNumbersController extends ApiController
  
 
         $input = (file_get_contents('php://input'));
-       
-        $msg_id = explode('&', $input->body_)[4];
-            $msg_id = explode('=', $msg_id);
-
-              
-            if($msg_id[0]=='MessageSid'){
-            
-            $mess = $this->client->messages($msg_id[1])
-                ->fetch();
     
-        
-        $fan_club=FanClub::where('is_active',1)->where('local_number',$mess->from)->orWhere('local_number',$mess->to)->get();
-        $wordCount = $fan_club->count();
-        
-         if($wordCount==0){
-            
-           $uuid = \Illuminate\Support\Str::uuid()->toString();
-           $user = User::where('phone_no',$mess->from)->first();
-
-
-           if($user->count()!=0){
-    
-
-        FanClub::create([
-            'fan_club_uuid'=>0,
-            'user_id'=> $user->id,
-            'local_number'=> $mess->to,
-             'fan_id'=> 0,
-             'temp_id'=>Str::uuid()->toString(),
-             'is_active'=>0
-           ]);
-
-            $body='You are Welcome In Portal.To continue further please sign up from below link:   '.$this->generateSignUplink($uuid);
-            $message=$this->client->messages
-                  ->create($mess->to,
-                           ["body" => $body, "from" =>  $mess->from, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
-                  );
-
-                  
-
-
-           }
- 
-         }
-
-            }
 
         DB::table('twilio_response')->insert([
             'body_' => $input
@@ -163,17 +119,33 @@ class TwilioNumbersController extends ApiController
     {
 
 
-        $input = DB::table('twilio_response')->where('id',8)->first();
+        $input = DB::table('twilio_response')->where('id',9)->first();
+
+          $data = explode('&', $input->body_)[0];
+          $data = explode('=', $data);
         
+
+           if($data[0]=='ToCountry'){
+             
+             $record=explode('&', $input->body_)[2];
+             $record = explode('=', $record);
+             
+              $msg_id =$record[1];
+           }else{ 
             $msg_id = explode('&', $input->body_)[4];
             $msg_id = explode('=', $msg_id);
-
+            $msg_id =$msg_id[1];
+           }
+         
+        
               
-            if($msg_id[0]=='MessageSid'){
-                       $mess = $this->client->messages($msg_id[1])
+                       $mess = $this->client->messages($msg_id)
                 ->fetch();
+          
+
     
-            
+              if($mess->direction=='outbound-api'){
+
         $fan_club=FanClub::where('is_active',1)->where('local_number',$mess->from)->orWhere('local_number',$mess->to)->get();
         $wordCount = $fan_club->count();
         
@@ -206,9 +178,35 @@ class TwilioNumbersController extends ApiController
 
            }
  
-         }
+         }        
+              }else{
 
-            }
+
+                
+                $sender_id=User::where('phone_no',$mess->from)->first()->id;
+               
+                $receiver_id=User::where('phone_no',$mess->to)->first()->id;
+
+
+                 $message_record=[
+                   'sms_uuid'=>Str::uuid()->toString(),
+                   'sender_id'=>$sender_id,
+                   'receiver_id'=>$receiver_id,
+                    'message_id'=>0,
+                    'message'=>$mess->body,
+                    'is_seen'=>0,
+                    'created_at'=>'12-2-2021',
+                    'align'=>'',
+                    'direction'=>'inbound'
+                  ];
+      
+        
+          ChatEvent::dispatch($message_record);
+                
+              }       
+        
+
+            
         exit;
 
         $input = $input->toArray();

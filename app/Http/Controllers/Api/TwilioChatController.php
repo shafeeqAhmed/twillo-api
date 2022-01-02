@@ -37,8 +37,8 @@ class TwilioChatController extends ApiController
      $receiver_id=$id;
 
      
-       $to = FanClub::where('id',$receiver_id)->first();
-      $to= $to->local_number;
+       $to = User::where('id',$receiver_id)->first();
+      $to= $to->phone_no;
 
         $messages = $this->client->messages
             ->read(
@@ -68,7 +68,7 @@ class TwilioChatController extends ApiController
 
     
       return $this->respond([
-        'data' => ($message_history)
+        'data' => $message_history
         ]);
 
     }
@@ -78,7 +78,7 @@ class TwilioChatController extends ApiController
 
       $sender_id=$request->user()->id;
 
-      $users=FanClub::latest()->select('id','fan_club_uuid','local_number','fan_id','temp_id','created_at')->groupBy('local_number')->where('user_id',$sender_id)->where('is_active',1)->orderBy('created_at', 'desc')->get();
+      $users=FanClub::with('user')->latest()->select('id','fan_club_uuid','local_number','fan_id','temp_id','created_at')->groupBy('local_number')->where('user_id',$sender_id)->where('is_active',1)->orderBy('created_at', 'desc')->get();
        
         return $this->respond([
         'data' =>  ($users)
@@ -102,7 +102,8 @@ class TwilioChatController extends ApiController
                    'receiver_id'=>$request->receiver_id,
                     'message_id'=>0,
                     'message'=>$request->message,
-                    'is_seen'=>0
+                    'is_seen'=>0,
+                     'created_at'=>'12-2-2021'
                   ];
         
           ChatEvent::dispatch($message_record);
