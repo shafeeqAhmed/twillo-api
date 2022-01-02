@@ -34,11 +34,11 @@ class CreateNewUser implements CreatesNewUsers
         ])->validate();
 
 //         check fan reference exist or not?
-        $fan_club = FanClub::where('temp_id',$input['reference'])->where('is_active',0)->first();
-        if(!$fan_club) {
-            $data['is_valid_reference'] = false;
-           return $data;
-        }
+       // $fan_club = FanClub::where('temp_id',$input['reference'])->where('is_active',0)->first();
+       // if(!$fan_club) {
+       //     $data['is_valid_reference'] = false;
+       //    return $data;
+      //  }
 
         $user = User::create([
             'user_uuid' => Str::uuid()->toString(),
@@ -58,7 +58,7 @@ class CreateNewUser implements CreatesNewUsers
         ]);
         //if user register successfully add him into his fan club
 //        dd($user->id);
-        $fan_club->update(['fan_id'=>$user->id,'is_active'=>1]);
+      //  $fan_club->update(['fan_id'=>$user->id,'is_active'=>1]);
         return $user;
     }
 }
