@@ -59,7 +59,8 @@ class TwilioChatController extends ApiController
             $message_history[$index] ['time'] = '12-2-2021';
             $message_history[$index] ['align'] = $mess->direction!='inbound' ? 'right' :'';
             $message_history[$index] ['id'] = 0;  
-            $message_history[$index] ['to'] =$mess->to;  
+            $message_history[$index] ['to'] =$mess->to;
+            $message_history[$index] ['from'] =$mess->from;  
             $message_history[$index] ['name'] = 'talha';  
             $message_history[$index] ['image'] = $mess->direction!='inbound' ? $request->user()->profile_photo_path :asset('storage/users/profile/default.png');  
             } 
@@ -67,7 +68,7 @@ class TwilioChatController extends ApiController
         }
 
        
-       
+
       return $this->respond([
         'data' => $message_history
         ]);
