@@ -78,7 +78,7 @@ class TwilioChatController extends ApiController
 
       $sender_id=$request->user()->id;
 
-      $users=FanClub::latest()->select('id','fan_uuid','local_number','fan_id','created_at')->groupBy('local_number')->where('user_id',$sender_id)->orderBy('created_at', 'desc')->get();
+      $users=FanClub::latest()->select('id','fan_club_uuid','local_number','fan_id','temp_id','created_at')->groupBy('local_number')->where('user_id',$sender_id)->where('is_active',1)->orderBy('created_at', 'desc')->get();
        
         return $this->respond([
         'data' =>  ($users)

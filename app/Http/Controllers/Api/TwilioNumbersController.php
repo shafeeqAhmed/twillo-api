@@ -98,11 +98,56 @@ class TwilioNumbersController extends ApiController
 
     public function twilioWebhook()
     {
-        $uuid = \Illuminate\Support\Str::uuid()->toString();
-        $user = User::where('phone_no','03077020163')->first();
-
+ 
 
         $input = (file_get_contents('php://input'));
+       
+        $msg_id = explode('&', $input->body_)[4];
+            $msg_id = explode('=', $msg_id);
+
+              
+            if($msg_id[0]=='MessageSid'){
+            
+            $mess = $this->client->messages($msg_id[1])
+                ->fetch();
+    
+        
+        $fan_club=FanClub::where('is_active',1)->where('local_number',$mess->from)->orWhere('local_number',$mess->to)->get();
+        $wordCount = $fan_club->count();
+        
+         if($wordCount==0){
+            
+           $uuid = \Illuminate\Support\Str::uuid()->toString();
+           $user = User::where('phone_no',$mess->from)->first();
+
+
+           if($user->count()!=0){
+    
+
+        FanClub::create([
+            'fan_club_uuid'=>0,
+            'user_id'=> $user->id,
+            'local_number'=> $mess->to,
+             'fan_id'=> 0,
+             'temp_id'=>Str::uuid()->toString(),
+             'is_active'=>0
+           ]);
+
+            $body='You are Welcome In Portal.To continue further please sign up from below link:   '.$this->generateSignUplink($uuid);
+            $message=$this->client->messages
+                  ->create($mess->to,
+                           ["body" => $body, "from" =>  $mess->from, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+                  );
+
+                  
+
+
+           }
+ 
+         }
+
+            }
+
         DB::table('twilio_response')->insert([
             'body_' => $input
         ]);
@@ -116,35 +161,91 @@ class TwilioNumbersController extends ApiController
     }
     public function twilioFeedback()
     {
-        $input = DB::table('twilio_response')->get();
+
+
+        $input = DB::table('twilio_response')->where('id',8)->first();
+        
+            $msg_id = explode('&', $input->body_)[4];
+            $msg_id = explode('=', $msg_id);
+
+              
+            if($msg_id[0]=='MessageSid'){
+                       $mess = $this->client->messages($msg_id[1])
+                ->fetch();
+    
+            
+        $fan_club=FanClub::where('is_active',1)->where('local_number',$mess->from)->orWhere('local_number',$mess->to)->get();
+        $wordCount = $fan_club->count();
+        
+         if($wordCount==0){
+            
+           $uuid = \Illuminate\Support\Str::uuid()->toString();
+           $user = User::where('phone_no',$mess->from)->first();
+
+
+           if($user->count()!=0){
+    
+
+        FanClub::create([
+            'fan_club_uuid'=>0,
+            'user_id'=> $user->id,
+            'local_number'=> $mess->to,
+             'fan_id'=> 0,
+             'temp_id'=>Str::uuid()->toString(),
+             'is_active'=>0,
+             'temp_id_date_time'=>date('Y-m-d H:i:s')
+           ]);
+
+         $body='You are Welcome In Portal.To continue further please sign up from below link:   '.$this->generateSignUplink($uuid);
+            $message=$this->client->messages
+                  ->create($mess->to,
+                           ["body" => $body, "from" =>  $mess->from, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+                  );
+
+
+
+           }
+ 
+         }
+
+            }
+        exit;
 
         $input = $input->toArray();
+
+
         foreach ($input as $key => $value) {
 
-
-            echo '<pre>';
             $to = explode('&', $value->body_)[3];
-
             $to = explode('=', $to);
-            //echo '<br>'.$to[1];
-
-
+           
             $from = explode('&', $value->body_)[6];
             $from = explode('=', $from);
-            //echo '<br>'.$from[1];
-
 
             $msg_id = explode('&', $value->body_)[4];
             $msg_id = explode('=', $msg_id);
-            echo '<br>' . $msg_id[1];
+           
 
-            echo '<br>';
-
+           
             $mess = $this->client->messages($msg_id[1])
                 ->fetch();
+             echo '<br>';
+             echo '<br>'. $value->id;
             echo '<br>to= ' . $mess->to;
             echo '<br>from= ' . $mess->from;
-            echo '<br>body= ' . $mess->body;
+
+            $fan_club=FanClub::where('active',1)->where(['from'=>$from,'to'=>$to])->get();
+
+              $messages = $this->client->messages
+            ->read(
+                [
+                    "from" => $mess->from,
+                ],
+                100
+           );
+          
+            echo '<pre>';
+            print_r(count( $messages));
 
 
         }

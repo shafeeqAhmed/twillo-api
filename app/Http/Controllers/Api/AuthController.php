@@ -40,27 +40,28 @@ class AuthController extends Controller
         ]);
 
         $user = User::where('email', $request->email)->first();
-//        $fan_club = new FanClub;
-//        $from = $user->phone_no;
-//        $messages = $this->client->messages
-//            ->read(
-//                [
-//                    "from" => $from,
-//                ],
-//                100
-//            );
+       /* $fan_club = new FanClub;
+        $from = $user->phone_no;
+        $messages = $this->client->messages
+            ->read(
+                [
+                    "from" => $from,
+                ],
+                100
+           );
 
-       /* foreach ($messages as $index => $record) {
+        foreach ($messages as $index => $record) {
 
             $mess = $this->client->messages($record->sid)
                 ->fetch();
 
 
      $chat_user_record=FanClub::create([
-            'fan_uuid'=>Str::uuid()->toString(),
+            'fan_club_uuid'=>0,
             'user_id'=> $user->id,
             'local_number'=> $mess->to,
-             'fan_id'=> 0
+             'fan_id'=> 0,
+             'temp_id'=>Str::uuid()->toString()
            ]);
 
           

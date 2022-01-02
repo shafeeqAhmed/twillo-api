@@ -20,7 +20,7 @@ class CreateFanClubsTable extends Migration
             $table->foreign('user_id')->on('users')->references('id');
             $table->string('local_number');
             $table->unsignedBigInteger('fan_id')->nullable()->comment('fan id has association with users table');
-            $table->foreign('fan_id')->on('users')->references('id');
+           // $table->foreign('fan_id')->on('users')->references('id');
             $table->uuid('temp_id')->nullable();
             $table->dateTime('temp_id_date_time')->nullable();
             $table->boolean('is_active')->default(false);

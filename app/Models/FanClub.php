@@ -9,5 +9,5 @@ class FanClub extends Model
 {
     use HasFactory;
     protected $table='fan_clubs';
-    protected $fillable=['fan_uuid','user_id','temp_id','local_number','fan_id','is_active'];
+    protected $fillable=['fan_uuid','user_id','temp_id','local_number','fan_id','is_active','temp_id_date_time'];
 }
