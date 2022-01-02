@@ -34,7 +34,7 @@ class CreateNewUser implements CreatesNewUsers
         ])->validate();
 
 //         check fan reference exist or not?
-        $fan_club = FanClub::where('temp_id',$input['reference'])->where('is_active',0)->first();
+        $fan_club = FanClub::where('fan_club_uuid',$input['reference'])->where('is_active',0)->first();
         if(!$fan_club) {
             $data['is_valid_reference'] = false;
            return $data;

@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+
+
+Route::get('/link', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'generateSignUplink']);
+Route::get('/pass', function () {
+    return \Illuminate\Support\Facades\Hash::make(123456);
+});
 Route::get('/', function () {
     return view('welcome');
 });
