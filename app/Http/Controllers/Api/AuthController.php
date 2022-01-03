@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use Twilio\Rest\Client;
 use App\Models\FanClub;
-
+use App\Events\ChatUser;
 
 class AuthController extends Controller
 {
@@ -91,12 +91,14 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-
+        
         $auth = new CreateNewUser();
         $data = $auth->create($request->all());
         if(isset($data['is_valid_reference']) && $data['is_valid_reference'] == false) {
             return response()->json(['status' => false, 'message' => 'Your Reference Link Expired', 'data' => $data]);
         }
+        ChatUser::dispatch($data);
+        
 //        $data->assignRole('fan');
         return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
     }
