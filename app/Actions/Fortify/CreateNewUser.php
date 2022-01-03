@@ -49,7 +49,6 @@ class CreateNewUser implements CreatesNewUsers
             'country_id' => $input['country_id'],
             'city' => $input['city'],
             'gender' => $input['gender'],
-            // 'phone_no' => $input['phone_no'],
             'phone_no' => $fan_club->local_number,
             'dob' => $input['dob'],
             'instagram' => $input['instagram'],
@@ -59,7 +58,7 @@ class CreateNewUser implements CreatesNewUsers
         ]);
         //if user register successfully add him into his fan club
 //        dd($user->id);
-      //  $fan_club->update(['fan_id'=>$user->id,'is_active'=>1]);
+       $fan_club->update(['fan_id'=>$user->id,'is_active'=>1]);
         return $user;
     }
 }
