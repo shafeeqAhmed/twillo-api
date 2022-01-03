@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
+Route::get('/hook', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'twilioFeedback']);
 Route::get('/link', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'generateSignUplink']);
 Route::get('/pass', function () {
     return \Illuminate\Support\Facades\Hash::make(123456);
