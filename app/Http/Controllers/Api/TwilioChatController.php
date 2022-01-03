@@ -38,6 +38,7 @@ class TwilioChatController extends ApiController
         $receiver_id = $id;
 
 
+
         $to = User::where('id', $receiver_id)->first();
         $to = $to->phone_no;
 
@@ -45,9 +46,10 @@ class TwilioChatController extends ApiController
             ->read(
                 [
                     "from" => $from,
-                    "to" => $to
+                    "to" => $to,
+                    'order' => 'desc'
                 ],
-                10
+                5
             );
 
 
@@ -56,15 +58,16 @@ class TwilioChatController extends ApiController
             ->read(
                 [
                     "from" => $to,
-                    "to" => $from
+                    "to" => $from,
+                    'order' => 'desc'
                 ],
-                10
+                5
             );
 
-
+        $messages = $this->client->messages->read(['order', 'desc'], 7);
 
         $message_history = array();
-        foreach (array_merge($messages, $messages2) as $index => $record) {
+        foreach ($messages   as $index => $record) {
 
             $mess = $this->client->messages($record->sid)
                 ->fetch();
@@ -82,8 +85,6 @@ class TwilioChatController extends ApiController
                 $message_history[$index]['image'] = $mess->direction != 'inbound' ? $request->user()->profile_photo_path : asset('storage/users/profile/default.png');
             }
         }
-
-
 
         return $this->respond([
             'data' => $message_history
