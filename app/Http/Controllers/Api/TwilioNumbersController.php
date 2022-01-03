@@ -50,10 +50,16 @@ class TwilioNumbersController extends ApiController
 
     public function buy($twilioPhoneNumber)
     {
+           
+        /*  $this->client->incomingPhoneNumbers->create(
+            [
+                'phoneNumber' => $twilioPhoneNumber,
+                "smsUrl" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"
 
-        //     $this->client->incomingPhoneNumbers->create(
-        //                ['phoneNumber' => $twilioPhoneNumber]
-        //            );
+        ]
+        );*/
+
+
         sleep(2);
 
         //      TwilioNumbers::create([
@@ -101,7 +107,7 @@ class TwilioNumbersController extends ApiController
     {
         $input = (file_get_contents('php://input'));
 
-
+           $this->twilioFeedback($input);
         DB::table('twilio_response')->insert([
             'body_' => $input
         ]);
