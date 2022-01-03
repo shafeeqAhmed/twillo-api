@@ -39,14 +39,15 @@ class TwilioChatController extends ApiController
      
        $to = User::where('id',$receiver_id)->first();
       $to= $to->phone_no;
-
+/*
         $messages = $this->client->messages
             ->read(
               [
                   "from" => $from,
-                  "to" => $to
-                          ],
-                10
+                  "to" => $to,
+                  'order'=>'desc'
+                ],
+                5
             );
 
 
@@ -55,15 +56,16 @@ class TwilioChatController extends ApiController
             ->read(
               [
                               "from" => $to,
-                              "to" => $from
+                              "to" => $from,
+                               'order'=>'desc'
                           ],
-                10
-            );
+                5
+            );*/
 
-        
+        $messages = $this->client->messages->read(['order','desc'], 7);
 
         $message_history = array();
-        foreach (array_merge($messages,$messages2) as $index => $record) {
+        foreach ($messages   as $index => $record) {
 
             $mess = $this->client->messages($record->sid)
                 ->fetch();
