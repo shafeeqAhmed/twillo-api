@@ -9,7 +9,10 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use App\Models\FanClub;
+
 use App\Models\User;
+
 class ChatUser  implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
@@ -31,7 +34,8 @@ class ChatUser  implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        $user_uuid=User::find($this->data['id'])->user_uuid;
+        $user_id=FanClub::where('local_number',$this->data['phone_no'])->first()->user_id;
+        $user_uuid=User::find($user_id)->user_uuid;
         return  new Channel('user.'.$user_uuid);
     }
 
