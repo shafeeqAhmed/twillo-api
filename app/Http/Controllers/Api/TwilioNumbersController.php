@@ -62,10 +62,10 @@ class TwilioNumbersController extends ApiController
 
         sleep(2);
 
-        //      TwilioNumbers::create([
-        //            'phone_no' => $twilioPhoneNumber,
-        //            'status' => 'active'
-        //        ]);
+            //  TwilioNumbers::create([
+            //        'phone_no' => $twilioPhoneNumber,
+            //        'status' => 'active'
+            //    ]);
 
 
         return $twilioPhoneNumber;
@@ -119,15 +119,14 @@ class TwilioNumbersController extends ApiController
         $url = config('general.front_app_url').'/account/register?id='.$uuid;
         return $url;
     }
-    public function twilioFeedback($input)
+    public function twilioFeedback($input = '')
     {
 
-
+        $input = 'ToCountry=US&ToState=GA&SmsMessageSid=SM691f2b1d7912b5dbcc6850f60ac5cdef&NumMedia=0&ToCity=FITZGERALD&FromZip=&SmsSid=SM691f2b1d7912b5dbcc6850f60ac5cdef&FromState=NY&SmsStatus=received&FromCity=Manhattan&Body=r3&FromCountry=US&To=%2B12293480700&ToZip=31750&AddOns=%7B%22status%22%3A%22successful%22%2C%22message%22%3Anull%2C%22code%22%3Anull%2C%22results%22%3A%7B%22message_tone%22%3A%7B%22request_sid%22%3A%22XR3ce0d059d401bfd8eebe8c8eb45ffc58%22%2C%22status%22%3A%22successful%22%2C%22message%22%3Anull%2C%22code%22%3Anull%2C%22result%22%3A%7B%22document_tone%22%3A%7B%22tone_categories%22%3A%5B%7B%22tones%22%3A%5B%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22anger%22%2C%22tone_name%22%3A%22Anger%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22disgust%22%2C%22tone_name%22%3A%22Disgust%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22fear%22%2C%22tone_name%22%3A%22Fear%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22joy%22%2C%22tone_name%22%3A%22Joy%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22sadness%22%2C%22tone_name%22%3A%22Sadness%22%7D%5D%2C%22category_id%22%3A%22emotion_tone%22%2C%22category_name%22%3A%22Emotion+Tone%22%7D%2C%7B%22tones%22%3A%5B%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22analytical%22%2C%22tone_name%22%3A%22Analytical%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22confident%22%2C%22tone_name%22%3A%22Confident%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22tentative%22%2C%22tone_name%22%3A%22Tentative%22%7D%5D%2C%22category_id%22%3A%22language_tone%22%2C%22category_name%22%3A%22Language+Tone%22%7D%2C%7B%22tones%22%3A%5B%7B%22score%22%3A0.288717%2C%22tone_id%22%3A%22openness_big5%22%2C%22tone_name%22%3A%22Openness%22%7D%2C%7B%22score%22%3A0.274434%2C%22tone_id%22%3A%22conscientiousness_big5%22%2C%22tone_name%22%3A%22Conscientiousness%22%7D%2C%7B%22score%22%3A0.543325%2C%22tone_id%22%3A%22extraversion_big5%22%2C%22tone_name%22%3A%22Extraversion%22%7D%2C%7B%22score%22%3A0.599483%2C%22tone_id%22%3A%22agreeableness_big5%22%2C%22tone_name%22%3A%22Agreeableness%22%7D%2C%7B%22score%22%3A0.290988%2C%22tone_id%22%3A%22emotional_range_big5%22%2C%22tone_name%22%3A%22Emotional+Range%22%7D%5D%2C%22category_id%22%3A%22social_tone%22%2C%22category_name%22%3A%22Social+Tone%22%7D%5D%7D%7D%7D%7D%7D&NumSegments=1&MessageSid=SM691f2b1d7912b5dbcc6850f60ac5cdef&AccountSid=AC193fd584652e4c3bb7c3e918f06b065e&From=%2B13322427816&ApiVersion=2010-04-01';
         // $input = DB::table('twilio_response')->where('id', 9)->first();
 
         $data = explode('&', $input)[0];
         $data = explode('=', $data);
-
 
         if ($data[0] == 'ToCountry') {
 
@@ -135,6 +134,7 @@ class TwilioNumbersController extends ApiController
             $record = explode('=', $record);
 
             $msg_id = $record[1];
+
         } else {
             $msg_id = explode('&', $input)[4];
             $msg_id = explode('=', $msg_id);
@@ -145,6 +145,8 @@ class TwilioNumbersController extends ApiController
 
         $mess = $this->client->messages($msg_id)
             ->fetch();
+        dd($data, $record,$mess);
+
         if ($mess->direction == 'outbound-api') {
 
             $fan_club = FanClub::where('is_active', 1)->where('local_number', $mess->from)->orWhere('local_number', $mess->to)->get();
