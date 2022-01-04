@@ -41,8 +41,17 @@ class TwilioChatController extends ApiController
 
         $to = User::where('id', $receiver_id)->first();
         $to = $to->phone_no;
+      /*    $messages = $this->client->messages
+        ->read(
+            [
+                "from" => $from,
+                "to" => $to,
+                'order' => 'desc'
+            ],
+            5
+        );
 
-        $messages = $this->client->messages
+       $messages = $this->client->messages
             ->read(
                 [
                     "from" => $from,
@@ -62,7 +71,7 @@ class TwilioChatController extends ApiController
                     'order' => 'desc'
                 ],
                 5
-            );
+            ); */
 
         $messages = $this->client->messages->read(['order', 'desc'], 7);
 
@@ -73,6 +82,9 @@ class TwilioChatController extends ApiController
                 ->fetch();
 
             if (($mess->from == $from && $mess->to == $to) || ($mess->from == $to && $mess->to == $from)) {
+                    
+                if(!str_contains($mess->body, 'You are Welcome In Portal')){
+                  
                 $message_history[$index]['message'] = $mess->body;
                 $message_history[$index]['direction'] = $mess->direction;
                 // $message_history[$index] ['time'] = $mess->dateSent;
@@ -84,6 +96,7 @@ class TwilioChatController extends ApiController
                 $message_history[$index]['name'] = 'talha';
                 $message_history[$index]['image'] = $mess->direction != 'inbound' ? $request->user()->profile_photo_path : asset('storage/users/profile/default.png');
             }
+        }
         }
 
         return $this->respond([
@@ -120,7 +133,7 @@ class TwilioChatController extends ApiController
             'message_id' => 0,
             'message' => $request->message,
             'is_seen' => 0,
-            'created_at' => '12-2-2021'
+            'created_at' =>date('d-m-y'),
         ];
 
         ChatEvent::dispatch($message_record);
