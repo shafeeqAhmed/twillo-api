@@ -85,7 +85,8 @@ class TwilioChatController extends ApiController
                   
                 $message_history[$index]['message'] = $mess->body;
                 $message_history[$index]['direction'] = $mess->direction;
-                 $message_history[$index] ['time'] = $mess->dateSent;
+                // $message_history[$index] ['time'] = $mess->dateSent;
+                 $message_history[$index] ['time'] = '12-4-2022';
                 $message_history[$index]['align'] = $mess->direction != 'inbound' ? 'right' : '';
                 $message_history[$index]['id'] = 0;
                 $message_history[$index]['to'] = $mess->to;
