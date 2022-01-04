@@ -50,7 +50,7 @@ class TwilioNumbersController extends ApiController
 
     public function buy($twilioPhoneNumber)
     {
-           
+
         /*  $this->client->incomingPhoneNumbers->create(
             [
                 'phoneNumber' => $twilioPhoneNumber,
@@ -121,8 +121,7 @@ class TwilioNumbersController extends ApiController
     }
     public function twilioFeedback($input = '')
     {
-
-        $input = 'ToCountry=US&ToState=GA&SmsMessageSid=SM691f2b1d7912b5dbcc6850f60ac5cdef&NumMedia=0&ToCity=FITZGERALD&FromZip=&SmsSid=SM691f2b1d7912b5dbcc6850f60ac5cdef&FromState=NY&SmsStatus=received&FromCity=Manhattan&Body=r3&FromCountry=US&To=%2B12293480700&ToZip=31750&AddOns=%7B%22status%22%3A%22successful%22%2C%22message%22%3Anull%2C%22code%22%3Anull%2C%22results%22%3A%7B%22message_tone%22%3A%7B%22request_sid%22%3A%22XR3ce0d059d401bfd8eebe8c8eb45ffc58%22%2C%22status%22%3A%22successful%22%2C%22message%22%3Anull%2C%22code%22%3Anull%2C%22result%22%3A%7B%22document_tone%22%3A%7B%22tone_categories%22%3A%5B%7B%22tones%22%3A%5B%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22anger%22%2C%22tone_name%22%3A%22Anger%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22disgust%22%2C%22tone_name%22%3A%22Disgust%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22fear%22%2C%22tone_name%22%3A%22Fear%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22joy%22%2C%22tone_name%22%3A%22Joy%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22sadness%22%2C%22tone_name%22%3A%22Sadness%22%7D%5D%2C%22category_id%22%3A%22emotion_tone%22%2C%22category_name%22%3A%22Emotion+Tone%22%7D%2C%7B%22tones%22%3A%5B%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22analytical%22%2C%22tone_name%22%3A%22Analytical%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22confident%22%2C%22tone_name%22%3A%22Confident%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22tentative%22%2C%22tone_name%22%3A%22Tentative%22%7D%5D%2C%22category_id%22%3A%22language_tone%22%2C%22category_name%22%3A%22Language+Tone%22%7D%2C%7B%22tones%22%3A%5B%7B%22score%22%3A0.288717%2C%22tone_id%22%3A%22openness_big5%22%2C%22tone_name%22%3A%22Openness%22%7D%2C%7B%22score%22%3A0.274434%2C%22tone_id%22%3A%22conscientiousness_big5%22%2C%22tone_name%22%3A%22Conscientiousness%22%7D%2C%7B%22score%22%3A0.543325%2C%22tone_id%22%3A%22extraversion_big5%22%2C%22tone_name%22%3A%22Extraversion%22%7D%2C%7B%22score%22%3A0.599483%2C%22tone_id%22%3A%22agreeableness_big5%22%2C%22tone_name%22%3A%22Agreeableness%22%7D%2C%7B%22score%22%3A0.290988%2C%22tone_id%22%3A%22emotional_range_big5%22%2C%22tone_name%22%3A%22Emotional+Range%22%7D%5D%2C%22category_id%22%3A%22social_tone%22%2C%22category_name%22%3A%22Social+Tone%22%7D%5D%7D%7D%7D%7D%7D&NumSegments=1&MessageSid=SM691f2b1d7912b5dbcc6850f60ac5cdef&AccountSid=AC193fd584652e4c3bb7c3e918f06b065e&From=%2B13322427816&ApiVersion=2010-04-01';
+        // $input = 'ToCountry=US&ToState=GA&SmsMessageSid=SMfa9adb16915f1265fb74047f2c9451c4&NumMedia=0&ToCity=FITZGERALD&FromZip=&SmsSid=SMfa9adb16915f1265fb74047f2c9451c4&FromState=NY&SmsStatus=received&FromCity=Manhattan&Body=pkrt&FromCountry=US&To=%2B12293480700&ToZip=31750&AddOns=%7B%22status%22%3A%22successful%22%2C%22message%22%3Anull%2C%22code%22%3Anull%2C%22results%22%3A%7B%22message_tone%22%3A%7B%22request_sid%22%3A%22XR37139dd8624de15f2e846a8f509f4df0%22%2C%22status%22%3A%22successful%22%2C%22message%22%3Anull%2C%22code%22%3Anull%2C%22result%22%3A%7B%22document_tone%22%3A%7B%22tone_categories%22%3A%5B%7B%22tones%22%3A%5B%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22anger%22%2C%22tone_name%22%3A%22Anger%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22disgust%22%2C%22tone_name%22%3A%22Disgust%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22fear%22%2C%22tone_name%22%3A%22Fear%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22joy%22%2C%22tone_name%22%3A%22Joy%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22sadness%22%2C%22tone_name%22%3A%22Sadness%22%7D%5D%2C%22category_id%22%3A%22emotion_tone%22%2C%22category_name%22%3A%22Emotion+Tone%22%7D%2C%7B%22tones%22%3A%5B%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22analytical%22%2C%22tone_name%22%3A%22Analytical%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22confident%22%2C%22tone_name%22%3A%22Confident%22%7D%2C%7B%22score%22%3A0.0%2C%22tone_id%22%3A%22tentative%22%2C%22tone_name%22%3A%22Tentative%22%7D%5D%2C%22category_id%22%3A%22language_tone%22%2C%22category_name%22%3A%22Language+Tone%22%7D%2C%7B%22tones%22%3A%5B%7B%22score%22%3A0.068939%2C%22tone_id%22%3A%22openness_big5%22%2C%22tone_name%22%3A%22Openness%22%7D%2C%7B%22score%22%3A0.145665%2C%22tone_id%22%3A%22conscientiousness_big5%22%2C%22tone_name%22%3A%22Conscientiousness%22%7D%2C%7B%22score%22%3A0.270129%2C%22tone_id%22%3A%22extraversion_big5%22%2C%22tone_name%22%3A%22Extraversion%22%7D%2C%7B%22score%22%3A0.461938%2C%22tone_id%22%3A%22agreeableness_big5%22%2C%22tone_name%22%3A%22Agreeableness%22%7D%2C%7B%22score%22%3A1.14E-4%2C%22tone_id%22%3A%22emotional_range_big5%22%2C%22tone_name%22%3A%22Emotional+Range%22%7D%5D%2C%22category_id%22%3A%22social_tone%22%2C%22category_name%22%3A%22Social+Tone%22%7D%5D%7D%7D%7D%7D%7D&NumSegments=1&MessageSid=SMfa9adb16915f1265fb74047f2c9451c4&AccountSid=AC193fd584652e4c3bb7c3e918f06b065e&From=%2B13322427816&ApiVersion=2010-04-01';
         // $input = DB::table('twilio_response')->where('id', 9)->first();
 
         $data = explode('&', $input)[0];
@@ -145,26 +144,28 @@ class TwilioNumbersController extends ApiController
 
         $mess = $this->client->messages($msg_id)
             ->fetch();
-        dd($data, $record,$mess);
+        // dd($data, $record,$mess,$mess->direction);
 
-        if ($mess->direction == 'outbound-api') {
+        if ($mess->direction == 'inbound') {
 
-            $fan_club = FanClub::where('is_active', 1)->where('local_number', $mess->from)->orWhere('local_number', $mess->to)->get();
-            $wordCount = $fan_club->count();
-
-            if ($wordCount == 0) {
+            $exist_in_fan_club = FanClub::where('is_active', 1)->where('local_number', $mess->from)->exists();
+// dd($exist_in_fan_club,$mess->from,$mess->to);
+            if (!$exist_in_fan_club) {
 
                 $uuid = \Illuminate\Support\Str::uuid()->toString();
-                $user = User::where('phone_no', $mess->from)->first();
-
-
+                $user = User::where('phone_no', $mess->to)->first();
                 if ($user->count() != 0) {
+
+                    $exist_in_fan_club = FanClub::where('is_active', 0)
+                    ->where('local_number', $mess->from)
+                    ->delete();
+
                     FanClub::create([
-                        'fan_club_uuid' => 0,
+                        'fan_club_uuid' => Str::uuid()->toString(),
                         'user_id' => $user->id,
-                        'local_number' => $mess->to,
+                        'local_number' => $mess->from,
                         'fan_id' => 0,
-                        'temp_id' => Str::uuid()->toString(),
+                        'temp_id' => $uuid,
                         'is_active' => 0,
                         'temp_id_date_time' => date('Y-m-d H:i:s')
                     ]);
@@ -172,19 +173,14 @@ class TwilioNumbersController extends ApiController
                     $body = 'You are Welcome In Portal.To continue further please sign up from below link:   ' . $this->generateSignUplink($uuid);
                     $message = $this->client->messages
                         ->create(
-                            $mess->to,
-                            ["body" => $body, "from" =>  $mess->from, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+                            $mess->from,
+                            ["body" => $body, "from" =>  $mess->to, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
                         );
                 }
             }
         } else {
-
-
-
             $sender_id = User::where('phone_no', $mess->from)->first()->id;
-
             $receiver_id = User::where('phone_no', $mess->to)->first()->id;
-
 
             $message_record = [
                 'sms_uuid' => Str::uuid()->toString(),
@@ -196,7 +192,6 @@ class TwilioNumbersController extends ApiController
                 'created_at' => '12-2-2021',
                 'align' => '',
                 'direction' => 'inbound',
-
             ];
             ChatEvent::dispatch($message_record);
         }
@@ -301,21 +296,12 @@ class TwilioNumbersController extends ApiController
                   ->create($mess->to,
                            ["body" => $body, "from" =>  $mess->from, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
                   );
-
-
-
            }
-
          }
               }else{
-
-
-
                 $sender_id=User::where('phone_no',$mess->from)->first()->id;
 
                 $receiver_id=User::where('phone_no',$mess->to)->first()->id;
-
-
                  $message_record=[
                    'sms_uuid'=>Str::uuid()->toString(),
                    'sender_id'=>$sender_id,
