@@ -47,15 +47,7 @@ class TwilioChatController extends ApiController
         if(!$receiver_image){
               $receiver_image= asset('storage/users/profile/default.png');
         }
-      /*    $messages = $this->client->messages
-        ->read(
-            [
-                "from" => $from,
-                "to" => $to,
-                'order' => 'desc'
-            ],
-            5
-        );
+      /*   
 
        $messages = $this->client->messages
             ->read(
@@ -93,12 +85,11 @@ class TwilioChatController extends ApiController
                   
                 $message_history[$index]['message'] = $mess->body;
                 $message_history[$index]['direction'] = $mess->direction;
-                // $message_history[$index] ['time'] = $mess->dateSent;
-                $message_history[$index]['time'] = '12-2-2021';
+                 $message_history[$index] ['time'] = $mess->dateSent;
                 $message_history[$index]['align'] = $mess->direction != 'inbound' ? 'right' : '';
                 $message_history[$index]['id'] = 0;
                 $message_history[$index]['to'] = $mess->to;
-                $message_history[$index]['from'] = $mess->from;
+                $message_history[$index]['from'] = $mess->direction != 'inbound' ? $mess->from : $mess->to;
                 $message_history[$index]['name'] = 'talha';
                 $message_history[$index]['image'] = $mess->direction != 'inbound' ? $request->user()->profile_photo_path : $receiver_image;
             }
