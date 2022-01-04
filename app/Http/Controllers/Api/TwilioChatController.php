@@ -40,7 +40,13 @@ class TwilioChatController extends ApiController
 
 
         $to = User::where('id', $receiver_id)->first();
+        $receiver_image=$to->profile_photo_path;
         $to = $to->phone_no;
+          
+          
+        if(!$receiver_image){
+              $receiver_image= asset('storage/users/profile/default.png');
+        }
       /*    $messages = $this->client->messages
         ->read(
             [
@@ -94,7 +100,7 @@ class TwilioChatController extends ApiController
                 $message_history[$index]['to'] = $mess->to;
                 $message_history[$index]['from'] = $mess->from;
                 $message_history[$index]['name'] = 'talha';
-                $message_history[$index]['image'] = $mess->direction != 'inbound' ? $request->user()->profile_photo_path : asset('storage/users/profile/default.png');
+                $message_history[$index]['image'] = $mess->direction != 'inbound' ? $request->user()->profile_photo_path : $receiver_image;
             }
         }
         }

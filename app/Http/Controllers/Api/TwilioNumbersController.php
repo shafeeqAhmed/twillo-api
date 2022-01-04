@@ -151,7 +151,7 @@ class TwilioNumbersController extends ApiController
         if ($lookup !== 'Twilio ') {
 
             $exist_in_fan_club = FanClub::where('is_active', 1)->where('local_number', $mess->from)->exists();
-  //dd($exist_in_fan_club,$mess->from,$mess->to);
+ 
   
             if (!$exist_in_fan_club) {
 
