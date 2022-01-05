@@ -31,7 +31,19 @@ class TwilioNumbersController extends ApiController
     {
 
         $country = Country::find($country_id);
-        return $this->client->availablePhoneNumbers($country->country_sort_name)->local->read([], $nosToBuy);
+        $numbers =  $this->client->availablePhoneNumbers($country->country_sort_name)
+            ->local
+            ->read([
+
+//                'region' => $country->country_sort_name,
+//                'addressRequirements'=>'local',
+//                'excludeAllAddressRequired' => true,
+//                'smsEnabled'=>true,
+//                'capabilities'=> [
+//                    "SMS" => false
+//      ]
+            ], $nosToBuy);
+        return $numbers;
     }
 
 
