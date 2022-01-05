@@ -98,9 +98,15 @@ class TwilioNumbersController extends ApiController
 
     public function twilioWebhook()
     {
+        //temp_id
         $uuid = \Illuminate\Support\Str::uuid()->toString();
+        //user_id of twillio number
         $user = User::where('phone_no','03077020163')->first();
-
+        //local number
+        $local_number = '03077020163';
+        //insert into fan_club
+            //send message from twillio number to local with signup link and welcome
+            //if fan signup it will become know contact
 
         $input = (file_get_contents('php://input'));
         DB::table('twilio_response')->insert([
@@ -108,10 +114,10 @@ class TwilioNumbersController extends ApiController
         ]);
     }
     public function insertInFanClub($influencer_id,$fan_phon_number,$uuid) {
-        FanClub::create();
+//        FanClub::create();
     }
-    public function generateSignUplink($uuid) {
-        $url = config('general.front_app_url').'/account/register?id='.$uuid;
+    public function generateSignUplink($temp_id) {
+        $url = config('general.front_app_url').'/account/register?id='.$temp_id;
         return $url;
     }
     public function twilioFeedback()
