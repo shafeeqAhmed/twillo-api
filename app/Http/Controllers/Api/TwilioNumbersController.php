@@ -40,9 +40,12 @@ class TwilioNumbersController extends ApiController
 //                'excludeAllAddressRequired' => true,
 //                'smsEnabled'=>true,
 //                'capabilities'=> [
-//                    "SMS" => false
+//                    "Voice" => false,
+//                    "MMS" => false,
+//                    "SMS" => true
 //      ]
             ], $nosToBuy);
+//        dd($numbers);
         return $numbers;
     }
 
@@ -125,7 +128,7 @@ class TwilioNumbersController extends ApiController
         ]);
     }
     public function insertInFanClub($influencer_id,$fan_phon_number,$uuid) {
-        FanClub::create();
+//        FanClub::create();
     }
     public function generateSignUplink($uuid) {
         $url = config('general.front_app_url').'/account/register?id='.$uuid;
@@ -161,19 +164,20 @@ class TwilioNumbersController extends ApiController
            
         
         if ($lookup !== 'Twilio ') {
+            $user = User::where('phone_no', $mess->to)->first();
 
-            $exist_in_fan_club = FanClub::where('is_active', 1)->where('local_number', $mess->from)->exists();
+            $exist_in_fan_club = FanClub::where('is_active', 1)->where('user_id',$user->id)->where('local_number', $mess->from)->exists();
  
   
             if (!$exist_in_fan_club) {
 
                 $uuid = \Illuminate\Support\Str::uuid()->toString();
-                $user = User::where('phone_no', $mess->to)->first();
                 if ($user->count() != 0) {
 
                     $exist_in_fan_club = FanClub::where('is_active', 0)
-                    ->where('local_number', $mess->from)
-                    ->delete();
+                        ->where('local_number', $mess->from)
+                        ->where('user_id',$user->id)
+                        ->delete();
 
                     FanClub::create([
                         'fan_club_uuid' => Str::uuid()->toString(),

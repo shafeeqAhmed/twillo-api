@@ -15,6 +15,17 @@ class CreateFansTable extends Migration
     {
         Schema::create('fans', function (Blueprint $table) {
             $table->id();
+            $table->uuid('fan_uuid')->unique();
+            $table->string('fname')->nullable();
+            $table->string('lname')->nullable();
+            $table->string('email')->unique();
+            $table->string('phone_no');
+            $table->string('city')->nullable();
+            $table->enum('gender', ['Male', 'Female', 'Other'])->nullable();
+            $table->date('dob')->nullable();
+            $table->text('twitter')->nullable();
+            $table->text('instagram')->nullable();
+            $table->text('ticktok')->nullable();
             $table->timestamps();
         });
     }
