@@ -174,7 +174,7 @@ class TwilioNumbersController extends ApiController
                 $uuid = \Illuminate\Support\Str::uuid()->toString();
                 if ($user->count() != 0) {
 
-                    $exist_in_fan_club = FanClub::where('is_active', 0)
+                     FanClub::where('is_active', 0)
                         ->where('local_number', $mess->from)
                         ->where('user_id',$user->id)
                         ->delete();
