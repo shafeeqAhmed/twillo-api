@@ -190,6 +190,7 @@ class TwilioNumbersController extends ApiController
             }else{
                 $sender_id = Fan::where('phone_no', $mess->from)->first()->id;
                 $receiver_id = User::where('phone_no', $mess->to)->first()->id;
+//                dd($sender_id,$receiver_id,$mess->from,$mess->to);
                 $message_record = [
                     'sms_uuid' => Str::uuid()->toString(),
                     'sender_id' => $sender_id,
