@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use App\Models\TwilioNumbers;
@@ -39,28 +40,25 @@ class TwilioChatController extends ApiController
 
 
 
-        $to = User::where('id', $receiver_id)->first();
-        $receiver_image=$to->profile_photo_path;
-        $to = $to->phone_no;
-          
-          
-        if(!$receiver_image){
-              $receiver_image= asset('storage/users/profile/default.png');
-        }
-      /*   
-
-       $messages = $this->client->messages
+        $to = FanClub::where('id', $receiver_id)->first();
+//        $receiver_image=$to->profile_photo_path;
+        $to = $to->local_number;
+//        dd($from,$to);
+//
+//
+//        if(!$receiver_image){
+//              $receiver_image= asset('storage/users/profile/default.png');
+//        }
+        $receiver_image= asset('storage/users/profile/default.png');
+        $messages1 = $this->client->messages
             ->read(
                 [
                     "from" => $from,
                     "to" => $to,
                     'order' => 'desc'
                 ],
-                5
+                50
             );
-
-
-
         $messages2 = $this->client->messages
             ->read(
                 [
@@ -68,37 +66,89 @@ class TwilioChatController extends ApiController
                     "to" => $from,
                     'order' => 'desc'
                 ],
-                5
-            ); */
+                50
+            );
+        $messages = array_merge($messages1,$messages2);
+        $message_history = [];
+        foreach($messages as $index => $message) {
+            $list = $message->toArray();
+//            dd($list);
+//            $ar  = [];
+//            $ar['from'] = $list['from'];
+//            $ar['to'] = $list['to'];
+//            $ar['body'] = $list['body'];
+//            $ar['dateSentTimeStamp'] = strtotime($list['dateSent']->format('Y-m-d H:i:s'));
+//            $ar['dateSent'] = $list['dateSent']->format('Y-m-d H:i:s');
+//            $message_history[] = $ar;
+            $message_history[$index]['message'] = $list['body'];
+            $message_history[$index]['direction'] = $list['direction'];
+            $message_history[$index]['align'] = $list['direction'] != 'inbound' ? 'right' : '';
+            $message_history[$index] ['timestamp'] = strtotime($list['dateSent']->format('Y-m-d H:i:s'));
+            $message_history[$index] ['time'] = Carbon::parse($list['dateSent']->format('Y-m-d H:i:s'))->diffForHumans();
+            $message_history[$index]['id'] = 0;
+            $message_history[$index]['to'] = $list['to'];
+            $message_history[$index]['from'] = $list['from'];
+            $message_history[$index]['name'] = '';
+            $message_history[$index]['image'] = $list['direction'] != 'inbound' ? $request->user()->profile_photo_path : $receiver_image;
 
-        $messages = $this->client->messages->read(['order', 'desc'], 7);
-
-        $message_history = array();
-        foreach ($messages   as $index => $record) {
-
-            $mess = $this->client->messages($record->sid)
-                ->fetch();
-
-            if (($mess->from == $from && $mess->to == $to) || ($mess->from == $to && $mess->to == $from)) {
-                    
-                if(!str_contains($mess->body, 'You are Welcome In Portal')){
-                  
-                $message_history[$index]['message'] = $mess->body;
-                $message_history[$index]['direction'] = $mess->direction;
-                // $message_history[$index] ['time'] = $mess->dateSent;
-                 $message_history[$index] ['time'] = '12-4-2022';
-                $message_history[$index]['align'] = $mess->direction != 'inbound' ? 'right' : '';
-                $message_history[$index]['id'] = 0;
-                $message_history[$index]['to'] = $mess->to;
-                $message_history[$index]['from'] = $mess->direction != 'inbound' ? $mess->from : $mess->to;
-                $message_history[$index]['name'] = 'talha';
-                $message_history[$index]['image'] = $mess->direction != 'inbound' ? $request->user()->profile_photo_path : $receiver_image;
-            }
         }
+        $message_history = Collect($message_history)->sortBy('timestamp',SORT_NATURAL);
+        $list = [];
+        foreach($message_history as $history) {
+            $list[] = $history;
         }
 
+
+//       $messages = $this->client->messages
+//            ->read(
+//                [
+//                    "from" => $from,
+//                    "to" => $to,
+//                    'order' => 'desc'
+//                ],
+//                5
+//            );
+
+
+
+//        $messages2 = $this->client->messages
+//            ->read(
+//                [
+//                    "from" => $to,
+//                    "to" => $from,
+//                    'order' => 'desc'
+//                ],
+//                5
+//            );
+
+//        $messages = $this->client->messages->read(['order', 'desc'], 7);
+//            $messages = array_merge($messages,$messages2);
+//        $message_history = array();
+//        foreach ($messages   as $index => $record) {
+//
+//            $mess = $this->client->messages($record->sid)
+//                ->fetch();
+//
+//            if (($mess->from == $from && $mess->to == $to) || ($mess->from == $to && $mess->to == $from)) {
+//
+//                if(!str_contains($mess->body, 'You are Welcome In Portal')){
+//
+//                $message_history[$index]['message'] = $mess->body;
+//                $message_history[$index]['direction'] = $mess->direction;
+//                // $message_history[$index] ['time'] = $mess->dateSent;
+//                 $message_history[$index] ['time'] = '12-4-2022';
+//                $message_history[$index]['align'] = $mess->direction != 'inbound' ? 'right' : '';
+//                $message_history[$index]['id'] = 0;
+//                $message_history[$index]['to'] = $mess->to;
+//                $message_history[$index]['from'] = $mess->from;
+////                $message_history[$index]['from'] = $mess->direction != 'inbound' ? $mess->from : $mess->to;
+//                $message_history[$index]['name'] = '';
+//                $message_history[$index]['image'] = $mess->direction != 'inbound' ? $request->user()->profile_photo_path : $receiver_image;
+//            }
+//        }
+//        }
         return $this->respond([
-            'data' => $message_history
+            'data' => $list
         ]);
     }
 
@@ -107,7 +157,7 @@ class TwilioChatController extends ApiController
     {
         $sender_id = $request->user()->id;
 
-        $users = FanClub::with('user')->latest()->select('id', 'fan_club_uuid', 'local_number', 'fan_id', 'temp_id', 'created_at')->groupBy('local_number')->where('user_id', $sender_id)->where('is_active', 1)->orderBy('created_at', 'desc')->get();
+        $users = FanClub::with('fan')->latest()->select('id', 'fan_club_uuid', 'local_number', 'fan_id', 'temp_id', 'created_at')->groupBy('local_number')->where('user_id', $sender_id)->where('is_active', 1)->orderBy('created_at', 'desc')->get();
 
         return $this->respond([
             'data' => ($users)
@@ -134,7 +184,7 @@ class TwilioChatController extends ApiController
             'created_at' =>date('d-m-y'),
         ];
 
-        ChatEvent::dispatch($message_record);
+//        ChatEvent::dispatch($message_record);
 
         return $this->respond([
             'data' => $message_record

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\FanClub;
 use App\Models\TwilioNumbers;
 use App\Models\User;
 use Exception;
@@ -85,6 +86,15 @@ class UserController extends ApiController
         return $this->respond([
             'data' => ['user' => $detail]
         ]);
+    }
+    public function isValidReference($reference) {
+        $fan_club = FanClub::where('temp_id',$reference)
+            ->where('is_active',0)
+            ->first();
+        if(!$fan_club) {
+            $data['is_valid_reference'] = true;
+            return $data;
+        }
     }
 
 

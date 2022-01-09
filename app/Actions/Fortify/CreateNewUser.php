@@ -34,19 +34,21 @@ class CreateNewUser implements CreatesNewUsers
 //            'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['required', 'accepted'] : '',
         ])->validate();
 
-//         check fan reference exist or not?
-        $fan_club = FanClub::where('temp_id',$input['reference'])->where('is_active',0)->first();
-//        dd($fan_club);
+//         check fan reference to exist or not?
+        $fan_club = FanClub::where('temp_id',$input['reference'])
+            ->where('is_active',0)
+            ->with('user')
+            ->first();
         if(!$fan_club) {
             $data['is_valid_reference'] = false;
            return $data;
         }
-
         $fan_data = [
             'fan_uuid' => Str::uuid()->toString(),
             'fname' => $input['first_name'],
             'lname' => $input['last_name'],
             'email' => $input['email'],
+            'profile_photo_path' =>asset('storage/users/profile/default.png'),
             'country_id' => $input['country_id'],
             'city' => $input['city'],
             'gender' => $input['gender'],
@@ -58,24 +60,11 @@ class CreateNewUser implements CreatesNewUsers
 
         ];
         $fan = Fan::create($fan_data);
-//        $user = User::create([
-//            'user_uuid' => Str::uuid()->toString(),
-//            'name' => $input['first_name'].' '. $input['last_name'],
-//            'fname' => $input['first_name'],
-//            'lname' => $input['last_name'],
-//            'email' => $input['email'],
-//            'country_id' => $input['country_id'],
-//            'city' => $input['city'],
-//            'gender' => $input['gender'],
-//            'phone_no' => $fan_club->local_number,
-//            'dob' => $input['dob'],
-//            'instagram' => $input['instagram'],
-//            'twitter' => $input['twitter'],
-//            'ticktok' => $input['ticktok'],
-//        ]);
-        //if user register successfully add him into his fan club
-//        dd($user->id);
-       $fan_club->update(['fan_id'=>$fan->id,'is_active'=>1]);
+
+        $result = FanClub::updateFanClub('temp_id',$input['reference'],['fan_id'=>$fan->id,'is_active'=>1]);
+        if($result) {
+            sendSms($fan_club['user']['phone_no'],$fan_club->local_number,'You Subscribe me successful!, Thanks for connection');
+        }
         return $fan;
     }
 }

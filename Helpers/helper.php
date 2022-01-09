@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Twilio\Rest\Client;
 
 if (!function_exists('uploadImage')) {
     function uploadImage($key, $directory)
@@ -65,5 +66,17 @@ if (!function_exists('isFileExist')) {
         $arr = explode('/', $url);
         $path = 'public/' . $directory . '/' . end($arr);
         return Storage::exists($path);
+    }
+}
+if (!function_exists('sendSms')) {
+    function sendSms($from, $to,$body)
+    {
+        $sid = config('general.twilio_sid');
+        $token = config('general.twilio_token');
+        $client = new Client($sid, $token);
+        $client->messages->create(
+                $to,
+                ["body" => $body, "from" =>  $from, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+            );
     }
 }
