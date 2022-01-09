@@ -77,7 +77,8 @@ Route::post('sms_service', [\App\Http\Controllers\Api\TwilioChatController::clas
 Route::get('get_chat_users/{id}', [\App\Http\Controllers\Api\TwilioChatController::class, 'getChatMessages']);
 
 Route::get('get_chat_contacts', [\App\Http\Controllers\Api\TwilioChatController::class, 'getInfluencerContacts']);
+Route::get('get_influencer_dashboard_info', [\App\Http\Controllers\Api\UserController::class, 'getInfluencerDashboardInfo']);
 
 });
 
-Route::get('is-valid-reference/{reference}', [\App\Http\Controllers\Api\UserController::class, 'getUserDetail']);
+Route::get('is-valid-reference/{reference}', [\App\Http\Controllers\Api\UserController::class, 'isValidReference']);

@@ -18,30 +18,30 @@ class UserController extends ApiController
     public function myDetail(Request $request)
     {
 
-            $data['my_detail'] = $request->user();
-            return $this->respond([
-        'data' => $data
-        ]);
-
-    }
-    public function getUserDetail($user_uuid)
-    {
-
-        $data['user_detail'] = User::getUser('user_uuid',$user_uuid);
+        $data['my_detail'] = $request->user();
         return $this->respond([
-        'data' => $data
-        ]);
-    }
-	 public function userList()
-    {
-
-            $data['list'] = User::paginate(10);
-             return $this->respond([
             'data' => $data
         ]);
 
     }
 
+    public function getUserDetail($user_uuid)
+    {
+
+        $data['user_detail'] = User::getUser('user_uuid', $user_uuid);
+        return $this->respond([
+            'data' => $data
+        ]);
+    }
+
+    public function userList()
+    {
+        $data['list'] = User::paginate(10);
+        return $this->respond([
+            'data' => $data
+        ]);
+
+    }
 
 
     public function getInfluencersList()
@@ -55,27 +55,27 @@ class UserController extends ApiController
     public function updateProfile(Request $request)
     {
 
-     
-        $user_record=User::where('user_uuid',$request->user_uuid)->first();
-          
+
+        $user_record = User::where('user_uuid', $request->user_uuid)->first();
+
         $data['fname'] = $request->fname;
         $data['lname'] = $request->lname;
         if (!empty($request->password)) {
             $data['password'] = Hash::make($request->password);
         }
         if (request()->hasFile('previewImage')) {
-                $imageUrl = uploadImage('previewImage', 'users/profile', 300, 300);
-                $oldFile = $user_record['profile_photo_path'];
-                
-                if($oldFile){
-                      removeImage('users/profile', $oldFile);
-                }
-              
-                $data['profile_photo_path'] = $imageUrl;
+            $imageUrl = uploadImage('previewImage', 'users/profile', 300, 300);
+            $oldFile = $user_record['profile_photo_path'];
+
+            if ($oldFile) {
+                removeImage('users/profile', $oldFile);
             }
-            
-         User::where('id',$user_record['id'])->update($data);
-         $user = User::where('id',$user_record['id'])->first();
+
+            $data['profile_photo_path'] = $imageUrl;
+        }
+
+        User::where('id', $user_record['id'])->update($data);
+        $user = User::where('id', $user_record['id'])->first();
         $detail = collect($user)->only(['user_uuid', 'name', 'email', 'phone_no', 'profile_photo_path']);
         if (count($user->getRoleNames()) > 0) {
             $detail['scope'] = $user->getRoleNames();
@@ -87,16 +87,35 @@ class UserController extends ApiController
             'data' => ['user' => $detail]
         ]);
     }
-    public function isValidReference($reference) {
-        $fan_club = FanClub::where('temp_id',$reference)
-            ->where('is_active',0)
+
+    public function isValidReference($reference)
+    {
+        $fan_club = FanClub::where('temp_id', $reference)
+            ->where('is_active', 0)
             ->first();
-        if(!$fan_club) {
-            $data['is_valid_reference'] = true;
-            return $data;
+        $status = false;
+        if ($fan_club) {
+            $status = true;
         }
+        return $this->respond([
+            'data' => $status
+        ]);
+
     }
 
+ public function getInfluencerDashboardInfo(Request $request)
+    {
+        $data['user'] = User::where('id',$request->user()->id)->select('send_message_count','received_message_count')->first();
+        $total_contact = FanClub::with('fan')->latest()
+            ->select('id', 'fan_club_uuid', 'local_number', 'fan_id', 'temp_id', 'created_at')
+            ->groupBy('local_number')->where('user_id', $request->user()->id)
+            ->where('is_active', 1)
+            ->orderBy('created_at', 'desc')->get();
+        $data['total_contacts'] = count($total_contact);
+        return $this->respond([
+            'data' => $data
+        ]);
+    }
 
 
 }
