@@ -40,8 +40,6 @@ class TwilioNumbersController extends ApiController
     {
         $twilioPhoneNumbers = $this->getTwillioNumbers($nosToBuy, $country_code);
         $data = array();
-
-        //   dd($twilioPhoneNumbers);
         $address_id=0;
 
         if($twilioPhoneNumbers[0]->addressRequirements!='none'){
@@ -70,7 +68,7 @@ class TwilioNumbersController extends ApiController
 
     public function buy($twilioPhoneNumber,$address_sid)
     {
-        if($address_sid!=0){
+//        if($address_sid!=0){
             $this->client->incomingPhoneNumbers->create([
                     'phoneNumber' => $twilioPhoneNumber,
                     "smsUrl" => "https://text-app.tkit.co.uk/api/api/twilio_webhook",
@@ -82,7 +80,7 @@ class TwilioNumbersController extends ApiController
 
 
         return $twilioPhoneNumber;
-    }
+//    }
     }
 
     public function msgTracking(Request $request)
