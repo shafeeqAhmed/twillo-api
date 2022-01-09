@@ -133,7 +133,6 @@ class TwilioNumbersController extends ApiController
     }
     public function twilioFeedback($input = '')
     {
-        $input = 'SmsSid=SMd0a92cfd8de84449a46e951dec904cff&SmsStatus=sent&MessageStatus=sent&To=%2B13322427816&MessageSid=SMd0a92cfd8de84449a46e951dec904cff&AccountSid=AC193fd584652e4c3bb7c3e918f06b065e&From=%2B19387777156&ApiVersion=2010-04-01';
         $data = explode('&', $input)[0];
         $data = explode('=', $data);
 
