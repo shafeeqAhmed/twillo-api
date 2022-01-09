@@ -19,6 +19,7 @@ class CreateFansTable extends Migration
             $table->string('fname')->nullable();
             $table->string('lname')->nullable();
             $table->string('email')->unique();
+            $table->string('profile_photo_path')->nullable();
             $table->string('phone_no');
             $table->string('city')->nullable();
             $table->enum('gender', ['Male', 'Female', 'Other'])->nullable();
