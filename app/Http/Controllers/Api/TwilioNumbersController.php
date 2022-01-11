@@ -33,7 +33,12 @@ class TwilioNumbersController extends ApiController
 
         $country = Country::find($country_id);
 
-         return $this->client->availablePhoneNumbers($country->country_sort_name)->mobile->read([], $nosToBuy);
+        if($country->country_sort_name == 'GB') {
+            $res = $this->client->availablePhoneNumbers($country->country_sort_name)->mobile->read([], $nosToBuy);
+        } else {
+            $res = $this->client->availablePhoneNumbers($country->country_sort_name)->local->read([], $nosToBuy);
+        }
+        return $res;
     }
 
     public function purchaseTwillioNumbers($nosToBuy, $country_code)
@@ -58,7 +63,7 @@ class TwilioNumbersController extends ApiController
 
         $data['number'] = $this->buy($twilioPhoneNumbers[0]->phoneNumber,$address_id);
         /*for ($loop = 0; $loop < $nosToBuy; $loop++) {
-            $data['number'] = $this->buy($twilioPhoneNumbers[$loop]->phoneNumber);
+//            $data['number'] = $this->buy($twilioPhoneNumbers[$loop]->phoneNumber);
         }*/
 
         return $this->respond([
