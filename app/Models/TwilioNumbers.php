@@ -10,7 +10,7 @@ class TwilioNumbers extends Model
     use HasFactory;
     protected $table='twilio_numbers';
      protected $fillable = [
-        'no',
+        'no'
 //        'status'
     ];
     public static function updateTwilo($column,$value,$data){
