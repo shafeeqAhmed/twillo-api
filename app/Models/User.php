@@ -34,6 +34,8 @@ class User extends Authenticatable
         'city',
         'gender',
         'phone_no',
+        'send_message_count',
+        'received_message_count',
         'dob',
         'instagram',
         'twitter',

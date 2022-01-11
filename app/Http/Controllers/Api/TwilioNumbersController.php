@@ -32,58 +32,55 @@ class TwilioNumbersController extends ApiController
     {
 
         $country = Country::find($country_id);
-        $numbers =  $this->client->availablePhoneNumbers($country->country_sort_name)
-            ->local
-            ->read([
 
-//                'region' => $country->country_sort_name,
-//                'addressRequirements'=>'local',
-//                'excludeAllAddressRequired' => true,
-//                'smsEnabled'=>true,
-//                'capabilities'=> [
-//                    "Voice" => false,
-//                    "MMS" => false,
-//                    "SMS" => true
-//      ]
-            ], $nosToBuy);
-//        dd($numbers);
-        return $numbers;
+        return $this->client->availablePhoneNumbers($country->country_sort_name)->local->read([], $nosToBuy);
     }
-
 
     public function purchaseTwillioNumbers($nosToBuy, $country_code)
     {
         $twilioPhoneNumbers = $this->getTwillioNumbers($nosToBuy, $country_code);
         $data = array();
-        for ($loop = 0; $loop < $nosToBuy; $loop++) {
-            $data['number'] = $this->buy($twilioPhoneNumbers[$loop]->phoneNumber);
+        $address_id=0;
+
+        if($twilioPhoneNumbers[0]->addressRequirements!='none'){
+            $address =  $this->client->addresses
+                ->create($twilioPhoneNumbers[0]->friendlyName,
+                    "123",
+                    $twilioPhoneNumbers[0]->locality ?? 'California',
+                    $twilioPhoneNumbers[0]->region ?? $twilioPhoneNumbers[0]->isoCountry,
+                    $twilioPhoneNumbers[0]->postalCode ?? '00501',
+                    $twilioPhoneNumbers[0]->isoCountry
+                );
+
+            $address_id=$address->sid;
+
         }
+
+        $data['number'] = $this->buy($twilioPhoneNumbers[0]->phoneNumber,$address_id);
+        /*for ($loop = 0; $loop < $nosToBuy; $loop++) {
+            $data['number'] = $this->buy($twilioPhoneNumbers[$loop]->phoneNumber);
+        }*/
 
         return $this->respond([
             'data' => $data
         ]);
     }
 
-    public function buy($twilioPhoneNumber)
+    public function buy($twilioPhoneNumber,$address_sid)
     {
-
-          $this->client->incomingPhoneNumbers->create(
-            [
-                'phoneNumber' => $twilioPhoneNumber,
-                "smsUrl" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"
-
-        ]
-        );
-
-
-//        sleep(2);
-
+//        if($address_sid!=0){
+            $this->client->incomingPhoneNumbers->create([
+                    'phoneNumber' => $twilioPhoneNumber,
+                    "smsUrl" => "https://text-app.tkit.co.uk/api/api/twilio_webhook",
+                    "addressSid" => $address_sid,
+                ]);
               TwilioNumbers::create([
                     'no' => $twilioPhoneNumber,
                 ]);
 
 
         return $twilioPhoneNumber;
+//    }
     }
 
     public function msgTracking(Request $request)
@@ -122,13 +119,13 @@ class TwilioNumbersController extends ApiController
     {
         $input = (file_get_contents('php://input'));
 
-           $this->twilioFeedback($input);
         DB::table('twilio_response')->insert([
             'body_' => $input
         ]);
+        $this->twilioFeedback($input);
     }
     public function insertInFanClub($influencer_id,$fan_phon_number,$uuid) {
-//        FanClub::create();
+        FanClub::create();
     }
     public function generateSignUplink($uuid) {
         $url = config('general.front_app_url').'/account/register?id='.$uuid;
@@ -160,15 +157,17 @@ class TwilioNumbersController extends ApiController
           $lookup=explode('-',$phone_number->carrier['name'])[0];
         if ($lookup !== 'Twilio ') {
             $user = User::where('phone_no', $mess->to)->first();
+            sendAndReceiveSms($user->id,'receive');
+
             $exist_in_fan_club = FanClub::where('is_active', 1)->where('user_id',$user->id)->where('local_number', $mess->from)->exists();
             if (!$exist_in_fan_club) {
 
                 $uuid = \Illuminate\Support\Str::uuid()->toString();
                 if ($user->count() != 0) {
 
-                     FanClub::where('is_active', 0)
+                    FanClub::where('is_active', 0)
                         ->where('local_number', $mess->from)
-                        ->where('user_id',$user->id)
+                        ->where('user_id', $user->id)
                         ->delete();
 
                     FanClub::create([
@@ -181,17 +180,17 @@ class TwilioNumbersController extends ApiController
                         'temp_id_date_time' => date('Y-m-d H:i:s')
                     ]);
 
-                     $body = 'You are Welcome In Portal.To continue further please sign up from below link:   ' . $this->generateSignUplink($uuid);
+                    $body = 'You are Welcome In Portal.To continue further please sign up from below link:   ' . $this->generateSignUplink($uuid);
                     $message = $this->client->messages
                         ->create(
                             $mess->from,
                             ["body" => $body, "from" =>  $mess->to, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
-                        ); 
+                        );
                 }
             }else{
                 $sender_id = Fan::where('phone_no', $mess->from)->first()->id;
                 $receiver_id = User::where('phone_no', $mess->to)->first()->id;
-
+//                dd($sender_id,$receiver_id,$mess->from,$mess->to);
                 $message_record = [
                     'sms_uuid' => Str::uuid()->toString(),
                     'sender_id' => $sender_id,
@@ -203,12 +202,14 @@ class TwilioNumbersController extends ApiController
                     'align' => '',
                     'direction' => $mess->direction,
                 ];
-               
+
                 ChatEvent::dispatch($message_record);
             }
         }
-//        else {
-//            $sender_id = User::where('phone_no', $mess->from)->first()->id;
+        else {
+            $sender_id = User::where('phone_no', $mess->from)->first()->id;
+            sendAndReceiveSms($sender_id,'send');
+
 //            $receiver_id = Fan::where('phone_no', $mess->to)->first()->id;
 //
 //            $message_record = [
@@ -224,7 +225,7 @@ class TwilioNumbersController extends ApiController
 //            ];
 //
 //            ChatEvent::dispatch($message_record);
-//        }
+        }
 
 
 
@@ -268,87 +269,87 @@ class TwilioNumbersController extends ApiController
         }
     }
 
- public function twilioFeedbackBackup()
+    public function twilioFeedbackBackup()
     {
 
 
         $input = DB::table('twilio_response')->where('id',9)->first();
 
-          $data = explode('&', $input->body_)[0];
-          $data = explode('=', $data);
+        $data = explode('&', $input->body_)[0];
+        $data = explode('=', $data);
 
 
-           if($data[0]=='ToCountry'){
+        if($data[0]=='ToCountry'){
 
-             $record=explode('&', $input->body_)[2];
-             $record = explode('=', $record);
+            $record=explode('&', $input->body_)[2];
+            $record = explode('=', $record);
 
-              $msg_id =$record[1];
-           }else{
+            $msg_id =$record[1];
+        }else{
             $msg_id = explode('&', $input->body_)[4];
             $msg_id = explode('=', $msg_id);
             $msg_id =$msg_id[1];
-           }
+        }
 
 
 
-                       $mess = $this->client->messages($msg_id)
-                ->fetch();
+        $mess = $this->client->messages($msg_id)
+            ->fetch();
 
 
 
-              if($mess->direction=='outbound-api'){
+        if($mess->direction=='outbound-api'){
 
-        $fan_club=FanClub::where('is_active',1)->where('local_number',$mess->from)->orWhere('local_number',$mess->to)->get();
-        $wordCount = $fan_club->count();
+            $fan_club=FanClub::where('is_active',1)->where('local_number',$mess->from)->orWhere('local_number',$mess->to)->get();
+            $wordCount = $fan_club->count();
 
-         if($wordCount==0){
+            if($wordCount==0){
 
-           $uuid = \Illuminate\Support\Str::uuid()->toString();
-           $user = User::where('phone_no',$mess->from)->first();
-
-
-           if($user->count()!=0){
+                $uuid = \Illuminate\Support\Str::uuid()->toString();
+                $user = User::where('phone_no',$mess->from)->first();
 
 
-        FanClub::create([
-            'fan_club_uuid'=>0,
-            'user_id'=> $user->id,
-            'local_number'=> $mess->to,
-             'fan_id'=> 0,
-             'temp_id'=>Str::uuid()->toString(),
-             'is_active'=>0,
-             'temp_id_date_time'=>date('Y-m-d H:i:s')
-           ]);
-
-         $body='You are Welcome In Portal.To continue further please sign up from below link:   '.$this->generateSignUplink($uuid);
-            $message=$this->client->messages
-                  ->create($mess->to,
-                           ["body" => $body, "from" =>  $mess->from, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
-                  );
-           }
-         }
-              }else{
-                $sender_id=User::where('phone_no',$mess->from)->first()->id;
-
-                $receiver_id=User::where('phone_no',$mess->to)->first()->id;
-                 $message_record=[
-                   'sms_uuid'=>Str::uuid()->toString(),
-                   'sender_id'=>$sender_id,
-                   'receiver_id'=>$receiver_id,
-                    'message_id'=>0,
-                    'message'=>$mess->body,
-                    'is_seen'=>0,
-                    'created_at'=>'12-2-2021',
-                    'align'=>'',
-                    'direction'=>'inbound',
-
-                  ];
+                if($user->count()!=0){
 
 
-          ChatEvent::dispatch($message_record);
+                    FanClub::create([
+                        'fan_club_uuid'=>0,
+                        'user_id'=> $user->id,
+                        'local_number'=> $mess->to,
+                        'fan_id'=> 0,
+                        'temp_id'=>Str::uuid()->toString(),
+                        'is_active'=>0,
+                        'temp_id_date_time'=>date('Y-m-d H:i:s')
+                    ]);
 
-              }
+                    $body='You are Welcome In Portal.To continue further please sign up from below link:   '.$this->generateSignUplink($uuid);
+                    $message=$this->client->messages
+                        ->create($mess->to,
+                            ["body" => $body, "from" =>  $mess->from, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+                        );
+                }
+            }
+        }else{
+            $sender_id=User::where('phone_no',$mess->from)->first()->id;
+
+            $receiver_id=User::where('phone_no',$mess->to)->first()->id;
+            $message_record=[
+                'sms_uuid'=>Str::uuid()->toString(),
+                'sender_id'=>$sender_id,
+                'receiver_id'=>$receiver_id,
+                'message_id'=>0,
+                'message'=>$mess->body,
+                'is_seen'=>0,
+                'created_at'=>'12-2-2021',
+                'align'=>'',
+                'direction'=>'inbound',
+
+            ];
+
+
+            ChatEvent::dispatch($message_record);
+
+        }
 
 
 
@@ -372,20 +373,20 @@ class TwilioNumbersController extends ApiController
 
             $mess = $this->client->messages($msg_id[1])
                 ->fetch();
-             echo '<br>';
-             echo '<br>'. $value->id;
+            echo '<br>';
+            echo '<br>'. $value->id;
             echo '<br>to= ' . $mess->to;
             echo '<br>from= ' . $mess->from;
 
             $fan_club=FanClub::where('active',1)->where(['from'=>$from,'to'=>$to])->get();
 
-              $messages = $this->client->messages
-            ->read(
-                [
-                    "from" => $mess->from,
-                ],
-                100
-           );
+            $messages = $this->client->messages
+                ->read(
+                    [
+                        "from" => $mess->from,
+                    ],
+                    100
+                );
 
             echo '<pre>';
             print_r(count( $messages));

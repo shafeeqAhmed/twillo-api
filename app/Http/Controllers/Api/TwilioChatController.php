@@ -32,7 +32,7 @@ class TwilioChatController extends ApiController
         $this->client = new Client($sid, $token);
     }
 
-    public function getChatMessages(Request $request, $id)
+    public function getChatMessages(Request $request, $id,$pageSize=5)
     {
 
         $from = $request->user()->phone_no;
@@ -57,7 +57,7 @@ class TwilioChatController extends ApiController
                     "to" => $to,
                     'order' => 'desc'
                 ],
-                50
+                $pageSize
             );
         $messages2 = $this->client->messages
             ->read(
@@ -66,7 +66,7 @@ class TwilioChatController extends ApiController
                     "to" => $from,
                     'order' => 'desc'
                 ],
-                50
+                $pageSize
             );
         $messages = array_merge($messages1,$messages2);
         $message_history = [];
@@ -89,6 +89,7 @@ class TwilioChatController extends ApiController
             $message_history[$index]['to'] = $list['to'];
             $message_history[$index]['from'] = $list['from'];
             $message_history[$index]['name'] = '';
+            $message_history[$index]['status'] = $list['status'];
             $message_history[$index]['image'] = $list['direction'] != 'inbound' ? $request->user()->profile_photo_path : $receiver_image;
 
         }
@@ -156,7 +157,6 @@ class TwilioChatController extends ApiController
     public function getInfluencerContacts(Request $request)
     {
         $sender_id = $request->user()->id;
-
         $users = FanClub::with('fan')->latest()->select('id', 'fan_club_uuid', 'local_number', 'fan_id', 'temp_id', 'created_at')->groupBy('local_number')->where('user_id', $sender_id)->where('is_active', 1)->orderBy('created_at', 'desc')->get();
 
         return $this->respond([

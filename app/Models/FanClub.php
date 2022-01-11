@@ -17,7 +17,7 @@ class FanClub extends Model
     public function user(){
         return $this->belongsTo('\App\Models\User','user_id','id');
     }
-    public function updateFanClub($column,$value,$data) {
+    public static function updateFanClub($column,$value,$data) {
         return self::where($column,$value)
                     ->where('is_active',0)
                     ->update($data);

@@ -37,7 +37,6 @@ class ChatUser  implements ShouldBroadcast
 
         $user_id=FanClub::where('local_number',$this->data['phone_no'])->first()->user_id;
         $user_uuid=User::find($user_id)->user_uuid;
-    
         return  new Channel('user.'.$user_uuid);
     }
 

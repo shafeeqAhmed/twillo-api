@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Twilio\Rest\Client;
-
+use App\Models\User;
 if (!function_exists('uploadImage')) {
     function uploadImage($key, $directory)
     {
@@ -75,8 +75,34 @@ if (!function_exists('sendSms')) {
         $token = config('general.twilio_token');
         $client = new Client($sid, $token);
         $client->messages->create(
-                $to,
-                ["body" => $body, "from" =>  $from, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
-            );
+            $to,
+            ["body" => $body, "from" =>  $from, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+        );
+    }
+}
+
+if (!function_exists('sendSms')) {
+    function sendSms($from, $to,$body)
+    {
+        $sid = config('general.twilio_sid');
+        $token = config('general.twilio_token');
+        $client = new Client($sid, $token);
+        $client->messages->create(
+            $to,
+            ["body" => $body, "from" =>  $from, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+        );
+    }
+}
+
+if (!function_exists('sendAndReceiveSms')) {
+    function sendAndReceiveSms($user_id,$type)
+    {
+       if($type == 'send') {
+           User::find($user_id)->increment('send_message_count');
+       }
+       if($type == 'receive') {
+           User::find($user_id)->increment('received_message_count');
+       }
+
     }
 }

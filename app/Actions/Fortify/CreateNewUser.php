@@ -5,6 +5,7 @@ namespace App\Actions\Fortify;
 use App\Models\Fan;
 use App\Models\FanClub;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
@@ -59,11 +60,15 @@ class CreateNewUser implements CreatesNewUsers
             'ticktok' => $input['ticktok'],
 
         ];
+        DB::beginTransaction();
         $fan = Fan::create($fan_data);
 
         $result = FanClub::updateFanClub('temp_id',$input['reference'],['fan_id'=>$fan->id,'is_active'=>1]);
         if($result) {
             sendSms($fan_club['user']['phone_no'],$fan_club->local_number,'You Subscribe me successful!, Thanks for connection');
+            DB::commit();
+        } else {
+            DB::rollBack();
         }
         return $fan;
     }
