@@ -33,7 +33,7 @@ class TwilioNumbersController extends ApiController
 
         $country = Country::find($country_id);
 
-        return $this->client->availablePhoneNumbers($country->country_sort_name)->local->read([], $nosToBuy);
+         $res = $this->client->availablePhoneNumbers($country->country_sort_name)->mobile->read([], $nosToBuy);
     }
 
     public function purchaseTwillioNumbers($nosToBuy, $country_code)
