@@ -28,23 +28,28 @@ class TwilioNumbersController extends ApiController
         $this->client = new Client($sid, $token);
     }
 
-    public function getTwillioNumbers($nosToBuy, $country_id)
+    public function getTwillioNumbers($nosToBuy, $country_id,$state)
     {
-
+      
+       $region=[];
+         if($state!='' && $state!=0 ){
+           $region=["inRegion" => $state];
+         }
         $country = Country::find($country_id);
 
         if($country->country_sort_name == 'GB') {
             $res = $this->client->availablePhoneNumbers($country->country_sort_name)->mobile->read([], $nosToBuy);
         } else {
-            $res = $this->client->availablePhoneNumbers($country->country_sort_name)->local->read([], $nosToBuy);
+            $res = $this->client->availablePhoneNumbers($country->country_sort_name)->local->read($region, $nosToBuy);
         }
         return $res;
     }
 
-    public function purchaseTwillioNumbers($nosToBuy, $country_code)
+    public function purchaseTwillioNumbers($nosToBuy, $country_code,$state)
     {
         try {
-            $twilioPhoneNumbers = $this->getTwillioNumbers($nosToBuy, $country_code);
+            $twilioPhoneNumbers = $this->getTwillioNumbers($nosToBuy, $country_code,$state);
+
             $data = array();
             $address_id=0;
 
@@ -85,9 +90,9 @@ class TwilioNumbersController extends ApiController
 //                    "smsUrl" => "https://text-app.tkit.co.uk/api/api/twilio_webhook",
 //                    "addressSid" => $address_sid,
 //                ]);
-              TwilioNumbers::create([
+              /*TwilioNumbers::create([
                     'no' => $twilioPhoneNumber,
-                ]);
+                ]);*/
 
 
         return $twilioPhoneNumber;
