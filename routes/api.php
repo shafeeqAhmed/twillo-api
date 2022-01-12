@@ -33,7 +33,7 @@ Route::post('/forgot-password', [\App\Http\Controllers\Api\AuthController::class
 
 
 
-Route::get('buy-twillio-numbers/{no}/{country_id}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'purchaseTwillioNumbers']);
+Route::get('buy-twillio-numbers/{no}/{country_id}/{state}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'purchaseTwillioNumbers']);
 
 Route::get('users/{user_uuid}', [\App\Http\Controllers\Api\UserController::class, 'getUserDetail']);
 
