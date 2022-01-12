@@ -38,8 +38,6 @@ class TwilioChatController extends ApiController
         $from = $request->user()->phone_no;
         $receiver_id = $id;
 
-
-
         $to = FanClub::where('id', $receiver_id)->first();
 //        $receiver_image=$to->profile_photo_path;
         $to = $to->local_number;

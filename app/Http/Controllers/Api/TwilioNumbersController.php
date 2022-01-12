@@ -33,47 +33,58 @@ class TwilioNumbersController extends ApiController
 
         $country = Country::find($country_id);
 
-        return $this->client->availablePhoneNumbers($country->country_sort_name)->mobile->read([], $nosToBuy);
+        if($country->country_sort_name == 'GB') {
+            $res = $this->client->availablePhoneNumbers($country->country_sort_name)->mobile->read([], $nosToBuy);
+        } else {
+            $res = $this->client->availablePhoneNumbers($country->country_sort_name)->local->read([], $nosToBuy);
+        }
+        return $res;
     }
 
     public function purchaseTwillioNumbers($nosToBuy, $country_code)
     {
-        $twilioPhoneNumbers = $this->getTwillioNumbers($nosToBuy, $country_code);
-        $data = array();
-        $address_id=0;
+        try {
+            $twilioPhoneNumbers = $this->getTwillioNumbers($nosToBuy, $country_code);
+            $data = array();
+            $address_id=0;
 
-        if($twilioPhoneNumbers[0]->addressRequirements!='none'){
-            $address =  $this->client->addresses
-                ->create($twilioPhoneNumbers[0]->friendlyName,
-                    "123",
-                    $twilioPhoneNumbers[0]->locality ?? 'California',
-                    $twilioPhoneNumbers[0]->region ?? $twilioPhoneNumbers[0]->isoCountry,
-                    $twilioPhoneNumbers[0]->postalCode ?? '00501',
-                    $twilioPhoneNumbers[0]->isoCountry
-                );
+            if($twilioPhoneNumbers[0]->addressRequirements!='none'){
+                $address =  $this->client->addresses
+                    ->create($twilioPhoneNumbers[0]->friendlyName,
+                        "123",
+                        $twilioPhoneNumbers[0]->locality ?? 'California',
+                        $twilioPhoneNumbers[0]->region ?? $twilioPhoneNumbers[0]->isoCountry,
+                        $twilioPhoneNumbers[0]->postalCode ?? '00501',
+                        $twilioPhoneNumbers[0]->isoCountry
+                    );
 
-            $address_id=$address->sid;
+                $address_id=$address->sid;
 
+            }
+
+            $data['number'] = $this->buy($twilioPhoneNumbers[0]->phoneNumber,$address_id);
+
+
+            return $this->respond([
+                'data' => $data,
+                'status'=>true,
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'data' => [],
+                'status'=>false,
+            ]);
         }
-
-        $data['number'] = $this->buy($twilioPhoneNumbers[0]->phoneNumber,$address_id);
-        /*for ($loop = 0; $loop < $nosToBuy; $loop++) {
-            $data['number'] = $this->buy($twilioPhoneNumbers[$loop]->phoneNumber);
-        }*/
-
-        return $this->respond([
-            'data' => $data
-        ]);
     }
 
     public function buy($twilioPhoneNumber,$address_sid)
     {
 //        if($address_sid!=0){
-            $this->client->incomingPhoneNumbers->create([
-                    'phoneNumber' => $twilioPhoneNumber,
-                    "smsUrl" => "https://text-app.tkit.co.uk/api/api/twilio_webhook",
-                    "addressSid" => $address_sid,
-                ]);
+//            $this->client->incomingPhoneNumbers->create([
+//                    'phoneNumber' => $twilioPhoneNumber,
+//                    "smsUrl" => "https://text-app.tkit.co.uk/api/api/twilio_webhook",
+//                    "addressSid" => $address_sid,
+//                ]);
               TwilioNumbers::create([
                     'no' => $twilioPhoneNumber,
                 ]);
