@@ -65,7 +65,7 @@ class CreateNewUser implements CreatesNewUsers
 
         $result = FanClub::updateFanClub('temp_id',$input['reference'],['fan_id'=>$fan->id,'is_active'=>1]);
         if($result) {
-            sendSms($fan_club['user']['phone_no'],$fan_club->local_number,'You Subscribe me successful!, Thanks for connection');
+           sendSms($fan_club['user']['phone_no'],$fan_club->local_number,'Hey you are officially saved in my contacts!! Quick info your carrier’s Msg&Data rates may apply. Reply HELP for help, STOP to cancel.');
             DB::commit();
         } else {
             DB::rollBack();

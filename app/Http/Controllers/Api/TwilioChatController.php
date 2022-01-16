@@ -78,7 +78,7 @@ class TwilioChatController extends ApiController
 //            $ar['dateSentTimeStamp'] = strtotime($list['dateSent']->format('Y-m-d H:i:s'));
 //            $ar['dateSent'] = $list['dateSent']->format('Y-m-d H:i:s');
 //            $message_history[] = $ar;
- if(!str_contains($list['body'], 'You are Welcome In Portal')){
+            if(!str_contains($list['body'], 'Hey! This is an auto text to let you know')){
             $message_history[$index]['message'] = $list['body'];
             $message_history[$index]['direction'] = $list['direction'];
             $message_history[$index]['align'] = $list['direction'] != 'inbound' ? 'right' : '';
