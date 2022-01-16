@@ -78,6 +78,7 @@ class TwilioChatController extends ApiController
 //            $ar['dateSentTimeStamp'] = strtotime($list['dateSent']->format('Y-m-d H:i:s'));
 //            $ar['dateSent'] = $list['dateSent']->format('Y-m-d H:i:s');
 //            $message_history[] = $ar;
+ if(!str_contains($list['body'], 'You are Welcome In Portal')){
             $message_history[$index]['message'] = $list['body'];
             $message_history[$index]['direction'] = $list['direction'];
             $message_history[$index]['align'] = $list['direction'] != 'inbound' ? 'right' : '';
@@ -89,7 +90,7 @@ class TwilioChatController extends ApiController
             $message_history[$index]['name'] = '';
             $message_history[$index]['status'] = $list['status'];
             $message_history[$index]['image'] = $list['direction'] != 'inbound' ? $request->user()->profile_photo_path : $receiver_image;
-
+}
         }
         $message_history = Collect($message_history)->sortBy('timestamp',SORT_NATURAL);
         $list = [];

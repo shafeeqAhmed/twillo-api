@@ -84,19 +84,19 @@ class TwilioNumbersController extends ApiController
 
     public function buy($twilioPhoneNumber,$address_sid)
     {
-//        if($address_sid!=0){
-//            $this->client->incomingPhoneNumbers->create([
-//                    'phoneNumber' => $twilioPhoneNumber,
-//                    "smsUrl" => "https://text-app.tkit.co.uk/api/api/twilio_webhook",
-//                    "addressSid" => $address_sid,
-//                ]);
-              /*TwilioNumbers::create([
+      //  if($address_sid!=0){
+            $this->client->incomingPhoneNumbers->create([
+                    'phoneNumber' => $twilioPhoneNumber,
+                    "smsUrl" => "https://text-app.tkit.co.uk/api/api/twilio_webhook",
+                    "addressSid" => $address_sid,
+                ]);
+              TwilioNumbers::create([
                     'no' => $twilioPhoneNumber,
-                ]);*/
+                ]);
 
 
         return $twilioPhoneNumber;
-//    }
+    //}
     }
 
     public function msgTracking(Request $request)
@@ -196,7 +196,7 @@ class TwilioNumbersController extends ApiController
                         'temp_id_date_time' => date('Y-m-d H:i:s')
                     ]);
 
-                    $body = 'You are Welcome In Portal.To continue further please sign up from below link:   ' . $this->generateSignUplink($uuid);
+                    $body = 'Hey! This is an auto text to let you know I received your message, to join my colony and receive messages from me, please sign up by clicking the link:   ' . $this->generateSignUplink($uuid);
                     $message = $this->client->messages
                         ->create(
                             $mess->from,
