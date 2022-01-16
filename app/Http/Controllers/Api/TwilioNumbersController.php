@@ -215,6 +215,7 @@ class TwilioNumbersController extends ApiController
                     'message' => $mess->body,
                     'is_seen' => 0,
                     'created_at' => date('d-m-y'),
+                     'timestamp' =>  date('Y-m-d H:i:s'),
                     'align' => '',
                     'direction' => $mess->direction,
                 ];
