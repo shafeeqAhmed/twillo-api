@@ -79,6 +79,14 @@ Route::get('get_chat_users/{id}', [\App\Http\Controllers\Api\TwilioChatControlle
 Route::get('get_chat_contacts', [\App\Http\Controllers\Api\TwilioChatController::class, 'getInfluencerContacts']);
 Route::get('get_influencer_dashboard_info', [\App\Http\Controllers\Api\UserController::class, 'getInfluencerDashboardInfo']);
 
+
+Route::get('recipent_count', [\App\Http\Controllers\Api\FilterController::class, 'recipientsCount']);
+
+
+
 });
 
 Route::get('is-valid-reference/{reference}', [\App\Http\Controllers\Api\UserController::class, 'isValidReference']);
+
+
+
