@@ -82,7 +82,7 @@ Route::get('get_influencer_dashboard_info', [\App\Http\Controllers\Api\UserContr
 
 Route::get('recipent_count', [\App\Http\Controllers\Api\FilterController::class, 'recipientsCount']);
 
-
+Route::get('age_filter/{type}/{date1}/{date2?}', [\App\Http\Controllers\Api\FilterController::class, 'ageFilter']);
 
 });
 

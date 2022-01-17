@@ -53,5 +53,49 @@ class FilterController extends ApiController
            
     }
 
+    public function ageFilter(Request $request,$type,$date1,$date2=''){
+     
+       $sender_id=$request->user()->id;
+
+
+        if($type=='between')
+        {
+       if($date2){
+          $fans= FanClub::whereHas('fan',function($query) use($date1,$date2){
+             $query->whereBetween('dob',[$date1, $date2]);
+           })->where('user_id', $sender_id)->where('is_active', 1)->get();
+
+       } 
+           
+        }else if($type=='under'){
+
+            $fans= FanClub::whereHas('fan',function($query) use($date1){
+                     $query->where('dob','>',$date1);
+                   })->where('user_id', $sender_id)->where('is_active', 1)->get();
+
+           }else if($type='excatly'){
+             
+
+            $fans= FanClub::whereHas('fan',function($query) use($date1){
+                     $query->where('dob',$date1);
+                   })->where('user_id', $sender_id)->where('is_active', 1)->get();
+
+           }else{
+
+             $fans= FanClub::whereHas('fan',function($query) use($date1){
+                    $query->where('dob','<',$date1);
+                   })->where('user_id', $sender_id)->where('is_active', 1)->get();
+
+           }
+     
+        $data['fans']=$fans;
+
+         return $this->respond([
+            'data' => $data
+        ]);
+
+
+    }
+
 
 }
