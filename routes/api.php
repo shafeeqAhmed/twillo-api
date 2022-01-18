@@ -84,6 +84,11 @@ Route::get('recipent_count', [\App\Http\Controllers\Api\FilterController::class,
 
 Route::get('age_filter/{type}/{date1}/{date2?}', [\App\Http\Controllers\Api\FilterController::class, 'ageFilter']);
 
+
+Route::get('duration_filter', [\App\Http\Controllers\Api\FilterController::class, 'durationFilter']);
+
+Route::get('get_fan_by_date/{date}/{type}', [\App\Http\Controllers\Api\FilterController::class, 'getFanByDate']);
+
 });
 
 Route::get('is-valid-reference/{reference}', [\App\Http\Controllers\Api\UserController::class, 'isValidReference']);
