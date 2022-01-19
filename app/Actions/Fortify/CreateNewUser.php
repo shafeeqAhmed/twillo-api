@@ -58,6 +58,8 @@ class CreateNewUser implements CreatesNewUsers
             'instagram' => $input['instagram'],
             'twitter' => $input['twitter'],
             'ticktok' => $input['ticktok'],
+            'latitude' => $input['latitude'],
+            'longitude' => $input['longitude'],
 
         ];
         DB::beginTransaction();

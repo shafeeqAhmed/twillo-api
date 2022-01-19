@@ -27,6 +27,8 @@ class CreateFansTable extends Migration
             $table->text('twitter')->nullable();
             $table->text('instagram')->nullable();
             $table->text('ticktok')->nullable();
+            $table->text('latitude')->nullable();
+            $table->text('longitude')->nullable();
             $table->timestamps();
         });
     }

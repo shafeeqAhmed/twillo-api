@@ -93,6 +93,7 @@ class AuthController extends Controller
     {
         
         $auth = new CreateNewUser();
+        
         $data = $auth->create($request->all());
         if(isset($data['is_valid_reference']) && $data['is_valid_reference'] == false) {
             return response()->json(['status' => false, 'message' => 'Your Reference Link Expired', 'data' => $data]);
