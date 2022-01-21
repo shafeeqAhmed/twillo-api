@@ -192,6 +192,15 @@ class FilterController extends ApiController
         }
 
           $query->whereRelation('fan', 'dob', '<', $date);
+       }else if($type=='Excatly'){
+
+        if($eighteen_above==='true'){
+            $date=$eighteen_year_date;
+        }else{
+            $date=$twenty_year_date;
+        }
+
+          $query->whereRelation('fan', 'dob', $date);
        }
 
        $fans=  $query->where('user_id', $sender_id)->where('is_active', 1)->get();
