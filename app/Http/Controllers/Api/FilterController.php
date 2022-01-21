@@ -6,11 +6,19 @@ use Illuminate\Http\Request;
 use App\Models\Fan;
 use App\Models\FanClub;
 use Carbon\Carbon;
-
+use Twilio\Rest\Client;
 
 class FilterController extends ApiController
 {
     
+    private $client;
+
+    public function __construct()
+    {
+        $sid = config('general.twilio_sid');
+        $token = config('general.twilio_token');
+        $this->client = new Client($sid, $token);
+    }
     public function recipientsCount(Request $request){
      
           $sender_id = $request->user()->id;
@@ -147,6 +155,64 @@ class FilterController extends ApiController
         else if($type === 'last30d')
         $query->whereRelation('fan', 'created_at', '>=', $last30d);
         return $query->where('user_id', $sender_id)->where('is_active', 1)->count();
+    }
+
+    public function sendMessageToContacts(Request $request){
+       $from=$request->user()->phone_no;
+       $sender_id=$request->user()->id;
+       $type=$request->type;
+       $eighteen_above=$request->eighteen_above;
+       $twenty_one_above=$request->twenty_one_above;
+       $message=$request->message;
+
+        $eighteen_year_date=date('Y-m-d', strtotime('-18 years'));
+        $twenty_year_date=date('Y-m-d', strtotime('-21 years'));
+
+        $query = FanClub::Query();
+       if($type=='Between'){
+         $fans= $query->whereHas('fan',function($query) use($eighteen_year_date,$twenty_year_date){
+            $query->whereBetween('dob', [$twenty_year_date, $eighteen_year_date]);
+        });
+
+       }else if($type=='Under'){
+        if($eighteen_above==='true'){
+            $date=$eighteen_year_date;
+        }else{
+            $date=$twenty_year_date;
+        }
+
+          $query->whereRelation('fan', 'dob', '>', $date);
+
+       }else if($type=='Over'){
+
+        if($eighteen_above==='true'){
+            $date=$eighteen_year_date;
+        }else{
+            $date=$twenty_year_date;
+        }
+
+          $query->whereRelation('fan', 'dob', '<', $date);
+       }
+
+       $fans=  $query->where('user_id', $sender_id)->where('is_active', 1)->get();
+        
+    if(!empty($fans)){
+        foreach($fans as $fan){
+           
+
+       $message = $this->client->messages
+            ->create(
+               $fan['local_number'],
+                ["body" => $message, "from" =>  $request->user()->phone_no, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+            );
+
+           
+
+        }
+    }
+
+     
+       
     }
 
 

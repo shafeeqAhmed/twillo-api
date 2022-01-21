@@ -88,6 +88,7 @@ Route::get('age_filter/{type}/{date1}/{date2?}', [\App\Http\Controllers\Api\Filt
 Route::get('duration_filter', [\App\Http\Controllers\Api\FilterController::class, 'durationFilter']);
 
 Route::get('get_fan_by_date/{date}/{type}', [\App\Http\Controllers\Api\FilterController::class, 'getFanByDate']);
+Route::post('send_message_to_contacts', [\App\Http\Controllers\Api\FilterController::class, 'sendMessageToContacts']);
 
 });
 
