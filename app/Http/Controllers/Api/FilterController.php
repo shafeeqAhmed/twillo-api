@@ -158,17 +158,23 @@ class FilterController extends ApiController
     }
 
     public function sendMessageToContacts(Request $request){
+
+        
        $from=$request->user()->phone_no;
        $sender_id=$request->user()->id;
+       
+      $message=$request->message;
+       $query = FanClub::Query();
+        if($request->filter_type=='recipents'){
+      
        $type=$request->type;
        $eighteen_above=$request->eighteen_above;
        $twenty_one_above=$request->twenty_one_above;
-       $message=$request->message;
-
+       
         $eighteen_year_date=date('Y-m-d', strtotime('-18 years'));
         $twenty_year_date=date('Y-m-d', strtotime('-21 years'));
 
-        $query = FanClub::Query();
+       
        if($type=='Between'){
          $fans= $query->whereHas('fan',function($query) use($eighteen_year_date,$twenty_year_date){
             $query->whereBetween('dob', [$twenty_year_date, $eighteen_year_date]);
@@ -203,8 +209,66 @@ class FilterController extends ApiController
           $query->whereRelation('fan', 'dob', $date);
        }
 
+
+   }else if($request->filter_type=='join_date'){
+
+    $type=$request->type;
+    $last24hours=$request->last24hours;
+    $last7days=$request->last7days;
+    $last30days=$request->last30days;
+
+     $last24h = Carbon::now()->subDay();
+     $last7d = Carbon::today()->subDays(7);
+     $last30d = Carbon::today()->subDays(30);
+
+    
+
+    if($type=='before'){
+     if($last24hours=='true'){
+     
+      $query->whereRelation('fan','created_at','<',$last24h);
+
+     }else if ($last7days=='true'){
+    $query->whereRelation('fan','created_at','<',$last7d);
+
+     }else{
+     $query->whereRelation('fan','created_at','<',$last30d);
+     
+     }
+
+
+    }else if($type=='after'){
+    if($last24hours=='true'){
+     
+      $query->whereRelation('fan','created_at','>',$last24h);
+
+     }else if ($last7days=='true'){
+    $query->whereRelation('fan','created_at','>',$last7d);
+
+     }else{
+     $query->whereRelation('fan','created_at','>',$last30d);
+     
+     }
+    }else if($type=='on'){
+ if($last24hours=='true'){
+     
+      $query->whereRelation('fan','created_at',$last24h);
+
+     }else if ($last7days=='true'){
+    $query->whereRelation('fan','created_at',$last7d);
+
+     }else{
+     $query->whereRelation('fan','created_at',$last30d);
+     
+     }
+    }
+
+
+   }
+   
+
        $fans=  $query->where('user_id', $sender_id)->where('is_active', 1)->get();
-        
+       
     if(!empty($fans)){
         foreach($fans as $fan){
            
