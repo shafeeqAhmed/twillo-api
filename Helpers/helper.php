@@ -76,7 +76,10 @@ if (!function_exists('sendSms')) {
         $client = new Client($sid, $token);
         $client->messages->create(
             $to,
-            ["body" => $body, "from" =>  $from, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+            [
+                "body" => $body,
+                "from" =>  $from,
+                "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
         );
     }
 }

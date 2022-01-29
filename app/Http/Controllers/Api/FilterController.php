@@ -158,8 +158,6 @@ class FilterController extends ApiController
     }
 
     public function sendMessageToContacts(Request $request){
-
-        
        $from=$request->user()->phone_no;
        $sender_id=$request->user()->id;
        
