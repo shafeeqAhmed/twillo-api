@@ -285,6 +285,31 @@ class FilterController extends ApiController
      
        
     }
+    public static function applyDistanceFilterWithRadiusPoints($query, $params) {
+
+        $haversine = "(6371 * acos(cos(radians(" . $params['lat'] . "))
+                        * cos(radians(`lat`))
+                        * cos(radians(`lng`)
+                        - radians(" . $params['lng'] . "))
+                        + sin(radians(" . $params['lat'] . "))
+                        * sin(radians(`lat`))))";
+        //set default start radius 0
+        $start_radius = 0;
+        $query->whereRaw("{$haversine} > " . $start_radius);
+        // if end radius is not empty
+        if (!empty($params['end_radius'])) {
+            $query->whereRaw("{$haversine} < " . $params['end_radius']);
+        }
+        $query->select('*')
+            ->selectRaw("{$haversine} AS distance")
+            ->orderBy('distance', 'ASC');
+
+        if (!empty($params['end_radius'])) {
+            $query->whereRaw("{$haversine} > " . $start_radius)
+                ->whereRaw("{$haversine} < " . $params['end_radius']);
+        }
+        return $query;
+    }
 
 
 }
