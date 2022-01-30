@@ -161,153 +161,119 @@ class FilterController extends ApiController
        $from=$request->user()->phone_no;
        $sender_id=$request->user()->id;
        
-      $message=$request->message;
-       $query = FanClub::Query();
-        if($request->filter_type=='recipents'){
-      
-       $type=$request->type;
-       $eighteen_above=$request->eighteen_above;
-       $twenty_one_above=$request->twenty_one_above;
-       
-        $eighteen_year_date=date('Y-m-d', strtotime('-18 years'));
-        $twenty_year_date=date('Y-m-d', strtotime('-21 years'));
+       $query = Fan::join('fan_clubs as fc','fc.fan_id','fans.id')
+           ->where('fc.user_id','=',$sender_id)
+           ->where('fc.is_active','=',1);
 
-       
-       if($type=='Between'){
-         $fans= $query->whereHas('fan',function($query) use($eighteen_year_date,$twenty_year_date){
-            $query->whereBetween('dob', [$twenty_year_date, $eighteen_year_date]);
-        });
-
-       }else if($type=='Under'){
-        if($eighteen_above==='true'){
-            $date=$eighteen_year_date;
-        }else{
-            $date=$twenty_year_date;
-        }
-
-          $query->whereRelation('fan', 'dob', '>', $date);
-
-       }else if($type=='Over'){
-
-        if($eighteen_above==='true'){
-            $date=$eighteen_year_date;
-        }else{
-            $date=$twenty_year_date;
-        }
-
-          $query->whereRelation('fan', 'dob', '<', $date);
-       }else if($type=='Excatly'){
-
-        if($eighteen_above==='true'){
-            $date=$eighteen_year_date;
-        }else{
-            $date=$twenty_year_date;
-        }
-
-          $query->whereRelation('fan', 'dob', $date);
+       $ageQuery = "TIMESTAMPDIFF(YEAR, DATE(fans.dob), current_date)";
+        $query->select('fans.*')
+            ->select('fc.local_number')->selectRaw("{$ageQuery} AS age");
+       // if gender is set
+       if(!empty($request->activity['gender'])) {
+           $query->where('fans.gender', '=', ucfirst($request->activity['gender']));
        }
 
+       if(!empty($request->location['radius']) && !empty($request->location['lat']) && !empty($request->location['lng'])) {
+            $this->applyDistanceFilterWithRadiusPoints($query,$request->location);
+       }
 
-   }else if($request->filter_type=='join_date'){
+       //age filter
+        if(!empty($request->age['age'])){
+            if($request->age['age'] == '18+') {
+                $query->whereRaw("{$ageQuery} > 18" );
+            }
+            if($request->age['age'] == '21+') {
+                $query->whereRaw("{$ageQuery} > 21" );
 
-    $type=$request->type;
-    $last24hours=$request->last24hours;
-    $last7days=$request->last7days;
-    $last30days=$request->last30days;
+//                $twenty_year_date=date('Y-m-d', strtotime('-21 years'));
+//                $query->where('dob','<=',$twenty_year_date);
+            }
+        }
 
-     $last24h = Carbon::now()->subDay();
-     $last7d = Carbon::today()->subDays(7);
-     $last30d = Carbon::today()->subDays(30);
+        if(!empty($request->age['customFilterType'])){
 
-    
+            if($request->age['customFilterType'] == 'Between') {
+                $query->whereRaw("{$ageQuery} > ".$request->age['customStartAge']."  && {$ageQuery} < ".$request->age['customEndAge'] );
+            }
+            if($request->age['customFilterType'] == 'Under') {
+                $query->whereRaw("{$ageQuery} < ".$request->age['customStartAge'] );
+            }
+            if($request->age['customFilterType'] == 'Over') {
+                $query->whereRaw("{$ageQuery} > ".$request->age['customStartAge'] );
+            }
+            if($request->age['customFilterType'] == 'Exactly') {
+                $query->whereRaw("{$ageQuery} = ".$request->age['customStartAge'] );
+            }
+            }
 
-    if($type=='before'){
-     if($last24hours=='true'){
-     
-      $query->whereRelation('fan','created_at','<',$last24h);
+        if(!empty($request->joinDate['date'])) {
+            if($request->joinDate['date'] == 'last24hours') {
+                $query->where('fans.created_at', '>=', Carbon::now()->subDay());
+            }
+            if($request->joinDate['date'] == 'last7days') {
+                $query->where('fans.created_at', '>=', Carbon::today()->subDays(7));
+            }
+            if($request->joinDate['date'] == 'last30days') {
+                $query->where('fans.created_at', '>=', Carbon::today()->subDays(30));
+            }
 
-     }else if ($last7days=='true'){
-    $query->whereRelation('fan','created_at','<',$last7d);
+        }
+        if(!empty($request->joinDate['search_type'])) {
+            $start_date = $request->joinDate['customStartDate'];
+            if($request->joinDate['search_type'] == 'Between') {
+                $query->whereBetween('fans.created_at',[$start_date,$request->joinDate['customEndDate']]);
+                return response()->json($query->get());
+            }
+             if($request->joinDate['search_type'] == 'Before') {
+                 $query->where('fans.created_at','<',$start_date);
+            }
+             if($request->joinDate['search_type'] == 'After') {
+                 $query->where('fans.created_at','>',$start_date);
 
-     }else{
-     $query->whereRelation('fan','created_at','<',$last30d);
-     
-     }
+            }
+             if($request->joinDate['search_type'] == 'On') {
+                 $query->where('fans.created_at','=',$start_date);
 
+            }
 
-    }else if($type=='after'){
-    if($last24hours=='true'){
-     
-      $query->whereRelation('fan','created_at','>',$last24h);
+        }
+       $fans=  $query->get();
+        if(count($fans) > 0) {
+            return response()->json(['status'=>false,'message'=>'Sorry there is no record exist!','data'=>[]]);
 
-     }else if ($last7days=='true'){
-    $query->whereRelation('fan','created_at','>',$last7d);
-
-     }else{
-     $query->whereRelation('fan','created_at','>',$last30d);
-     
-     }
-    }else if($type=='on'){
- if($last24hours=='true'){
-     
-      $query->whereRelation('fan','created_at',$last24h);
-
-     }else if ($last7days=='true'){
-    $query->whereRelation('fan','created_at',$last7d);
-
-     }else{
-     $query->whereRelation('fan','created_at',$last30d);
-     
-     }
-    }
-
-
-   }
-   
-
-       $fans=  $query->where('user_id', $sender_id)->where('is_active', 1)->get();
-       
+        }
     if(!empty($fans)){
         foreach($fans as $fan){
-           
-
-       $message = $this->client->messages
+            $this->client->messages
             ->create(
                $fan['local_number'],
-                ["body" => $message, "from" =>  $request->user()->phone_no, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+                ["body" => $request->message, "from" =>  $request->user()->phone_no, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
             );
-
-           
-
         }
     }
-
-     
-       
+    return response()->json(['status'=>true,'message'=>'Message Has been sent Successfully!','data'=>[]]);
     }
-    public static function applyDistanceFilterWithRadiusPoints($query, $params) {
-
-        $haversine = "(6371 * acos(cos(radians(" . $params['lat'] . "))
-                        * cos(radians(`lat`))
-                        * cos(radians(`lng`)
+    public function applyDistanceFilterWithRadiusPoints($query, $params) {
+            $haversine = "(6371 * acos(cos(radians(" . $params['lat'] . "))
+                        * cos(radians(`latitude`))
+                        * cos(radians(`longitude`)
                         - radians(" . $params['lng'] . "))
                         + sin(radians(" . $params['lat'] . "))
-                        * sin(radians(`lat`))))";
-        //set default start radius 0
-        $start_radius = 0;
-        $query->whereRaw("{$haversine} > " . $start_radius);
-        // if end radius is not empty
-        if (!empty($params['end_radius'])) {
-            $query->whereRaw("{$haversine} < " . $params['end_radius']);
-        }
-        $query->select('*')
-            ->selectRaw("{$haversine} AS distance")
-            ->orderBy('distance', 'ASC');
+                        * sin(radians(`latitude`))))";
+            //set default start radius 0
+            $start_radius = 0;
+            $query->whereRaw("{$haversine} > " . $start_radius);
+            if (!empty($params['radius'])) {
+                $query->whereRaw("{$haversine} < " . $params['radius']);
+            }
+            $query->select('*')
+                ->selectRaw("{$haversine} AS distance")
+                ->orderBy('distance', 'ASC');
 
-        if (!empty($params['end_radius'])) {
-            $query->whereRaw("{$haversine} > " . $start_radius)
-                ->whereRaw("{$haversine} < " . $params['end_radius']);
-        }
+            if (!empty($params['radius'])) {
+                $query->whereRaw("{$haversine} > " . $start_radius)
+                    ->whereRaw("{$haversine} < " . $params['radius']);
+            }
         return $query;
     }
 
