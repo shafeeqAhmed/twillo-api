@@ -158,7 +158,7 @@ class FilterController extends ApiController
     }
 
     public function sendMessageToContacts(Request $request){
-       $from=$request->user()->phone_no;
+
        $sender_id=$request->user()->id;
        
        $query = Fan::join('fan_clubs as fc','fc.fan_id','fans.id')
@@ -238,9 +238,8 @@ class FilterController extends ApiController
 
         }
        $fans=  $query->get();
-        if(count($fans) > 0) {
+        if(count($fans) == 0) {
             return response()->json(['status'=>false,'message'=>'Sorry there is no record exist!','data'=>[]]);
-
         }
     if(!empty($fans)){
         foreach($fans as $fan){
