@@ -17,8 +17,15 @@ class InfluencerController extends ApiController
 {
 
    public function updateInfluencer(updateInfluencer $request){
-     User::updateUser('user_uuid',$request['user_uuid'],$request->except('user_uuid'));
-     return $this->respondUpdated();
+        $data =  $this->influencerUpdateInput($request->except('user_uuid'));
+        User::updateUser('user_uuid',$request['user_uuid'],$data);
+        return $this->respondUpdated();
+   }
+   public function influencerUpdateInput($params) {
+       if(isset($params['password'])) {
+           $params['password'] = Hash::make($params['password']);
+       }
+       return $params;
    }
     public function createInfluencer(StoreInfluencer $request){
         $input = $request->validated();
