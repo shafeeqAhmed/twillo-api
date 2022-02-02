@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
+Route::get('/send-message', [\App\Http\Controllers\Api\FilterController::class, 'testMessage']);
 Route::get('/hook', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'twilioFeedback']);
 Route::get('/link', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'generateSignUplink']);
 Route::get('/pass', function () {

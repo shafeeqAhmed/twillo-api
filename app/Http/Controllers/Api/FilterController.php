@@ -19,6 +19,14 @@ class FilterController extends ApiController
         $token = config('general.twilio_token');
         $this->client = new Client($sid, $token);
     }
+    public function testMessage() {
+        $message = $this->client->messages
+            ->create(
+                '+18454098524',
+                ["body" => 'Test message local', "from" =>  '+447897037950', "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+            );
+        dd($message);
+    }
     public function recipientsCount(Request $request){
      
           $sender_id = $request->user()->id;
