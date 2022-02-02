@@ -169,7 +169,7 @@ class TwilioChatController extends ApiController
         $message = $this->client->messages
             ->create(
                 $request->receiver_number,
-                ["body" => $request->message, "from" =>  $request->user()->phone_no, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+                ["body" => $request->message, "from" =>  $request->user()->phone_no, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
             );
 
 

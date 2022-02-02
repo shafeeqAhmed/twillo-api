@@ -87,7 +87,7 @@ class TwilioNumbersController extends ApiController
       //  if($address_sid!=0){
             $this->client->incomingPhoneNumbers->create([
                     'phoneNumber' => $twilioPhoneNumber,
-                    "smsUrl" => "https://text-app.tkit.co.uk/api/api/twilio_webhook",
+                    "smsUrl" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook",
                     "addressSid" => $address_sid,
                 ]);
               TwilioNumbers::create([
@@ -200,7 +200,7 @@ class TwilioNumbersController extends ApiController
                     $message = $this->client->messages
                         ->create(
                             $mess->from,
-                            ["body" => $body, "from" =>  $mess->to, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+                            ["body" => $body, "from" =>  $mess->to, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
                         );
                 }
             }else{
@@ -342,7 +342,7 @@ class TwilioNumbersController extends ApiController
                     $body='You are Welcome In Portal.To continue further please sign up from below link:   '.$this->generateSignUplink($uuid);
                     $message=$this->client->messages
                         ->create($mess->to,
-                            ["body" => $body, "from" =>  $mess->from, "statusCallback" => "https://text-app.tkit.co.uk/api/api/twilio_webhook"]
+                            ["body" => $body, "from" =>  $mess->from, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
                         );
                 }
             }
