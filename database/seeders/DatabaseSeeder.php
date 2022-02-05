@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\FanClub;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,6 +15,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
+        $this->call([
+            FanClubSeederTable::class,
+//            FanSeederTable::class,
+        ]);
+
     }
 }
