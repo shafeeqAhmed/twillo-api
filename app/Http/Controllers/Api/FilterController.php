@@ -186,7 +186,7 @@ class FilterController extends ApiController
            ->where('fc.is_active','=',1);
 
         if(!empty($request->activity['activity'])) {
-            $rawQuery = "CONVERT((fc.send_count+fc.received_count)/100 ,int)";
+            $rawQuery = "(fc.send_count+fc.received_count)/100";
                 $query->selectRaw("{$rawQuery} AS percentage")
                 ->whereRaw("{$rawQuery}  >= ".$request->activity['activity']);
         }
