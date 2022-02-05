@@ -21,7 +21,7 @@ class FilterController extends ApiController
     }
 
     public function findTopUsers($percentageNumber) {
-        $rawQuery = "CONVERT((send_count+received_count)/100 ,int)";
+        $rawQuery = "(send_count+received_count)/100";
         return  FanClub::select('*')
             ->selectRaw("{$rawQuery} AS percentage")
             ->whereRaw("{$rawQuery}  >= $percentageNumber")
