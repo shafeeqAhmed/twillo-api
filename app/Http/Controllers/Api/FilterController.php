@@ -19,6 +19,15 @@ class FilterController extends ApiController
         $token = config('general.twilio_token');
         $this->client = new Client($sid, $token);
     }
+
+    public function findTopUsers($percentageNumber) {
+        $rawQuery = "CONVERT((send_count+received_count)/100 ,int)";
+        return  FanClub::select('*')
+            ->selectRaw("{$rawQuery} AS percentage")
+            ->whereRaw("{$rawQuery}  >= $percentageNumber")
+            ->get();
+
+    }
     public function testMessage() {
         $message = $this->client->messages
             ->create(
@@ -38,7 +47,10 @@ class FilterController extends ApiController
            $data['twenty_one_plus']=$this->fanCount('21 above',$sender_id);
            $data['total_males']=$this->fanCount('male',$sender_id);
            $data['total_females']=$this->fanCount('female',$sender_id);
-  
+           $data['top_5_percentage']=count($this->findTopUsers(5));
+           $data['top_10_percentage']=count($this->findTopUsers(10));
+           $data['top_25_percentage']=count($this->findTopUsers(25));
+
            return $this->respond([
             'data' => $data
         ]);
@@ -168,10 +180,16 @@ class FilterController extends ApiController
     public function sendMessageToContacts(Request $request){
 
        $sender_id=$request->user()->id;
-       
+
        $query = Fan::join('fan_clubs as fc','fc.fan_id','fans.id')
            ->where('fc.user_id','=',$sender_id)
            ->where('fc.is_active','=',1);
+
+        if(!empty($request->activity['activity'])) {
+            $rawQuery = "CONVERT((fc.send_count+fc.received_count)/100 ,int)";
+                $query->selectRaw("{$rawQuery} AS percentage")
+                ->whereRaw("{$rawQuery}  >= ".$request->activity['activity']);
+        }
 
        $ageQuery = "TIMESTAMPDIFF(YEAR, DATE(fans.dob), current_date)";
         $query->select('fans.*')
