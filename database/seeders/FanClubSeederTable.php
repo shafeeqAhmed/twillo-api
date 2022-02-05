@@ -15,7 +15,7 @@ class FanClubSeederTable extends Seeder
     public function run()
     {
         FanClub::factory()
-            ->count(300)
+            ->count(350)
             ->create();
     }
 }
