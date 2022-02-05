@@ -22,7 +22,7 @@ class FanFactory extends Factory
             'fname'=>$this->faker->name,
             'lname'=>$this->faker->name,
             'email'=>$this->faker->email,
-            'gender'=>"Male",
+            'gender'=>"Female",
             'profile_photo_path'=>$this->faker->imageUrl,
             'phone_no'=>$this->faker->phoneNumber,
             'city'=>$this->faker->city,
