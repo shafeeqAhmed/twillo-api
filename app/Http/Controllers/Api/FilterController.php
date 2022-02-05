@@ -21,10 +21,14 @@ class FilterController extends ApiController
     }
 
     public function findTopUsers($percentageNumber) {
-        $rawQuery = "(send_count+received_count)/100";
+
+        $noOfRecord = round($percentageNumber/10);
+        $rawQuery = "(send_count+received_count)";
         return  FanClub::select('*')
-            ->selectRaw("{$rawQuery} AS percentage")
-            ->whereRaw("{$rawQuery}  >= $percentageNumber")
+            ->selectRaw("{$rawQuery} AS rate")
+            ->orderBy("rate",'desc')
+            ->limit(10)
+            ->take($noOfRecord)
             ->get();
 
     }
@@ -168,12 +172,17 @@ class FilterController extends ApiController
         $last30d = Carbon::today()->subDays(30);
         
         $query = FanClub::Query();
-        if($type === 'last24h')
-        $query->whereRelation('fan', 'dob', '>=', $last24h);
-        else if($type === 'last7days')
-        $query->whereRelation('fan', 'dob', '>=', $last7d);
+        if($type === 'last24h'){
+            $query->whereRelation('fan', 'created_at', '>=', $last24h);
+        }
+        else if($type === 'last7days') {
+            $query->whereRelation('fan', 'created_at', '>=', $last7d);
+
+        }
         else if($type === 'last30d')
-        $query->whereRelation('fan', 'dob', '>=', $last30d);
+        {
+            $query->whereRelation('fan', 'created_at', '>=', $last30d);
+        }
         return $query->where('user_id', $sender_id)->where('is_active', 1)->count();
     }
 

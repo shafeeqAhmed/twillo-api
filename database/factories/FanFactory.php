@@ -32,7 +32,7 @@ class FanFactory extends Factory
             'ticktok'=>$this->faker->imageUrl,
             'latitude'=>$this->faker->latitude,
             'longitude'=>$this->faker->latitude,
-            'created_at'=>$this->faker->dateTime(),
+            'created_at'=>now(),
         ];
     }
 }

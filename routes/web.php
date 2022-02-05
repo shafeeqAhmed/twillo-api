@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::get('/raw/{per}', [\App\Http\Controllers\Api\FilterController::class, 'findTopUsers']);
+Route::get('/topUser/{co}', [\App\Http\Controllers\Api\FilterController::class, 'findTopUsers']);
 Route::get('/send-message', [\App\Http\Controllers\Api\FilterController::class, 'testMessage']);
 Route::get('/hook', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'twilioFeedback']);
 Route::get('/link', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'generateSignUplink']);
