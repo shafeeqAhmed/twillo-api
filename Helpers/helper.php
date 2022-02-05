@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Twilio\Rest\Client;
 use App\Models\User;
+use App\Models\FanClub;
 if (!function_exists('uploadImage')) {
     function uploadImage($key, $directory)
     {
@@ -107,5 +108,19 @@ if (!function_exists('sendAndReceiveSms')) {
            User::find($user_id)->increment('received_message_count');
        }
 
+    }
+}
+if (!function_exists('fanSendAndReceiveSms')) {
+    function fanSendAndReceiveSms($fan_club_id,$type)
+    {
+    $fanClub = FanClub::where('id',$fan_club_id)->first();
+        if($fanClub) {
+            if($type == 'send') {
+                $fanClub->where('id',$fan_club_id)->increment('send_count');
+            }
+            if($type == 'receive') {
+                $fanClub->where('id',$fan_club_id)->increment('received_count');
+            }
+        }
     }
 }

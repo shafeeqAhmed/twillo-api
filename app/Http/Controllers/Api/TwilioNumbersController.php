@@ -27,7 +27,6 @@ class TwilioNumbersController extends ApiController
         $token = config('general.twilio_token');
         $this->client = new Client($sid, $token);
     }
-
     public function getTwillioNumbers($nosToBuy, $country_id,$state)
     {
       
@@ -169,11 +168,23 @@ class TwilioNumbersController extends ApiController
             ->fetch();
 
             $phone_number =  $this->client->lookups->v1->phoneNumbers($mess->from)
-                                    ->fetch(["type" => ["carrier"]]);
+                                    ->fetch(["type" => ["carrier","direction"]]);
           $lookup=explode('-',$phone_number->carrier['name'])[0];
-        if ($lookup !== 'Twilio ') {
+          //inbound mean received message from non twillo number
+        if (strtolower(trim($lookup,' ')) != 'twilio') {
+//        if ($lookup !== 'outbound-api') {
+            // outbound-api means sender is twilio number
             $user = User::where('phone_no', $mess->to)->first();
-            sendAndReceiveSms($user->id,'receive');
+            if($user) {
+                //receiver is a twilio number
+                sendAndReceiveSms($user->id,'receive');
+            }
+            $sender = FanClub::where('local_number',$mess->from)->first();
+            if($sender) {
+                // receiver is a non twilio number
+                fanSendAndReceiveSms($sender->id,'send');
+            }
+
 
             $exist_in_fan_club = FanClub::where('is_active', 1)->where('user_id',$user->id)->where('local_number', $mess->from)->exists();
             if (!$exist_in_fan_club) {
@@ -224,8 +235,16 @@ class TwilioNumbersController extends ApiController
             }
         }
         else {
-            $sender_id = User::where('phone_no', $mess->from)->first()->id;
-            sendAndReceiveSms($sender_id,'send');
+            $sender = User::where('phone_no', $mess->from)->first();
+            if($sender) {
+                sendAndReceiveSms($sender->id,'send');
+
+            }
+            //update fan count
+            $receiver = FanClub::where('local_number',$mess->to)->first();
+            if($receiver) {
+                fanSendAndReceiveSms($receiver->id,'receive');
+            }
 
 //            $receiver_id = Fan::where('phone_no', $mess->to)->first()->id;
 //
