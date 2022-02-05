@@ -195,9 +195,12 @@ class FilterController extends ApiController
            ->where('fc.is_active','=',1);
 
         if(!empty($request->activity['activity'])) {
-            $rawQuery = "(fc.send_count+fc.received_count)/100";
-                $query->selectRaw("{$rawQuery} AS percentage")
-                ->whereRaw("{$rawQuery}  >= ".$request->activity['activity']);
+            $noOfRecord = round($request->activity['activity']/10);
+
+            $rawQuery = "(fc.send_count+fc.received_count)";
+                $query->selectRaw("{$rawQuery} AS rate")
+                    ->orderBy("rate",'desc')
+                    ->take($noOfRecord);
         }
 
        $ageQuery = "TIMESTAMPDIFF(YEAR, DATE(fans.dob), current_date)";
