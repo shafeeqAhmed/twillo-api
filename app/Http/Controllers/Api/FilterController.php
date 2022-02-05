@@ -169,11 +169,11 @@ class FilterController extends ApiController
         
         $query = FanClub::Query();
         if($type === 'last24h')
-        $query->whereRelation('fan', 'created_at', '>=', $last24h);
+        $query->whereRelation('fan', 'dob', '>=', $last24h);
         else if($type === 'last7days')
-        $query->whereRelation('fan', 'created_at', '>=', $last7d);
+        $query->whereRelation('fan', 'dob', '>=', $last7d);
         else if($type === 'last30d')
-        $query->whereRelation('fan', 'created_at', '>=', $last30d);
+        $query->whereRelation('fan', 'dob', '>=', $last30d);
         return $query->where('user_id', $sender_id)->where('is_active', 1)->count();
     }
 
