@@ -149,19 +149,13 @@ class FilterController extends ApiController
     public function durationFilter(Request $request){
 
      $sender_id=$request->user()->id;
-
      $data['last24hours']=$this->calculateDuration('last24h',$sender_id);
-
-    $data['last7days']=$this->calculateDuration('last7days',$sender_id);
-
-    $data['last30days']=$this->calculateDuration('last30d',$sender_id);
-
+     $data['last7days']=$this->calculateDuration('last7days',$sender_id);
+     $data['last30days']=$this->calculateDuration('last30d',$sender_id);
 
          return $this->respond([
             'data' => $data
         ]);
-
-
     }
 
     private function calculateDuration($type,$sender_id)
@@ -186,49 +180,53 @@ class FilterController extends ApiController
         return $query->where('user_id', $sender_id)->where('is_active', 1)->count();
     }
 
-    public function sendMessageToContacts(Request $request){
+    public function queryForFilterRecord($request) {
+        $isFilter = true;
+        $sender_id=$request->user()->id;
+        $query = Fan::join('fan_clubs as fc','fc.fan_id','fans.id')
+            ->where('fc.user_id','=',$sender_id)
+            ->where('fc.is_active','=',1);
 
-       $sender_id=$request->user()->id;
-
-       $query = Fan::join('fan_clubs as fc','fc.fan_id','fans.id')
-           ->where('fc.user_id','=',$sender_id)
-           ->where('fc.is_active','=',1);
-
-        if(!empty($request->activity['activity'])) {
-            $noOfRecord = round($request->activity['activity']/10);
-
-            $rawQuery = "(fc.send_count+fc.received_count)";
-                $query->selectRaw("{$rawQuery} AS rate")
-                    ->orderBy("rate",'desc')
-                    ->take($noOfRecord);
-        }
-
-       $ageQuery = "TIMESTAMPDIFF(YEAR, DATE(fans.dob), current_date)";
+        $ageQuery = "TIMESTAMPDIFF(YEAR, DATE(fans.dob), current_date)";
         $query->select('fans.*')
             ->select('fc.local_number')->selectRaw("{$ageQuery} AS age");
-       // if gender is set
-       if(!empty($request->activity['gender'])) {
-           $query->where('fans.gender', '=', ucfirst($request->activity['gender']));
-       }
 
-       if(!empty($request->location['radius']) && !empty($request->location['lat']) && !empty($request->location['lng'])) {
+        if(!empty($request->activity['activity'])) {
+            $isFilter = false;
+            $rawQuery = "(fc.send_count+fc.received_count)";
+            $query->selectRaw("{$rawQuery} AS rate")
+                ->orderBy("rate",'desc');
+            if($request->activity['activity'] !== 'all') {
+                $noOfRecord = round($request->activity['activity']/10);
+                $query->take($noOfRecord);
+            }
+
+        }
+
+
+        // if gender is set
+        if(!empty($request->activity['gender'])) {
+            $isFilter = false;
+            $query->where('fans.gender', '=', ucfirst($request->activity['gender']));
+        }
+
+        if(!empty($request->location['radius']) && !empty($request->location['lat']) && !empty($request->location['lng'])) {
+            $isFilter = false;
             $this->applyDistanceFilterWithRadiusPoints($query,$request->location);
-       }
-
-       //age filter
+        }
+        //age filter
         if(!empty($request->age['age'])){
+            $isFilter = false;
+
             if($request->age['age'] == '18+') {
                 $query->whereRaw("{$ageQuery} > 18" );
             }
             if($request->age['age'] == '21+') {
                 $query->whereRaw("{$ageQuery} > 21" );
-
-//                $twenty_year_date=date('Y-m-d', strtotime('-21 years'));
-//                $query->where('dob','<=',$twenty_year_date);
             }
         }
-
         if(!empty($request->age['customFilterType'])){
+            $isFilter = false;
 
             if($request->age['customFilterType'] == 'Between') {
                 $query->whereRaw("{$ageQuery} > ".$request->age['customStartAge']."  && {$ageQuery} < ".$request->age['customEndAge'] );
@@ -242,9 +240,9 @@ class FilterController extends ApiController
             if($request->age['customFilterType'] == 'Exactly') {
                 $query->whereRaw("{$ageQuery} = ".$request->age['customStartAge'] );
             }
-            }
-
+        }
         if(!empty($request->joinDate['date'])) {
+            $isFilter = false;
             if($request->joinDate['date'] == 'last24hours') {
                 $query->where('fans.created_at', '>=', Carbon::now()->subDay());
             }
@@ -257,28 +255,34 @@ class FilterController extends ApiController
 
         }
         if(!empty($request->joinDate['search_type'])) {
+            $isFilter = false;
+
             $start_date = $request->joinDate['customStartDate'];
             if($request->joinDate['search_type'] == 'Between') {
                 $query->whereBetween('fans.created_at',[$start_date,$request->joinDate['customEndDate']]);
                 return response()->json($query->get());
             }
-             if($request->joinDate['search_type'] == 'Before') {
-                 $query->where('fans.created_at','<',$start_date);
+            if($request->joinDate['search_type'] == 'Before') {
+                $query->where('fans.created_at','<',$start_date);
             }
-             if($request->joinDate['search_type'] == 'After') {
-                 $query->where('fans.created_at','>',$start_date);
+            if($request->joinDate['search_type'] == 'After') {
+                $query->where('fans.created_at','>',$start_date);
 
             }
-             if($request->joinDate['search_type'] == 'On') {
-                 $query->where('fans.created_at','=',$start_date);
+            if($request->joinDate['search_type'] == 'On') {
+                $query->where('fans.created_at','=',$start_date);
 
             }
 
         }
-       $fans=  $query->get();
+        return !$isFilter ? $query->get() : [];
+    }
+    public function sendMessageToContacts(Request $request){
+        $fans = $this->queryForFilterRecord($request);
         if(count($fans) == 0) {
             return response()->json(['status'=>false,'message'=>'Sorry there is no record exist!','data'=>[]]);
         }
+
     if(!empty($fans)){
         foreach($fans as $fan){
             $this->client->messages
@@ -312,6 +316,12 @@ class FilterController extends ApiController
                     ->whereRaw("{$haversine} < " . $params['radius']);
             }
         return $query;
+    }
+    public function getFilterMemberCount(Request $request){
+        $data['counts'] = count($this->queryForFilterRecord($request));
+        return $this->respond([
+            'data' => $data
+        ]);
     }
 
 

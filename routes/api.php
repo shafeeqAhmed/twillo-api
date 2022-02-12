@@ -71,6 +71,8 @@ Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout'
 Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'userList']);
 
 Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDetail']);
+Route::post('get-filter-member-count', [\App\Http\Controllers\Api\FilterController::class, 'getFilterMemberCount']);
+
 
 Route::post('sms_service', [\App\Http\Controllers\Api\TwilioChatController::class, 'smsService']);
 
