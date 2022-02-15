@@ -22,7 +22,7 @@ class CreateFansTable extends Migration
             $table->string('profile_photo_path')->nullable();
             $table->string('phone_no');
             $table->string('city')->nullable();
-            $table->enum('gender', ['Male', 'Female', 'Other'])->nullable();
+            $table->enum('gender', ['Male', 'Female', 'Other','Non-Binary'])->nullable();
             $table->date('dob')->nullable();
             $table->text('twitter')->nullable();
             $table->text('instagram')->nullable();

@@ -51,6 +51,8 @@ class FilterController extends ApiController
            $data['twenty_one_plus']=$this->fanCount('21 above',$sender_id);
            $data['total_males']=$this->fanCount('male',$sender_id);
            $data['total_females']=$this->fanCount('female',$sender_id);
+           $data['gender_other']=$this->fanCount('other',$sender_id);
+           $data['gender_non_binary']=$this->fanCount('non-binary',$sender_id);
            $data['top_5_percentage']=count($this->findTopUsers(5));
            $data['top_10_percentage']=count($this->findTopUsers(10));
            $data['top_25_percentage']=count($this->findTopUsers(25));
@@ -139,9 +141,13 @@ class FilterController extends ApiController
                 else if($type === '21 above')
                 $query->whereRelation('fan', 'dob', '<', date('Y-m-d', strtotime('-21 years')));
                 else if($type === 'male')
-                $query->whereRelation('fan', 'gender', 'Male');
+                $query->whereRelation('fan', 'gender', '=','Male');
                 else if($type === 'female')
-                $query->whereRelation('fan', 'gender', 'Female');
+                $query->whereRelation('fan', 'gender', '=','Female');
+                else if($type === 'non-binary')
+                $query->whereRelation('fan', 'gender','=', 'Non-Binary');
+                 else if($type === 'other')
+                $query->whereRelation('fan', 'gender', '=','Other');
                 return $query->where('user_id', $sender_id)->where('is_active', 1)->count();
     }
 
