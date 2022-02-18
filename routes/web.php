@@ -32,6 +32,8 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
 
+Route::get('redirect_url', [\App\Http\Controllers\Api\LinksController::class, 'redirectUrl'])->name('count_and_redirect');
+
 
 Route::get('/clear', function () {
     Artisan::call('cache:clear');

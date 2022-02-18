@@ -17,6 +17,7 @@ use App\Http\Resources\ChatUserResource;
 use App\Notifications\ChatNotfication;
 use App\Events\ChatEvent;
 use App\Models\FanClub;
+use App\Models\MessageLinks;
 
 
 class TwilioChatController extends ApiController
@@ -163,13 +164,42 @@ class TwilioChatController extends ApiController
         ]);
     }
 
+    public function filterAndReplaceLink($data){
+        $text = $data->message;
+        preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $text, $match);
+        if(!empty($match)){
+            $links = [];
+            foreach($match as $item){
+                $link = $this->mapLinkOnTable($item, $data);
+                $newLink = route('count_and_redirect').'?uuid='.$link['message_link_uuid'];
+                $links[] = $link;
+                str_replace($item,$newLink,$text);
+            }
+            MessageLinks::insert($links);
+        }
+        return $text;
+    }
+
+    public function mapLinkOnTable($item, $data){
+        return [
+            'message_link_uuid' => Str::uuid()->toString(),
+            'influencer_id' => $request->user()->id,
+            'fanclub_id' => $request->receiver_id,
+            'link' => $item
+        ];
+    }
+
 
     public function smsService(Request $request)
     {
+
+
+        $encodedMessage = $this->filterAndReplaceLink($request);
+
         $message = $this->client->messages
             ->create(
                 $request->receiver_number,
-                ["body" => $request->message, "from" =>  $request->user()->phone_no, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
+                ["body" => $encodedMessage, "from" =>  $request->user()->phone_no, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
             );
 
 
