@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use App\Models\TwilioNumbers;
+use Twilio\Exceptions\ConfigurationException;
 use Twilio\Rest\Client;
 use App\Models\Country;
 use App\Models\User;
@@ -18,6 +19,7 @@ use App\Notifications\ChatNotfication;
 use App\Events\ChatEvent;
 use App\Models\FanClub;
 use App\Models\MessageLinks;
+use App\Jobs\SendTextMessage;
 
 
 class TwilioChatController extends ApiController
@@ -198,13 +200,14 @@ class TwilioChatController extends ApiController
 
         $encodedMessage = $this->filterAndReplaceLink($request);
 
-        return ($encodedMessage);
-        // $message = $this->client->messages
-        //     ->create(
-        //         $request->receiver_number,
-        //         ["body" => $encodedMessage, "from" =>  $request->user()->phone_no, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
-        //     );
-
+        // date we receive from frontend calender, for testing putting 10mins from now on.
+        $schedule_datetime = Carbon::now()->addMinutes(10);
+        try {
+            dispatch(new SendTextMessage($encodedMessage, $request))->delay($schedule_datetime);
+        } catch (ConfigurationException $e) {
+            \Log::info('----job exception catch');
+            \Log::info($e->getMessage());
+        }
 
         $message_record = [
             'sms_uuid' => Str::uuid()->toString(),
