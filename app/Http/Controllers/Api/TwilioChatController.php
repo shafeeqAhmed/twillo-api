@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Traits\CommonHelper;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -25,7 +26,7 @@ use App\Jobs\SendTextMessage;
 class TwilioChatController extends ApiController
 {
 
-
+    use CommonHelper;
     private $client;
 
     public function __construct()
@@ -166,41 +167,14 @@ class TwilioChatController extends ApiController
         ]);
     }
 
-    public function filterAndReplaceLink($data){
-        $text = $data->message;
-        preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $text, $match);
-        if(!empty($match[0])){
-            $links = [];
-            foreach($match[0] as $key=>$item){
-                if(!empty($item)){
-                    $link = $this->mapLinkOnTable($item, $data);
-                    $newLink = route('count_and_redirect').'?uuid='.$link['message_link_uuid'];
-                    $links[] = $link;
-                    $text = str_replace($item,$newLink,$text);
-                }
-            }
-            MessageLinks::insert($links);
-        }
-        return $text;
-    }
 
-    public function mapLinkOnTable($item, $data){
-        return [
-            'message_link_uuid' => Str::uuid()->toString(),
-            'influencer_id' => $data->user()->id,
-            'fanclub_id' => $data->receiver_id,
-            'link' => $item
-        ];
-    }
 
 
     public function smsService(Request $request)
     {
+        $encodedMessage = CommonHelper::filterAndReplaceLink($request);
 
-
-        $encodedMessage = $this->filterAndReplaceLink($request);
-
-        // date we receive from frontend calender, for testing putting 10mins from now on.
+        // date we receive from frontaend calender, for testing putting 10 minutes from now on.
         $schedule_datetime = Carbon::now()->addMinutes(10);
         try {
             dispatch(new SendTextMessage($encodedMessage, $request))->delay($schedule_datetime);

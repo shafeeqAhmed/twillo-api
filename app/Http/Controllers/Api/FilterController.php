@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Traits\CommonHelper;
+use App\Jobs\SendTextMessage;
 use Illuminate\Http\Request;
 use App\Models\Fan;
 use App\Models\FanClub;
 use Carbon\Carbon;
+use Twilio\Exceptions\ConfigurationException;
 use Twilio\Rest\Client;
 
 class FilterController extends ApiController
@@ -289,16 +292,28 @@ class FilterController extends ApiController
             return response()->json(['status'=>false,'message'=>'Sorry there is no record exist!','data'=>[]]);
         }
 
-    if(!empty($fans)){
-        foreach($fans as $fan){
-            $this->client->messages
-            ->create(
-               $fan['local_number'],
-                ["body" => $request->message, "from" =>  $request->user()->phone_no, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
-            );
+        $encodedMessage = CommonHelper::filterAndReplaceLink($request);
+        if(!empty($fans)){
+            $request_data = $request->all();
+            $request_data['fans']=$fans;
+
+//            foreach($fans as $fan){
+//                $this->client->messages
+//                ->create(
+//                   $fan['local_number'],
+//                    ["body" => $request->message, "from" =>  $request->user()->phone_no, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
+//                );
+//            };
+
+            $schedule_datetime = empty($request->schedule_date) ? Carbon::now() : Carbon::createFromFormat('Y-m-d\TH:i', $request->schedule_date);
+            try {
+                dispatch(new SendTextMessage($encodedMessage, $request_data, 'multiple'))->delay($schedule_datetime);
+            } catch (ConfigurationException $e) {
+                \Log::info('----job exception catch');
+                \Log::info($e->getMessage());
+            }
         }
-    }
-    return response()->json(['status'=>true,'message'=>'Message Has been sent Successfully!','data'=>[]]);
+        return response()->json(['status'=>true,'message'=>'Message Has been sent Successfully!','data'=>[]]);
     }
     public function applyDistanceFilterWithRadiusPoints($query, $params) {
             $haversine = "(6371 * acos(cos(radians(" . $params['lat'] . "))
