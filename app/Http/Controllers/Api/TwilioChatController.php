@@ -167,13 +167,15 @@ class TwilioChatController extends ApiController
     public function filterAndReplaceLink($data){
         $text = $data->message;
         preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $text, $match);
-        if(!empty($match)){
+        if(!empty($match[0])){
             $links = [];
-            foreach($match as $item){
-                $link = $this->mapLinkOnTable($item, $data);
-                $newLink = route('count_and_redirect').'?uuid='.$link['message_link_uuid'];
-                $links[] = $link;
-                str_replace($item,$newLink,$text);
+            foreach($match[0] as $key=>$item){
+                if(!empty($item)){
+                    $link = $this->mapLinkOnTable($item, $data);
+                    $newLink = route('count_and_redirect').'?uuid='.$link['message_link_uuid'];
+                    $links[] = $link;
+                    $text = str_replace($item,$newLink,$text);
+                }
             }
             MessageLinks::insert($links);
         }
@@ -183,8 +185,8 @@ class TwilioChatController extends ApiController
     public function mapLinkOnTable($item, $data){
         return [
             'message_link_uuid' => Str::uuid()->toString(),
-            'influencer_id' => $request->user()->id,
-            'fanclub_id' => $request->receiver_id,
+            'influencer_id' => $data->user()->id,
+            'fanclub_id' => $data->receiver_id,
             'link' => $item
         ];
     }
@@ -196,11 +198,12 @@ class TwilioChatController extends ApiController
 
         $encodedMessage = $this->filterAndReplaceLink($request);
 
-        $message = $this->client->messages
-            ->create(
-                $request->receiver_number,
-                ["body" => $encodedMessage, "from" =>  $request->user()->phone_no, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
-            );
+        return ($encodedMessage);
+        // $message = $this->client->messages
+        //     ->create(
+        //         $request->receiver_number,
+        //         ["body" => $encodedMessage, "from" =>  $request->user()->phone_no, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
+        //     );
 
 
         $message_record = [

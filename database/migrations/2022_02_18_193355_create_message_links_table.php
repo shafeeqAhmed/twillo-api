@@ -21,7 +21,7 @@ class CreateMessageLinksTable extends Migration
             $table->foreign('influencer_id')->on('users')->references('id');
             $table->foreign('fanclub_id')->on('fan_clubs')->references('id');
             $table->string('link');
-            $table->boolean('is_visited')->default(true);
+            $table->boolean('is_visited')->default(false);
             $table->datetime('visited_date')->nullable()->default(null);
             $table->integer('total_visits')->default(0);
             $table->timestamps();
