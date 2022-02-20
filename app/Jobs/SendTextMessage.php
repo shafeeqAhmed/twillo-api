@@ -56,8 +56,8 @@ class SendTextMessage implements ShouldQueue
 
         }
         if($this->type == 'multiple'){
-            foreach($this->request_data->fans as $fan){
-                $this->send_twilio_message($fan['local_number'],$this->message,$this->request_data->user()->phone_no);
+            foreach($this->request_data['fans'] as $fan){
+                $this->send_twilio_message($fan['local_number'],$this->message,$this->request_data['user']->phone_no);
             }
         }
 
@@ -66,10 +66,10 @@ class SendTextMessage implements ShouldQueue
 
 
     public function send_twilio_message($number, $message, $from){
-        $this->client->messages
-            ->create(
-                $number,
-                ["body" => $message, "from" =>  $from, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
-            );
+//        $this->client->messages
+//            ->create(
+//                $number,
+//                ["body" => $message, "from" =>  $from, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
+//            );
     }
 }

@@ -296,6 +296,7 @@ class FilterController extends ApiController
         if(!empty($fans)){
             $request_data = $request->all();
             $request_data['fans']=$fans;
+            $request_data['user']=$request->user();
 
 //            foreach($fans as $fan){
 //                $this->client->messages
