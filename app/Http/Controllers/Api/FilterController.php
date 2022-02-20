@@ -288,8 +288,9 @@ class FilterController extends ApiController
     }
     public function sendMessageToContacts(Request $request){
         $fans = $this->queryForFilterRecord($request);
+
         if(count($fans) == 0) {
-            return response()->json(['status'=>false,'message'=>'Sorry there is no record exist!','data'=>[]]);
+            return response()->json(['status'=>false,'message'=>'Sorry there is no record exist against given Filters!','data'=>[]]);
         }
 
         $encodedMessage = CommonHelper::filterAndReplaceLink($request);
