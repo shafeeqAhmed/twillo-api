@@ -198,7 +198,7 @@ class FilterController extends ApiController
 
         $ageQuery = "TIMESTAMPDIFF(YEAR, DATE(fans.dob), current_date)";
         $query->select('fans.*')
-            ->select('fc.local_number')->selectRaw("{$ageQuery} AS age");
+            ->select('fc.local_number','fc.id as fan_club_id')->selectRaw("{$ageQuery} AS age");
 
         if(!empty($request->activity['activity'])) {
             $isFilter = false;
@@ -284,16 +284,15 @@ class FilterController extends ApiController
             }
 
         }
-        return !$isFilter ? $query->get() : [];
+        return $query->get()->take(3);
+//        return !$isFilter ? $query->get() : [];
     }
     public function sendMessageToContacts(Request $request){
         $fans = $this->queryForFilterRecord($request);
-
         if(count($fans) == 0) {
             return response()->json(['status'=>false,'message'=>'Sorry there is no record exist against given Filters!','data'=>[]]);
         }
-
-        $encodedMessage = CommonHelper::filterAndReplaceLink($request);
+//        $encodedMessage = CommonHelper::filterAndReplaceLink($request);
         if(!empty($fans)){
             $request_data = $request->all();
             $request_data['fans']=$fans;
@@ -309,7 +308,7 @@ class FilterController extends ApiController
 
             $schedule_datetime = empty($request->schedule_date) ? Carbon::now() : Carbon::createFromFormat('Y-m-d\TH:i', $request->schedule_date);
             try {
-                dispatch(new SendTextMessage($encodedMessage, $request_data, 'multiple'))->delay($schedule_datetime);
+                dispatch(new SendTextMessage($request->message, $request_data, 'multiple'))->delay($schedule_datetime);
             } catch (ConfigurationException $e) {
                 \Log::info('----job exception catch');
                 \Log::info($e->getMessage());

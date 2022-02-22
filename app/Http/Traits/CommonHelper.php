@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 trait CommonHelper {
     public static function filterAndReplaceLink($data){
-        $text = $data->message;
+        $text = $data['message'];
         preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $text, $match);
         if(!empty($match[0])){
             $links = [];
@@ -27,9 +27,10 @@ trait CommonHelper {
     public static function mapLinkOnTable($item, $data): array
     {
         return [
+
             'message_link_uuid' => Str::uuid()->toString(),
-            'influencer_id' => $data->user()->id,
-            'fanclub_id' => $data->receiver_id,
+            'influencer_id' =>$data['influencer_id'],
+            'fanclub_id' => $data['receiver_id'],
             'link' => $item
         ];
     }

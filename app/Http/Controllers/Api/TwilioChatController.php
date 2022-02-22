@@ -172,12 +172,14 @@ class TwilioChatController extends ApiController
 
     public function smsService(Request $request)
     {
-        $encodedMessage = CommonHelper::filterAndReplaceLink($request);
+        $data = $request->except('receiver_number');
+        $data['influencer_id'] = $request->user()->id;
+        $encodedMessage = CommonHelper::filterAndReplaceLink($data);
 
         // date we receive from frontaend calender, for testing putting 10 minutes from now on.
         $schedule_datetime = Carbon::now()->addMinutes(10);
         try {
-            dispatch(new SendTextMessage($encodedMessage, $request))->delay($schedule_datetime);
+            dispatch(new SendTextMessage($encodedMessage, $request->all()))->delay($schedule_datetime);
         } catch (ConfigurationException $e) {
             \Log::info('----job exception catch');
             \Log::info($e->getMessage());
