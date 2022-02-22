@@ -55,7 +55,7 @@ class SendTextMessage implements ShouldQueue
 
         if($this->type == 'single'){
 
-            $this->send_twilio_message($this->request_data['receiver_number'],$this->message,request()->user()->phone_no);
+            $this->send_twilio_message($this->request_data['receiver_number'],$this->message,$this->request_data['user']->phone_no);
         }
         if($this->type == 'multiple'){
             foreach($this->request_data['fans'] as $fan){
