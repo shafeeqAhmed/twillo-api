@@ -276,16 +276,12 @@ class FilterController extends ApiController
             }
             if($request->joinDate['search_type'] == 'After') {
                 $query->where('fans.created_at','>',$start_date);
-
             }
             if($request->joinDate['search_type'] == 'On') {
                 $query->where('fans.created_at','=',$start_date);
-
             }
-
         }
-        return $query->get()->take(3);
-//        return !$isFilter ? $query->get() : [];
+        return !$isFilter ? $query->get() : [];
     }
     public function sendMessageToContacts(Request $request){
         $fans = $this->queryForFilterRecord($request);
