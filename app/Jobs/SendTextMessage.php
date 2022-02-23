@@ -55,6 +55,8 @@ class SendTextMessage implements ShouldQueue
 
         if($this->type == 'single'){
 
+            \Log::info('---------------single message---------------');
+            \Log::info($this->request_data);
             $this->send_twilio_message($this->request_data['receiver_number'],$this->message,$this->request_data['user']->phone_no);
         }
         if($this->type == 'multiple'){
