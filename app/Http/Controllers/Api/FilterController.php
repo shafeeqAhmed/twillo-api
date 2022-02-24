@@ -280,6 +280,7 @@ class FilterController extends ApiController
                 $query->where('fans.created_at','=',$start_date);
             }
         }
+        return $query->get()->take(3);
         return !$isFilter ? $query->get() : [];
     }
     public function sendMessageToContacts(Request $request){
@@ -287,23 +288,15 @@ class FilterController extends ApiController
         if(count($fans) == 0) {
             return response()->json(['status'=>false,'message'=>'Sorry there is no record exist against given Filters!','data'=>[]]);
         }
-//        $encodedMessage = CommonHelper::filterAndReplaceLink($request);
         if(!empty($fans)){
             $request_data = $request->all();
             $request_data['fans']=$fans;
             $request_data['user']=$request->user();
-
-//            foreach($fans as $fan){
-//                $this->client->messages
-//                ->create(
-//                   $fan['local_number'],
-//                    ["body" => $request->message, "from" =>  $request->user()->phone_no, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
-//                );
-//            };
-
-            $schedule_datetime = empty($request->schedule_date) ? Carbon::now() : Carbon::createFromFormat('Y-m-d\TH:i', $request->schedule_date);
+            $request_data['is_scheduled'] = !empty($request->schedule_date);
+            $request_data['scheduled_date_time'] = empty($request->schedule_date) ? '' : $request->schedule_date;
+//            $schedule_datetime = empty($request->schedule_date) ? '' : Carbon::createFromFormat('Y-m-d\TH:i', $request->schedule_date);
             try {
-                dispatch(new SendTextMessage($request->message, $request_data, 'multiple'))->delay($schedule_datetime);
+                dispatch(new SendTextMessage($request->message, $request_data, 'multiple'));
             } catch (ConfigurationException $e) {
                 \Log::info('----job exception catch');
                 \Log::info($e->getMessage());

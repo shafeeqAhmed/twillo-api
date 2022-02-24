@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Http\Traits\CommonHelper;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -57,7 +58,13 @@ class SendTextMessage implements ShouldQueue
          if($type == 'sender') {
             return  $this->request_data['user']->phone_no;
         }
-        
+         if($type == 'scheduled') {
+            return isset($this->request_data['is_scheduled']) ? $this->request_data['is_scheduled'] : false;
+         }
+         if($type == 'scheduled_date_time') {
+            return isset($this->request_data['scheduled_date_time']) ? Carbon::parse($this->request_data['scheduled_date_time'])->toIso8601String() : Carbon::now()->toIso8601String();
+         }
+
     }
     public function handle()
     {
@@ -82,10 +89,15 @@ class SendTextMessage implements ShouldQueue
 
 
     public function send_twilio_message($number, $message, $from){
-//        $this->client->messages
-//            ->create(
-//                $number,
-//                ["body" => $message, "from" =>  $from, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
-//            );
+        $data =  [
+            "body" => $message,
+            "from" =>  $from,
+            "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
+        ];
+        if($this->getValue('scheduled')) {
+            $data['sendAt'] = $this->getValue('scheduled_date_time');
+            $data['scheduleType'] = 'fixed';
+        }
+        $this->client->messages->create($number, $data);
     }
 }
