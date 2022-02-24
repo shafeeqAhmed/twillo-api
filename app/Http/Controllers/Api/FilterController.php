@@ -199,7 +199,6 @@ class FilterController extends ApiController
         $ageQuery = "TIMESTAMPDIFF(YEAR, DATE(fans.dob), current_date)";
         $query->select('fans.*')
             ->select('fc.local_number','fc.id as fan_club_id')->selectRaw("{$ageQuery} AS age");
-
         if(!empty($request->activity['activity'])) {
             $isFilter = false;
             $rawQuery = "(fc.send_count+fc.received_count)";
@@ -281,6 +280,7 @@ class FilterController extends ApiController
                 $query->where('fans.created_at','=',$start_date);
             }
         }
+        return $query->get()->take(3);
         return !$isFilter ? $query->get() : [];
     }
     public function sendMessageToContacts(Request $request){
