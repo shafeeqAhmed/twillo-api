@@ -180,6 +180,7 @@ class TwilioChatController extends ApiController
         try {
             $request_data = $request->all();
             $request_data['user']=$request->user();
+
             dispatch(new SendTextMessage($encodedMessage, $request_data));
         } catch (ConfigurationException $e) {
             \Log::info('----job exception catch');
@@ -203,7 +204,7 @@ class TwilioChatController extends ApiController
         ]);
     }
 
-    
+
 
 
     public function Port()
