@@ -50,11 +50,21 @@ class SendTextMessage implements ShouldQueue
      *
      * @return bool
      */
+    public function getValue($type) {
+        if($type == 'receiver') {
+            return  $this->request_data['receiver_number'];
+        }
+         if($type == 'sender') {
+            return  $this->request_data['user']->phone_no;
+        }
+        
+    }
     public function handle()
     {
 
         if($this->type == 'single'){
-            $this->send_twilio_message($this->request_data['receiver_number'],$this->message,$this->request_data['user']->phone_no);
+            $this->send_twilio_message($this->getValue('receiver'),$this->message,$this->getValue('sender'));
+            // $this->send_twilio_message($this->request_data['receiver_number'],$this->message,$this->request_data['user']->phone_no);
         }
         if($this->type == 'multiple'){
             foreach($this->request_data['fans'] as $fan){
