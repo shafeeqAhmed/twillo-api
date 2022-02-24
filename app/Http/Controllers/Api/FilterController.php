@@ -280,7 +280,6 @@ class FilterController extends ApiController
                 $query->where('fans.created_at','=',$start_date);
             }
         }
-        return $query->get()->take(3);
         return !$isFilter ? $query->get() : [];
     }
     public function sendMessageToContacts(Request $request){
