@@ -6,6 +6,12 @@ use App\Models\MessageLinks;
 use Illuminate\Support\Str;
 
 trait CommonHelper {
+
+    public static function containsWord($str, $word)
+    {
+        return !!preg_match('#\\b' . preg_quote($word, '#') . '\\b#i', $str);
+    }
+
     public static function filterAndReplaceLink($data){
         $text = $data['message'];
         preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $text, $match);
@@ -14,9 +20,11 @@ trait CommonHelper {
             foreach($match[0] as $key=>$item){
                 if(!empty($item)){
                     $link = CommonHelper::mapLinkOnTable($item, $data);
-                    $newLink = url('/twillo-api/redirect_url').'?uuid='.$link['message_link_uuid'];
-//                    $newLink = route('count_and_redirect').'?uuid='.$link['message_link_uuid'];
-
+                    if(self::containsWord(url('/'),'twillo-api')) {
+                         $newLink = route('count_and_redirect').'?uuid='.$link['message_link_uuid'];
+                    }else {
+                        $newLink = url('/twillo-api/redirect_url').'?uuid='.$link['message_link_uuid'];
+                    }
                     $links[] = $link;
                     $text = str_replace($item,$newLink,$text);
                 }
