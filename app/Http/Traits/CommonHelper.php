@@ -14,7 +14,9 @@ trait CommonHelper {
             foreach($match[0] as $key=>$item){
                 if(!empty($item)){
                     $link = CommonHelper::mapLinkOnTable($item, $data);
-                    $newLink = route('count_and_redirect').'?uuid='.$link['message_link_uuid'];
+                    $newLink = url('/twillo-api/redirect_url').'?uuid='.$link['message_link_uuid'];
+//                    $newLink = route('count_and_redirect').'?uuid='.$link['message_link_uuid'];
+
                     $links[] = $link;
                     $text = str_replace($item,$newLink,$text);
                 }
