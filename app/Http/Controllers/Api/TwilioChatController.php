@@ -36,7 +36,7 @@ class TwilioChatController extends ApiController
         $this->client = new Client($sid, $token);
     }
 
-    public function getChatMessages(Request $request, $id,$pageSize=5)
+    public function getChatMessages(Request $request, $id,$pageSize=10)
     {
 
         $from = $request->user()->phone_no;
@@ -74,7 +74,6 @@ class TwilioChatController extends ApiController
         $message_history = [];
         foreach($messages as $index => $message) {
             $list = $message->toArray();
-//            dd($list);
 //            $ar  = [];
 //            $ar['from'] = $list['from'];
 //            $ar['to'] = $list['to'];
@@ -83,7 +82,10 @@ class TwilioChatController extends ApiController
 //            $ar['dateSent'] = $list['dateSent']->format('Y-m-d H:i:s');
 //            $message_history[] = $ar;
             if(!str_contains($list['body'], 'Hey! This is an auto text to let you know')){
-            $message_history[$index]['message'] = $list['body'];
+            $message_history[$index]['is_link'] = !empty(getLinkColumn($list['body'],'link')) ? true : false ;
+            $message_history[$index]['is_visited'] = getLinkColumn($list['body'],'is_visited');
+            $message_history[$index]['total_visits'] = getLinkColumn($list['body'],'total_visits');
+            $message_history[$index]['message'] = getLinkColumn($list['body'],'link') ?? $list['body'];
             $message_history[$index]['direction'] = $list['direction'];
             $message_history[$index]['align'] = $list['direction'] != 'inbound' ? 'right' : '';
             $message_history[$index] ['timestamp'] = strtotime($list['dateSent']->format('Y-m-d H:i:s'));

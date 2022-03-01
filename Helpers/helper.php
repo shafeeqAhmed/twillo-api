@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Storage;
 use Twilio\Rest\Client;
 use App\Models\User;
 use App\Models\FanClub;
+use App\Models\MessageLinks;
+
 if (!function_exists('uploadImage')) {
     function uploadImage($key, $directory)
     {
@@ -113,7 +115,7 @@ if (!function_exists('sendAndReceiveSms')) {
 if (!function_exists('fanSendAndReceiveSms')) {
     function fanSendAndReceiveSms($fan_club_id,$type)
     {
-    $fanClub = FanClub::where('id',$fan_club_id)->first();
+        $fanClub = FanClub::where('id',$fan_club_id)->first();
         if($fanClub) {
             if($type == 'send') {
                 $fanClub->where('id',$fan_club_id)->increment('send_count');
@@ -122,5 +124,15 @@ if (!function_exists('fanSendAndReceiveSms')) {
                 $fanClub->where('id',$fan_club_id)->increment('received_count');
             }
         }
+    }
+}
+if (!function_exists('getLinkColumn')) {
+    function getLinkColumn($message,$colum)
+    {
+        $arr = explode('?uuid=',$message);
+        if(count($arr) == 2) {
+            return  MessageLinks::where('message_link_uuid',$arr[1])->value($colum);
+        }
+        return null;
     }
 }

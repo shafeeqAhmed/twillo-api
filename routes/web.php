@@ -24,6 +24,12 @@ Route::get('/link', [\App\Http\Controllers\Api\TwilioNumbersController::class, '
 Route::get('/pass', function () {
     return \Illuminate\Support\Facades\Hash::make(123456);
 });
+Route::get('/test-1', function () {
+    $arr = explode('?uuid=','test https://text-app.tkit.co.uk/twillo-api/redirect_url?uuid=8bddcbda-b7f4-43fd-82c8-b37afa2feb0e');
+    $data =   \App\Models\MessageLinks::where('message_link_uuid',$arr[1])->first();
+dd($arr,$data);
+//    dd(explode('?uuid=','test '));
+});
 Route::get('/', function () {
     return view('welcome');
 });
