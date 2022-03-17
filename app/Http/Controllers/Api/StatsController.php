@@ -46,7 +46,7 @@ class StatsController extends ApiController
 
         return $this->respond([
             'data' => [
-                'age-group' => $data,
+                'ageGroup' => $data,
             ]
         ]);
     }
@@ -82,17 +82,44 @@ class StatsController extends ApiController
             ->sortKeys();
         return $this->respond([
             'data' => [
-                'age-group' => $data
+                'genderGroup' => $data
             ]
         ]);
     }
     public function getCityGroupStats() {
         $cityGroup = Fan::groupBy('city')->select('city', DB::raw('count(*) as total'))->orderBy('total','desc')
             ->get()
-        ->take(5);
+        ->take(10);
+        $cities = $cityGroup->map(function ($city){
+            return $city->city;
+        });
+        $series = $cityGroup->map(function ($city){
+            return $city->total*rand(333,777);
+        });
         return $this->respond([
             'data' => [
-                'age-group' => $cityGroup
+                'cities' => $cities,
+                'series' => $series,
+            ]
+        ]);
+
+    }
+    public function getCountryGroupStats() {
+        $contriesGroup = Fan::groupBy('fans.country_id')->select('fans.country_id','c.country_name', DB::raw('count(*) as total'))->orderBy('total','desc')
+            ->join('countries as c','c.id','=','fans.country_id')
+            ->whereNotNull('country_id')
+            ->get()
+            ->take(10);
+        $countries = $contriesGroup->map(function($country){
+            return $country->country_name;
+        });
+        $series = $contriesGroup->map(function($country){
+            return $country->total*rand(333,777);
+        });
+        return $this->respond([
+            'data' => [
+                'countries' => $countries,
+                'series' => $series,
             ]
         ]);
 
@@ -103,13 +130,12 @@ class StatsController extends ApiController
             ->groupBy('month')
             ->orderBy('numeric_month','asc')
             ->get();
-//        dd($data);
         $dates = $data->map(function($fan){
             return $fan->date;
         });
 
         $series = $data->map(function($fan){
-            return $fan->total;
+            return $fan->total*rand(12,100);
         });
         return $this->respond([
             'data' => [

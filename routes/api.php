@@ -91,9 +91,11 @@ Route::get('duration_filter', [\App\Http\Controllers\Api\FilterController::class
 
 Route::get('get_fan_by_date/{date}/{type}', [\App\Http\Controllers\Api\FilterController::class, 'getFanByDate']);
 Route::post('send_message_to_contacts', [\App\Http\Controllers\Api\FilterController::class, 'sendMessageToContacts']);
+
 Route::get('age-group-stats', [\App\Http\Controllers\Api\StatsController::class, 'getAgeGroupStats']);
 Route::get('gender-group-stats', [\App\Http\Controllers\Api\StatsController::class, 'getGenderGroupStats']);
-Route::get('city-group-stats', [\App\Http\Controllers\Api\StatsController::class, 'getCityGroupStats']);
+    Route::get('city-group-stats', [\App\Http\Controllers\Api\StatsController::class, 'getCityGroupStats']);
+    Route::get('country-group-stats', [\App\Http\Controllers\Api\StatsController::class, 'getCountryGroupStats']);
 Route::get('monthly-registration-group-stats', [\App\Http\Controllers\Api\StatsController::class, 'getMontyRegistrationStats']);
 
 });
