@@ -140,7 +140,7 @@ class TwilioNumbersController extends ApiController
         $this->twilioFeedback($input);
     }
     public function insertInFanClub($influencer_id,$fan_phon_number,$uuid) {
-        FanClub::create();
+//        FanClub::create();
     }
     public function generateSignUplink($uuid) {
         $url = config('general.front_app_url').'/account/register?id='.$uuid;

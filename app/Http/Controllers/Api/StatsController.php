@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Fan;
+use App\Models\MessageLinks;
+use App\Models\Messages;
 use Illuminate\Http\Request;
 use DB;
 use Carbon\Carbon;
+
 class StatsController extends ApiController
 {
     public function getAgeGroupStats() {
@@ -125,7 +128,7 @@ class StatsController extends ApiController
 
     }
     public function getMontyRegistrationStats() {
-        $data = Fan::select(DB::raw("count(*) as total, date_format(created_at, '%M') as month, date_format(created_at, '%m') as numeric_month,date_format(created_at, '%d/%m/%Y') as date"))
+        $data = Fan::select(DB::raw("count(*) as total, date_format(created_at, '%M') as month, date_format(created_at, '%m') as numeric_month,date_format(created_at, '%m/%d/%Y') as date"))
             ->whereYear('created_at', now()->subYear()->year)
             ->groupBy('month')
             ->orderBy('numeric_month','asc')
@@ -135,7 +138,7 @@ class StatsController extends ApiController
         });
 
         $series = $data->map(function($fan){
-            return $fan->total*rand(12,100);
+            return $fan->total*rand(12,30);
         });
         return $this->respond([
             'data' => [
@@ -145,7 +148,102 @@ class StatsController extends ApiController
             ]
         ]);
     }
+    public function averageClickRate(Request $request) {
+         $request->validate([
+            'start' => 'nullable|date',
+            'end' => 'nullable|date',
+        ]);
+        $query_1 =  MessageLinks::where('influencer_id',$request->user()->id);
 
+         if($request->has('start') && $request->has('start')) {
+             $query_1->whereBetween('created_at',[$request->start,$request->end]);
+         }
+        $totalLinks = $query_1->count();
+         $query_2 = MessageLinks::where('influencer_id',$request->user()->id)->where('is_visited',1);
+
+        if($request->has('start') && $request->has('start')) {
+            $query_2->whereBetween('created_at',[$request->start,$request->end]);
+        }
+
+        $totalVisitedLinks = $query_2->count();
+        $averageRate = 0;
+        if($totalVisitedLinks > 0 && $totalLinks > 0) {
+            $averageRate = round(($totalVisitedLinks/$totalLinks)*100,2);
+        }
+        return $this->respond([
+            'data' => [
+                'averageClickRate'=>$averageRate
+            ]
+        ]);
+    }
+    public function averageResponseRate(Request $request) {
+        $request->validate([
+            'start' => 'required|date',
+            'end' => 'required|date',
+        ]);
+
+        $totalMessages = Messages::where('user_id',$request->user()->id)->whereBetween('created_at',[$request->start,$request->end])->count();
+        $totalRespondedMessage = Messages::where('user_id',$request->user()->id)->whereIsReplied(1)->whereBetween('created_at',[$request->start,$request->end])->count();
+
+        $averageRate = 0;
+        if($totalMessages > 0 && $totalRespondedMessage > 0) {
+            $averageRate = round(($totalRespondedMessage/$totalMessages)*100,2);
+        }
+        return $this->respond([
+            'data' => [
+                'averageResponseRate'=>$averageRate
+            ]
+        ]);
+    }
+    public function fanReach(Request $request) {
+        $request->validate([
+            'start' => 'required|date',
+            'end' => 'required|date',
+        ]);
+        $totalMessages = Messages::where('user_id',$request->user()->id)->whereBetween('created_at',[$request->start,$request->end])->count();
+        return $this->respond([
+            'data' => [
+                'fanReached'=>$totalMessages
+            ]
+        ]);
+    }
+
+    public function topActiveContact(Request $request) {
+        $request->validate([
+            'start' => 'required|date',
+            'end' => 'required|date',
+        ]);
+        $totalMessages = Messages::where('user_id',$request->user()->id)
+            ->whereBetween('created_at',[$request->start,$request->end])
+            ->select(DB::raw('count(*) as totalMessage'))
+            ->groupBy('fan_id')
+            ->orderBy('totalMessage', 'desc')
+            ->take(10)
+            ->get();
+        return $this->respond([
+            'data' => [
+                'fanReached'=>$totalMessages
+            ]
+        ]);
+    }
+    public function topInActiveContact(Request $request) {
+        $request->validate([
+            'start' => 'required|date',
+            'end' => 'required|date',
+        ]);
+        $totalMessages = Messages::where('user_id',$request->user()->id)
+            ->whereBetween('created_at',[$request->start,$request->end])
+            ->select(DB::raw('count(*) as totalMessage'))
+            ->groupBy('fan_id')
+            ->orderBy('totalMessage', 'asc')
+            ->take(10)
+            ->get();
+        return $this->respond([
+            'data' => [
+                'fanReached'=>$totalMessages
+            ]
+        ]);
+    }
 
 
 }

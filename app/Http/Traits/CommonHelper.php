@@ -3,6 +3,7 @@
 namespace App\Http\Traits;
 
 use App\Models\MessageLinks;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 
 trait CommonHelper {
@@ -41,7 +42,8 @@ trait CommonHelper {
             'message_link_uuid' => Str::uuid()->toString(),
             'influencer_id' =>$data['influencer_id'],
             'fanclub_id' => $data['receiver_id'],
-            'link' => $item
+            'link' => $item,
+            'created_at' => Carbon::now()
         ];
     }
 }

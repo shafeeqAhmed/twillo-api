@@ -1,4 +1,5 @@
 <?php
+namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -22,33 +23,33 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('login', [\App\Http\Controllers\Api\AuthController::class, 'login']);
-Route::post('register', [\App\Http\Controllers\Api\AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
+Route::post('register', [AuthController::class, 'register']);
 
-// Route::post('email/verification-notification', [\App\Http\Controllers\Api\AuthController::class, 'resendVerificationEmail'])->middleware(['auth:sanctum', 'throttle:6,1']);
-// Route::post('/email/verify/{id}/{hash}', [\App\Http\Controllers\Api\AuthController::class, 'VerificationEmail']);
-Route::post('/forgot-password', [\App\Http\Controllers\Api\AuthController::class, 'forgotPassword']);
-// Route::post('/reset-password', [\App\Http\Controllers\Api\AuthController::class, 'resetPassword']);
-// Route::post('/update-profile', [\App\Http\Controllers\Api\UserController::class, 'updateProfile']);
-
-
-
-Route::get('buy-twillio-numbers/{no}/{country_id}/{state}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'purchaseTwillioNumbers']);
-
-Route::get('users/{user_uuid}', [\App\Http\Controllers\Api\UserController::class, 'getUserDetail']);
+// Route::post('email/verification-notification', [AuthController::class, 'resendVerificationEmail'])->middleware(['auth:sanctum', 'throttle:6,1']);
+// Route::post('/email/verify/{id}/{hash}', [AuthController::class, 'VerificationEmail']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+// Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+// Route::post('/update-profile', [UserController::class, 'updateProfile']);
 
 
-Route::post('create-influencer', [\App\Http\Controllers\Api\InfluencerController::class, 'createInfluencer']);
 
-Route::post('update-influencer', [\App\Http\Controllers\Api\InfluencerController::class, 'updateInfluencer']);
-Route::get('get-influencers', [\App\Http\Controllers\Api\UserController::class, 'getInfluencersList']);
-Route::get('get-influencers-dropdowns', [\App\Http\Controllers\Api\DropDownController::class, 'getCountriesTWillioNumbers']);
+Route::get('buy-twillio-numbers/{no}/{country_id}/{state}', [TwilioNumbersController::class, 'purchaseTwillioNumbers']);
+
+Route::get('users/{user_uuid}', [UserController::class, 'getUserDetail']);
 
 
-Route::post('msg-tracking', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'msgTracking']);
+Route::post('create-influencer', [InfluencerController::class, 'createInfluencer']);
 
-Route::post('upload-single-file', [\App\Http\Controllers\Api\MediaController::class, 'uploadSingleFile']);
-Route::post('update-profile', [\App\Http\Controllers\Api\UserController::class, 'updateProfile']);
+Route::post('update-influencer', [InfluencerController::class, 'updateInfluencer']);
+Route::get('get-influencers', [UserController::class, 'getInfluencersList']);
+Route::get('get-influencers-dropdowns', [DropDownController::class, 'getCountriesTWillioNumbers']);
+
+
+Route::post('msg-tracking', [TwilioNumbersController::class, 'msgTracking']);
+
+Route::post('upload-single-file', [MediaController::class, 'uploadSingleFile']);
+Route::post('update-profile', [UserController::class, 'updateProfile']);
 
 
 
@@ -56,51 +57,57 @@ Route::post('update-profile', [\App\Http\Controllers\Api\UserController::class, 
 
 
 
-Route::post('twilio_webhook', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'twilioWebhook']);
+Route::post('twilio_webhook', [TwilioNumbersController::class, 'twilioWebhook']);
 
-Route::get('twilio_feedback', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'twilioFeedback']);
+Route::get('twilio_feedback', [TwilioNumbersController::class, 'twilioFeedback']);
 
 
-Route::get('port', [\App\Http\Controllers\Api\TwilioChatController::class, 'Port']);
+Route::get('port', [TwilioChatController::class, 'Port']);
 
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
-Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
+Route::post('logout', [AuthController::class, 'logout']);
 
-Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'userList']);
+Route::get('users', [UserController::class, 'userList']);
 
-Route::get('my-detail', [\App\Http\Controllers\Api\UserController::class, 'myDetail']);
-Route::post('get-filter-member-count', [\App\Http\Controllers\Api\FilterController::class, 'getFilterMemberCount']);
-
-
-Route::post('sms_service', [\App\Http\Controllers\Api\TwilioChatController::class, 'smsService']);
-
-Route::get('get_chat_users/{id}', [\App\Http\Controllers\Api\TwilioChatController::class, 'getChatMessages']);
-
-Route::get('get_chat_contacts', [\App\Http\Controllers\Api\TwilioChatController::class, 'getInfluencerContacts']);
-Route::get('get_influencer_dashboard_info', [\App\Http\Controllers\Api\UserController::class, 'getInfluencerDashboardInfo']);
+Route::get('my-detail', [UserController::class, 'myDetail']);
+Route::post('get-filter-member-count', [FilterController::class, 'getFilterMemberCount']);
 
 
-Route::get('recipent_count', [\App\Http\Controllers\Api\FilterController::class, 'recipientsCount']);
+Route::post('sms_service', [TwilioChatController::class, 'smsService']);
 
-Route::get('age_filter/{type}/{date1}/{date2?}', [\App\Http\Controllers\Api\FilterController::class, 'ageFilter']);
+Route::get('get_chat_users/{id}', [TwilioChatController::class, 'getChatMessages']);
+
+Route::get('get_chat_contacts', [TwilioChatController::class, 'getInfluencerContacts']);
+Route::get('get_influencer_dashboard_info', [UserController::class, 'getInfluencerDashboardInfo']);
 
 
-Route::get('duration_filter', [\App\Http\Controllers\Api\FilterController::class, 'durationFilter']);
+Route::get('recipent_count', [FilterController::class, 'recipientsCount']);
 
-Route::get('get_fan_by_date/{date}/{type}', [\App\Http\Controllers\Api\FilterController::class, 'getFanByDate']);
-Route::post('send_message_to_contacts', [\App\Http\Controllers\Api\FilterController::class, 'sendMessageToContacts']);
+Route::get('age_filter/{type}/{date1}/{date2?}', [FilterController::class, 'ageFilter']);
 
-Route::get('age-group-stats', [\App\Http\Controllers\Api\StatsController::class, 'getAgeGroupStats']);
-Route::get('gender-group-stats', [\App\Http\Controllers\Api\StatsController::class, 'getGenderGroupStats']);
-    Route::get('city-group-stats', [\App\Http\Controllers\Api\StatsController::class, 'getCityGroupStats']);
-    Route::get('country-group-stats', [\App\Http\Controllers\Api\StatsController::class, 'getCountryGroupStats']);
-Route::get('monthly-registration-group-stats', [\App\Http\Controllers\Api\StatsController::class, 'getMontyRegistrationStats']);
+
+Route::get('duration_filter', [FilterController::class, 'durationFilter']);
+
+Route::get('get_fan_by_date/{date}/{type}', [FilterController::class, 'getFanByDate']);
+Route::post('send_message_to_contacts', [FilterController::class, 'sendMessageToContacts']);
+
+    Route::get('age-group-stats', [StatsController::class, 'getAgeGroupStats']);
+    Route::get('gender-group-stats', [StatsController::class, 'getGenderGroupStats']);
+    Route::get('city-group-stats', [StatsController::class, 'getCityGroupStats']);
+    Route::get('country-group-stats', [StatsController::class, 'getCountryGroupStats']);
+    Route::get('monthly-registration-group-stats', [StatsController::class, 'getMontyRegistrationStats']);
+    Route::get('average-click-rate', [StatsController::class, 'averageClickRate']);
+    Route::get('average-response-rate', [StatsController::class, 'averageResponseRate']);
+    Route::get('fan-reach', [StatsController::class, 'fanReach']);
+    Route::get('top-active-contact', [StatsController::class, 'topActiveContact']);
+    Route::get('top-in-active-contact', [StatsController::class, 'topInActiveContact']);
+
 
 });
 
-Route::get('is-valid-reference/{reference}', [\App\Http\Controllers\Api\UserController::class, 'isValidReference']);
+Route::get('is-valid-reference/{reference}', [UserController::class, 'isValidReference']);
 
 
 

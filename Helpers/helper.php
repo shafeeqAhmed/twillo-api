@@ -99,9 +99,9 @@ if (!function_exists('sendSms')) {
         );
     }
 }
-
+//for influener send and received sms
 if (!function_exists('sendAndReceiveSms')) {
-    function sendAndReceiveSms($user_id,$type)
+    function sendAndReceiveSms($user_id,$type,$fan_id = null)
     {
        if($type == 'send') {
            User::find($user_id)->increment('send_message_count');
@@ -112,8 +112,9 @@ if (!function_exists('sendAndReceiveSms')) {
 
     }
 }
+//for fan send and received sms
 if (!function_exists('fanSendAndReceiveSms')) {
-    function fanSendAndReceiveSms($fan_club_id,$type)
+    function fanSendAndReceiveSms($fan_club_id,$type, $influencer_id = null)
     {
         $fanClub = FanClub::where('id',$fan_club_id)->first();
         if($fanClub) {

@@ -9,7 +9,7 @@ class Messages extends Model
 {
     use HasFactory;
     protected $table='messages';
-    protected $fillable=['sms_uuid','sender_id','receiver_id','message_id','message','is_seen','chat_user_id'];
+    protected $guarded=['id'];
 
 
      public function user(){
