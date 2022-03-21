@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
@@ -67,31 +68,31 @@ Route::get('port', [TwilioChatController::class, 'Port']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
-Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('logout', [AuthController::class, 'logout']);
 
-Route::get('users', [UserController::class, 'userList']);
+    Route::get('users', [UserController::class, 'userList']);
 
-Route::get('my-detail', [UserController::class, 'myDetail']);
-Route::post('get-filter-member-count', [FilterController::class, 'getFilterMemberCount']);
-
-
-Route::post('sms_service', [TwilioChatController::class, 'smsService']);
-
-Route::get('get_chat_users/{id}', [TwilioChatController::class, 'getChatMessages']);
-
-Route::get('get_chat_contacts', [TwilioChatController::class, 'getInfluencerContacts']);
-Route::get('get_influencer_dashboard_info', [UserController::class, 'getInfluencerDashboardInfo']);
+    Route::get('my-detail', [UserController::class, 'myDetail']);
+    Route::post('get-filter-member-count', [FilterController::class, 'getFilterMemberCount']);
 
 
-Route::get('recipent_count', [FilterController::class, 'recipientsCount']);
+    Route::post('sms_service', [TwilioChatController::class, 'smsService']);
 
-Route::get('age_filter/{type}/{date1}/{date2?}', [FilterController::class, 'ageFilter']);
+    Route::get('get_chat_users/{id}', [TwilioChatController::class, 'getChatMessages']);
+
+    Route::get('get_chat_contacts', [TwilioChatController::class, 'getInfluencerContacts']);
+    Route::get('get_influencer_dashboard_info', [UserController::class, 'getInfluencerDashboardInfo']);
 
 
-Route::get('duration_filter', [FilterController::class, 'durationFilter']);
+    Route::get('recipent_count', [FilterController::class, 'recipientsCount']);
 
-Route::get('get_fan_by_date/{date}/{type}', [FilterController::class, 'getFanByDate']);
-Route::post('send_message_to_contacts', [FilterController::class, 'sendMessageToContacts']);
+    Route::get('age_filter/{type}/{date1}/{date2?}', [FilterController::class, 'ageFilter']);
+
+
+    Route::get('duration_filter', [FilterController::class, 'durationFilter']);
+
+    Route::get('get_fan_by_date/{date}/{type}', [FilterController::class, 'getFanByDate']);
+    Route::post('send_message_to_contacts', [FilterController::class, 'sendMessageToContacts']);
 
     Route::get('age-group-stats', [StatsController::class, 'getAgeGroupStats']);
     Route::get('gender-group-stats', [StatsController::class, 'getGenderGroupStats']);
@@ -103,11 +104,8 @@ Route::post('send_message_to_contacts', [FilterController::class, 'sendMessageTo
     Route::get('fan-reach', [StatsController::class, 'fanReach']);
     Route::get('top-active-contact', [StatsController::class, 'topActiveContact']);
     Route::get('top-in-active-contact', [StatsController::class, 'topInActiveContact']);
-
-
+    Route::get('no-of-text', [StatsController::class, 'noOfText']);
+    Route::get('no-of-contact', [StatsController::class, 'noOfContact']);
 });
 
 Route::get('is-valid-reference/{reference}', [UserController::class, 'isValidReference']);
-
-
-
