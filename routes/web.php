@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use Twilio\Rest\Client;
+use Carbon\Carbon;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -24,11 +25,40 @@ Route::get('/link', [\App\Http\Controllers\Api\TwilioNumbersController::class, '
 Route::get('/pass', function () {
     return \Illuminate\Support\Facades\Hash::make(123456);
 });
-Route::get('/test-1', function () {
-    $messages = \App\Models\Messages::get()->take(32);
-//    foreach($messages as $m) {
-//        $m->update(['is_replied'=>true]);
-//    }
+Route::get('/send-message', function () {
+    $sid = config('general.twilio_sid');
+    $token = config('general.twilio_token');
+    $client = new Client($sid, $token);
+
+
+
+    // $services = $client->messaging->v1->services('MG79f1e88db7e7bb1f3a10da276c895b1e')
+    //     ->delete();
+
+
+    // $service = $client->messaging->v1->services
+    //     ->create('scheduled_message', [
+    //         "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
+    //     ]);
+
+    // dd($service);
+
+    // $services = $client->messaging->v1->services
+    //     ->read(20);
+    // dd($services[0]);
+
+    $data =  [
+        "body" => 'custom test msg',
+        // "from" =>  '+18706176205',
+        "from" =>  '+19289854272',
+        "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
+    ];
+    $data['sendAt'] = Carbon::now()->addMinute(65)->toIso8601String();
+    $data['scheduleType'] = 'fixed';
+    // dd($data, Carbon::now()->toIso8601String(), Carbon::now()->addMinute(15)->toIso8601String());
+
+    $result = $client->messages->create('+12087792017', $data);
+    dd($result, $result->status);
 });
 Route::get('/', function () {
     return view('welcome');

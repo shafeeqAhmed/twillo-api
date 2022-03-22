@@ -17,10 +17,11 @@ class CreateMessagesTable extends Migration
             $table->id();
             $table->foreignId('fan_id')->references('id')->on('fans');
             $table->foreignId('user_id')->references('id')->on('users')->comment('users is influencer');
-            $table->enum('type',['send','receive'])->default('send');
+            $table->enum('type', ['send', 'receive'])->default('send');
             $table->boolean('is_replied')->default(false);
             $table->string('message')->nullable();
-            $table->string('status')->nullable();
+            $table->enum('status', ['accepted', 'scheduled', 'queued', 'sending', 'sent', 'receiving', 'received', 'delivered', 'undelivered', 'failed', 'read', 'canceled'])->nullable();
+            $table->string('stander_time')->nullable();
             $table->timestamps();
         });
     }

@@ -59,6 +59,7 @@ Route::post('update-profile', [UserController::class, 'updateProfile']);
 
 
 Route::post('twilio_webhook', [TwilioNumbersController::class, 'twilioWebhook']);
+Route::post('incomming_message_webhook', [TwilioNumbersController::class, 'inCommingMessageWebhook']);
 
 Route::get('twilio_feedback', [TwilioNumbersController::class, 'twilioFeedback']);
 

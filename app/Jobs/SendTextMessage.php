@@ -3,6 +3,8 @@
 namespace App\Jobs;
 
 use App\Http\Traits\CommonHelper;
+use App\Models\BroadCastMessage;
+use App\Models\Messages;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -22,6 +24,7 @@ class SendTextMessage implements ShouldQueue
     protected $request_data;
     protected $type;
     protected $client;
+    protected $broadCastMessage;
 
     /**
      * @var mixed|string
@@ -53,6 +56,9 @@ class SendTextMessage implements ShouldQueue
      */
     public function getValue($type)
     {
+        if ($type == 'receiver_id') {
+            return  $this->request_data['receiver_id'];
+        }
         if ($type == 'receiver') {
             return  $this->request_data['receiver_number'];
         }
@@ -66,21 +72,44 @@ class SendTextMessage implements ShouldQueue
             return isset($this->request_data['scheduled_date_time']) ? Carbon::parse($this->request_data['scheduled_date_time'])->toIso8601String() : Carbon::now()->toIso8601String();
         }
     }
+    public function updateLocalMessage($fan_id, $user_id, $message, $status, $broadcast_id, $twilio_msg_id, $stander_time)
+    {
+        Messages::create([
+            'fan_id' => $fan_id,
+            'user_id' => $user_id,
+            'message' => $message,
+            'status' => $status,
+            'broadcast_id' => $broadcast_id,
+            'twilio_msg_id' => $twilio_msg_id,
+            'stander_time' => $stander_time
+        ]);
+    }
     public function handle()
     {
 
         if ($this->type == 'single') {
-            $this->send_twilio_message($this->getValue('receiver'), $this->message, $this->getValue('sender'));
-            // $this->send_twilio_message($this->request_data['receiver_number'],$this->message,$this->request_data['user']->phone_no);
+
+            $this->send_twilio_message($this->getValue('receiver'), $this->message, $this->getValue('sender'), $this->request_data['user']->id, $this->getValue('receiver_id'));
         }
         if ($this->type == 'multiple') {
+
+            //store broad cast message
+            $this->broadCastMessage = BroadCastMessage::create([
+                'user_id' => $this->request_data['user']->id,
+                'message' => $this->message,
+                'type' => $this->getValue('scheduled') ? 'schedule' : 'direct',
+                'filters' => json_encode($this->request_data['filter']),
+                'scheduled_at_local_time' => Carbon::now(),
+                'scheduled_at_stander_time' => $this->getValue('scheduled_date_time')
+            ]);
+
             foreach ($this->request_data['fans'] as $fan) {
                 $encodedMessage = CommonHelper::filterAndReplaceLink([
                     'message' => $this->message,
                     'receiver_id' => $fan->fan_club_id,
                     'influencer_id' => $this->request_data['user']->id
                 ]);
-                $this->send_twilio_message($fan['local_number'], $encodedMessage, $this->request_data['user']->phone_no);
+                $this->send_twilio_message($fan['local_number'], $encodedMessage, $this->request_data['user']->phone_no, $this->request_data['user']->id, $fan->fan_id);
             }
         }
 
@@ -88,7 +117,7 @@ class SendTextMessage implements ShouldQueue
     }
 
 
-    public function send_twilio_message($number, $message, $from)
+    public function send_twilio_message($number, $message, $from, $user_id, $fan_id)
     {
         $data =  [
             "body" => $message,
@@ -98,7 +127,11 @@ class SendTextMessage implements ShouldQueue
         if ($this->getValue('scheduled')) {
             $data['sendAt'] = $this->getValue('scheduled_date_time');
             $data['scheduleType'] = 'fixed';
+
+            $result = $this->client->messages->create($number, $data);
+            $this->updateLocalMessage($fan_id, $user_id, $message, $result->status, $this->broadCastMessage->id, $result->sid, $data['sendAt']);
         }
-        $this->client->messages->create($number, $data);
+        $result = $this->client->messages->create($number, $data);
+        $this->updateLocalMessage($fan_id, $user_id, $message, $result->status, null, $result->sid, null);
     }
 }
