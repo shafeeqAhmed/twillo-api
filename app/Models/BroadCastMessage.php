@@ -10,4 +10,8 @@ class BroadCastMessage extends Model
     use HasFactory;
     protected $table = 'broadcast_message';
     protected $guarded = ['id'];
+    public function responseRate()
+    {
+        // return $this->hasOne('')
+    }
 }

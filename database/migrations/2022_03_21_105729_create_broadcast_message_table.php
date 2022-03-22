@@ -15,6 +15,7 @@ class CreateBroadcastMessageTable extends Migration
     {
         Schema::create('broadcast_message', function (Blueprint $table) {
             $table->id();
+            $table->uuid('broadcast_uuid');
             $table->foreignId('user_id')->on('users')->efference();
             $table->string('message');
             $table->enum('type', ['schedule', 'direct'])->default('direct');

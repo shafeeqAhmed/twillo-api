@@ -15,6 +15,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Twilio\Exceptions\ConfigurationException;
 use Twilio\Rest\Client;
+use Illuminate\Support\Str;
 
 class SendTextMessage implements ShouldQueue
 {
@@ -95,6 +96,7 @@ class SendTextMessage implements ShouldQueue
 
             //store broad cast message
             $this->broadCastMessage = BroadCastMessage::create([
+                'broadcast_uuid' => Str::uuid()->toString(),
                 'user_id' => $this->request_data['user']->id,
                 'message' => $this->message,
                 'type' => $this->getValue('scheduled') ? 'schedule' : 'direct',

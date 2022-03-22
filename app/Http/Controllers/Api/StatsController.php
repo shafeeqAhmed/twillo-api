@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\BroadCastMessage;
 use App\Models\Fan;
 use App\Models\FanClub;
 use App\Models\MessageLinks;
@@ -316,6 +317,15 @@ class StatsController extends ApiController
         return $this->respond([
             'data' => [
                 'contactCount' => $totalContact
+            ]
+        ]);
+    }
+    public function broadCastMessages(Request $request)
+    {
+        $broadCastMessages = BroadCastMessage::where('user_id', $request->user()->id)->select()->paginate(20);
+        return $this->respond([
+            'data' => [
+                'broadCastMessage' => $broadCastMessages
             ]
         ]);
     }
