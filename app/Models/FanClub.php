@@ -31,4 +31,8 @@ class FanClub extends Model
             ->where("fans_clubs.$column", '=', $value)
             ->value($attribute);
     }
+    public static function deleteRecord($where)
+    {
+        return FanClub::where($where)->delete();
+    }
 }

@@ -16,6 +16,8 @@ use App\Models\Messages;
 use Illuminate\Support\Str;
 use App\Http\Resources\ChatUserResource;
 use App\Events\ChatEvent;
+use App\Jobs\SendTextMessage;
+use Carbon\Carbon;
 
 class TwilioNumbersController extends ApiController
 {
@@ -161,7 +163,6 @@ class TwilioNumbersController extends ApiController
     }
     public function twilioFeedback($input = '')
     {
-
         $data = explode('&', $input)[0];
         $data = explode('=', $data);
 
@@ -179,66 +180,53 @@ class TwilioNumbersController extends ApiController
 
         $mess = $this->client->messages($msg_id)
             ->fetch();
-        $phone_number =  $this->client->lookups->v1->phoneNumbers($mess->from)
-            ->fetch(["type" => ["carrier", "direction"]]);
-        $lookup = explode('-', $phone_number->carrier['name'])[0];
-        dd($mess, $phone_number, $msg_id);
+        // $phone_number =  $this->client->lookups->v1->phoneNumbers($mess->from)
+        //     ->fetch(["type" => ["carrier", "direction"]]);
+        // $lookup = explode('-', $phone_number->carrier['name'])[0];
 
         //inbound mean received message from non twillo number
         // if (strtolower(trim($lookup, ' ')) != 'twilio') {
+        //incoming messages
+        if ($mess->direction == 'inbound') {
 
-        //outbound-api sms send by twilio number
-        if ($mess->direction == 'outbound-api') {
-            //        if ($lookup !== 'outbound-api') {
-            // outbound-api means sender is twilio number
             $user = User::where('phone_no', $mess->to)->first();
-            if ($user) {
-                //receiver is a twilio number
-                sendAndReceiveSms($user->id, 'receive');
-            }
+
             $sender = FanClub::where('local_number', $mess->from)->first();
-            if ($sender) {
-                // receiver is a non twilio number
-                fanSendAndReceiveSms($sender->id, 'send');
-            }
 
 
             $exist_in_fan_club = FanClub::where('is_active', 1)->where('user_id', $user->id)->where('local_number', $mess->from)->exists();
+            //new fan
             if (!$exist_in_fan_club) {
+                //generate temp id and send this via message
+                $uuid = Str::uuid()->toString();
 
-                $uuid = \Illuminate\Support\Str::uuid()->toString();
-                if ($user->count() != 0) {
+                //delete the previous token
+                FanClub::deleteRecord(['is_active' => 0, 'local_number' => $user->id, 'user_id' => $user->id]);
 
-                    FanClub::where('is_active', 0)
-                        ->where('local_number', $mess->from)
-                        ->where('user_id', $user->id)
-                        ->delete();
+                // create new token
+                FanClub::create([
+                    'fan_club_uuid' => Str::uuid()->toString(),
+                    'user_id' => $user->id,
+                    'local_number' => $sender->local_number,
+                    'fan_id' => 0,
+                    'temp_id' => $uuid,
+                    'is_active' => 0,
+                    'temp_id_date_time' => date('Y-m-d H:i:s')
+                ]);
+                //generate a new messae with link to register as a fan from influencer
+                $message = 'Hey! This is an auto text to let you know I received your message, to join my colony and receive messages from me, please sign up by clicking the link:   ' . $this->generateSignUplink($uuid);
+                $request_data['user'] = $user;
+                $request_data['receiver_number'] = $sender->local_number;
+                $request_data['receiver_id'] = $sender->fan_id;
 
-                    FanClub::create([
-                        'fan_club_uuid' => Str::uuid()->toString(),
-                        'user_id' => $user->id,
-                        'local_number' => $mess->from,
-                        'fan_id' => 0,
-                        'temp_id' => $uuid,
-                        'is_active' => 0,
-                        'temp_id_date_time' => date('Y-m-d H:i:s')
-                    ]);
-
-                    $body = 'Hey! This is an auto text to let you know I received your message, to join my colony and receive messages from me, please sign up by clicking the link:   ' . $this->generateSignUplink($uuid);
-                    $message = $this->client->messages
-                        ->create(
-                            $mess->from,
-                            ["body" => $body, "from" =>  $mess->to, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
-                        );
-                }
+                dispatch(new SendTextMessage($message, $request_data));
             } else {
-                $sender_id = Fan::where('phone_no', $mess->from)->first()->id;
-                $receiver_id = User::where('phone_no', $mess->to)->first()->id;
-                //                dd($sender_id,$receiver_id,$mess->from,$mess->to);
+                //if fan already exist inside fan club
+                //create pusher list for append message
                 $message_record = [
                     'sms_uuid' => Str::uuid()->toString(),
-                    'sender_id' => $sender_id,
-                    'receiver_id' => $receiver_id,
+                    'sender_id' => $sender->fan_id,
+                    'receiver_id' => $user->id,
                     'message_id' => 0,
                     'message' => $mess->body,
                     'is_seen' => 0,
@@ -247,19 +235,36 @@ class TwilioNumbersController extends ApiController
                     'align' => '',
                     'direction' => $mess->direction,
                 ];
-
                 ChatEvent::dispatch($message_record);
+
+                //update all the replies
+                updateFanReplies($sender->fan_id, $user->id);
+                //store message inside message table
+
+                updateLocalMessage(
+                    $sender->fan_id,
+                    $user->id,
+                    'receive',
+                    $mess->body,
+                    $mess->status,
+                    null,
+                    $mess->sid,
+                    null,
+                );
             }
         } else {
-            $sender = User::where('phone_no', $mess->from)->first();
-            if ($sender) {
-                sendAndReceiveSms($sender->id, 'send');
-            }
-            //update fan count
-            $receiver = FanClub::where('local_number', $mess->to)->first();
-            if ($receiver) {
-                fanSendAndReceiveSms($receiver->id, 'receive');
-            }
+            // msg send by twilio update his status 
+            Messages::updateData('twilio_msg_id', $mess->sid, ['status' => $mess->status]);
+
+            // $sender = User::where('phone_no', $mess->from)->first();
+            // if ($sender) {
+            //     sendAndReceiveSms($sender->id, 'send');
+            // }
+            // //update fan count
+            // $receiver = FanClub::where('local_number', $mess->to)->first();
+            // if ($receiver) {
+            //     fanSendAndReceiveSms($receiver->id, 'receive');
+            // }
 
             //            $receiver_id = Fan::where('phone_no', $mess->to)->first()->id;
             //
@@ -280,44 +285,44 @@ class TwilioNumbersController extends ApiController
 
 
 
-        exit;
+        // exit;
 
-        $input = $input->toArray();
-
-
-        foreach ($input as $key => $value) {
-
-            $to = explode('&', $value->body_)[3];
-            $to = explode('=', $to);
-
-            $from = explode('&', $value->body_)[6];
-            $from = explode('=', $from);
-
-            $msg_id = explode('&', $value->body_)[4];
-            $msg_id = explode('=', $msg_id);
+        // $input = $input->toArray();
 
 
+        // foreach ($input as $key => $value) {
 
-            $mess = $this->client->messages($msg_id[1])
-                ->fetch();
-            echo '<br>';
-            echo '<br>' . $value->id;
-            echo '<br>to= ' . $mess->to;
-            echo '<br>from= ' . $mess->from;
+        //     $to = explode('&', $value->body_)[3];
+        //     $to = explode('=', $to);
 
-            $fan_club = FanClub::where('active', 1)->where(['from' => $from, 'to' => $to])->get();
+        //     $from = explode('&', $value->body_)[6];
+        //     $from = explode('=', $from);
 
-            $messages = $this->client->messages
-                ->read(
-                    [
-                        "from" => $mess->from,
-                    ],
-                    100
-                );
+        //     $msg_id = explode('&', $value->body_)[4];
+        //     $msg_id = explode('=', $msg_id);
 
-            echo '<pre>';
-            print_r(count($messages));
-        }
+
+
+        //     $mess = $this->client->messages($msg_id[1])
+        //         ->fetch();
+        //     echo '<br>';
+        //     echo '<br>' . $value->id;
+        //     echo '<br>to= ' . $mess->to;
+        //     echo '<br>from= ' . $mess->from;
+
+        //     $fan_club = FanClub::where('active', 1)->where(['from' => $from, 'to' => $to])->get();
+
+        //     $messages = $this->client->messages
+        //         ->read(
+        //             [
+        //                 "from" => $mess->from,
+        //             ],
+        //             100
+        //         );
+
+        //     echo '<pre>';
+        //     print_r(count($messages));
+        // }
     }
 
     public function twilioFeedbackBackup()

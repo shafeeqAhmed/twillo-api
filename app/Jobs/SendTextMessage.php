@@ -129,9 +129,9 @@ class SendTextMessage implements ShouldQueue
             $data['scheduleType'] = 'fixed';
 
             $result = $this->client->messages->create($number, $data);
-            $this->updateLocalMessage($fan_id, $user_id, $message, $result->status, $this->broadCastMessage->id, $result->sid, $data['sendAt']);
+            updateLocalMessage($fan_id, $user_id, 'send', $message, $result->status, $this->broadCastMessage->id, $result->sid, $data['sendAt']);
         }
         $result = $this->client->messages->create($number, $data);
-        $this->updateLocalMessage($fan_id, $user_id, $message, $result->status, null, $result->sid, null);
+        updateLocalMessage($fan_id, $user_id, 'send', $message, $result->status, null, $result->sid, null, '');
     }
 }

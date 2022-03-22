@@ -6,6 +6,8 @@ use Twilio\Rest\Client;
 use App\Models\User;
 use App\Models\FanClub;
 use App\Models\MessageLinks;
+use App\Models\Messages;
+use Carbon\Carbon;
 
 if (!function_exists('uploadImage')) {
     function uploadImage($key, $directory)
@@ -72,7 +74,7 @@ if (!function_exists('isFileExist')) {
     }
 }
 if (!function_exists('sendSms')) {
-    function sendSms($from, $to,$body)
+    function sendSms($from, $to, $body)
     {
         $sid = config('general.twilio_sid');
         $token = config('general.twilio_token');
@@ -82,13 +84,14 @@ if (!function_exists('sendSms')) {
             [
                 "body" => $body,
                 "from" =>  $from,
-                "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
+                "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
+            ]
         );
     }
 }
 
 if (!function_exists('sendSms')) {
-    function sendSms($from, $to,$body)
+    function sendSms($from, $to, $body)
     {
         $sid = config('general.twilio_sid');
         $token = config('general.twilio_token');
@@ -101,39 +104,65 @@ if (!function_exists('sendSms')) {
 }
 //for influener send and received sms
 if (!function_exists('sendAndReceiveSms')) {
-    function sendAndReceiveSms($user_id,$type,$fan_id = null)
+    function sendAndReceiveSms($user_id, $type, $fan_id = null)
     {
-       if($type == 'send') {
-           User::find($user_id)->increment('send_message_count');
-       }
-       if($type == 'receive') {
-           User::find($user_id)->increment('received_message_count');
-       }
-
+        if ($type == 'send') {
+            User::find($user_id)->increment('send_message_count');
+        }
+        if ($type == 'receive') {
+            User::find($user_id)->increment('received_message_count');
+        }
     }
 }
 //for fan send and received sms
 if (!function_exists('fanSendAndReceiveSms')) {
-    function fanSendAndReceiveSms($fan_club_id,$type, $influencer_id = null)
+    function fanSendAndReceiveSms($fan_club_id, $type, $influencer_id = null)
     {
-        $fanClub = FanClub::where('id',$fan_club_id)->first();
-        if($fanClub) {
-            if($type == 'send') {
-                $fanClub->where('id',$fan_club_id)->increment('send_count');
+        $fanClub = FanClub::where('id', $fan_club_id)->first();
+        if ($fanClub) {
+            if ($type == 'send') {
+                $fanClub->where('id', $fan_club_id)->increment('send_count');
             }
-            if($type == 'receive') {
-                $fanClub->where('id',$fan_club_id)->increment('received_count');
+            if ($type == 'receive') {
+                $fanClub->where('id', $fan_club_id)->increment('received_count');
             }
         }
     }
 }
 if (!function_exists('getLinkColumn')) {
-    function getLinkColumn($message,$colum)
+    function getLinkColumn($message, $colum)
     {
-        $arr = explode('?uuid=',$message);
-        if(count($arr) == 2) {
-            return  MessageLinks::where('message_link_uuid',$arr[1])->value($colum);
+        $arr = explode('?uuid=', $message);
+        if (count($arr) == 2) {
+            return  MessageLinks::where('message_link_uuid', $arr[1])->value($colum);
         }
         return null;
+    }
+}
+
+if (!function_exists('updateLocalMessage')) {
+    function updateLocalMessage($fan_id, $user_id, $type, $message, $status, $broadcast_id, $twilio_msg_id, $stander_time)
+    {
+        Messages::create([
+            'fan_id' => $fan_id,
+            'user_id' => $user_id,
+            'type' => $type,
+            'message' => $message,
+            'status' => $status,
+            'broadcast_id' => $broadcast_id,
+            'twilio_msg_id' => $twilio_msg_id,
+            'stander_time' => $stander_time
+        ]);
+    }
+}
+if (!function_exists('updateFanReplies')) {
+    function updateFanReplies($fan_id, $user_id)
+    {
+        Messages::where('fan_id', $fan_id)
+            ->where('user_id', $user_id)
+            ->where('type', 'send')
+            ->where('status', 'delivered')
+            ->where('is_replied', 0)
+            ->update(['is_replied' => 1, 'updated_at' => Carbon::now()]);
     }
 }
