@@ -16,7 +16,9 @@ use Carbon\Carbon;
 
 
 
-
+Route::get('info', function () {
+    phpinfo();
+});
 
 Route::get('/topUser/{co}', [\App\Http\Controllers\Api\FilterController::class, 'findTopUsers']);
 Route::get('/send-message', [\App\Http\Controllers\Api\FilterController::class, 'testMessage']);
