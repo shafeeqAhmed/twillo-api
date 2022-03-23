@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Traits\CommonHelper;
 use App\Jobs\SendTextMessage;
+use App\Models\BroadCastMessage;
 use Illuminate\Http\Request;
 use App\Models\Fan;
 use App\Models\FanClub;
@@ -270,6 +271,10 @@ class FilterController extends ApiController
                 $query->where('fans.created_at', '=', $start_date);
             }
         }
+
+
+
+
         return !$isFilter ? $query->get() : [];
     }
     public function sendMessageToContacts(Request $request)
@@ -325,6 +330,46 @@ class FilterController extends ApiController
         $data['counts'] = count($this->queryForFilterRecord($request));
         return $this->respond([
             'data' => $data
+        ]);
+    }
+    public function sendFollowUpMessage(Request $request)
+    {
+        $request->validate([
+            'broadcast_uuid' => 'required',
+            'message' => 'required|string',
+            'is_visited' => 'required|boolean',
+        ]);
+
+        $fans =  BroadCastMessage::join('message_links as ml', 'ml.broadcast_id', '=', 'broadcast_message.id')
+            ->join('fan_clubs as fc', 'fc.id', '=', 'ml.fanclub_id')
+            ->select('fc.local_number', 'fc.id as fan_club_id', 'fc.fan_id as fan_id', 'ml.id as message_link_id', 'ml.is_visited')
+            ->where('broadcast_message.broadcast_uuid', $request->broadcast_uuid)
+            ->where('ml.is_visited', $request->is_visited)
+            ->groupBy('ml.fanclub_id')
+            ->get();
+
+        // dd($request->all(), $fans);
+
+        if (!empty($fans)) {
+            $request_data = $request->all();
+            $request_data['filter'] = [];
+            $request_data['fans'] = $fans;
+            $request_data['user'] = $request->user();
+            $request_data['is_scheduled'] = false;
+            $request_data['scheduled_date_time'] = '';
+            //            $schedule_datetime = empty($request->schedule_date) ? '' : Carbon::createFromFormat('Y-m-d\TH:i', $request->schedule_date);
+            try {
+                dispatch(new SendTextMessage($request->message, $request_data, 'multiple'));
+            } catch (ConfigurationException $e) {
+                \Log::info('----job exception catch');
+                \Log::info($e->getMessage());
+            }
+        }
+
+        return $this->respond([
+            'data' => [
+                'fans' => $fans
+            ]
         ]);
     }
 }

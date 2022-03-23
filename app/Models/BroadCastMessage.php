@@ -31,13 +31,13 @@ class BroadCastMessage extends Model
     }
     public function responseRate()
     {
-        $responsekRate = 0;
+        $responsekate = 0;
         $query =  $this->hasMany(Messages::class, 'broadcast_id', 'id')->where('status', 'delivered');
         $repliedCount = $this->hasMany(Messages::class, 'broadcast_id', 'id')->where('messages.is_replied', 1)->count();
         if ($query->count() > 0 && $repliedCount > 0) {
-            $responsekRate = round((($repliedCount / $query->count()) * 100), '2');
+            $responsekate = round((($repliedCount / $query->count()) * 100), '2');
         }
-        return $query->select('broadcast_id', DB::raw("$responsekRate as responsekRate"));
+        return $query->select('broadcast_id', DB::raw("$responsekate as responseRate"));
     }
     public function messages()
     {

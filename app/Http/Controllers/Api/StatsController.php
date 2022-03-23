@@ -332,7 +332,12 @@ class StatsController extends ApiController
             )
             ->with('clickRate')
             ->with('responseRate')
-            ->paginate(20);
+            ->get();
+
+        foreach ($broadCastMessages as &$message) {
+            $message['click_rate_percentate'] = !empty($message['clickRate']) ? $message['clickRate'][0]['clickRate'] . '%' : '0%';
+            $message['response_rate_percentate'] = !empty($message['responseRate']) ? $message['responseRate'][0]['responseRate'] . '%' : '0%';
+        }
         return $this->respond([
             'data' => [
                 'broadCastMessage' => $broadCastMessages
