@@ -108,6 +108,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('no-of-text', [StatsController::class, 'noOfText']);
     Route::get('no-of-contact', [StatsController::class, 'noOfContact']);
     Route::get('broad-cast-messages', [StatsController::class, 'broadCastMessages']);
+    Route::get('broad-cast-messages-list', [StatsController::class, 'broadCastMessagesList']);
 });
 
 Route::get('is-valid-reference/{reference}', [UserController::class, 'isValidReference']);

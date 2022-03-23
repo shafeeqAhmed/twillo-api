@@ -41,6 +41,7 @@ class BroadCastMessage extends Model
     }
     public function messages()
     {
-        return $this->hasMany(MessageLinks::class, 'broadcast_id', 'id');
+        return $this->hasMany(MessageLinks::class, 'broadcast_id', 'id')
+            ->select('broadcast_id', 'link', 'is_visited', 'visited_date', 'total_visits', 'created_at');
     }
 }

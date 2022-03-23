@@ -32,7 +32,10 @@
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         },
-        "files": ["Helpers/helper.php"]
+        "files": [
+            "Helpers/helper.php",
+            "Helpers/response.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
