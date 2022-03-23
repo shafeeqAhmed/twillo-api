@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class BroadCastMessage extends Model
 {
@@ -21,21 +22,25 @@ class BroadCastMessage extends Model
     public function clickRate()
     {
         $clickRate = 0;
-        $totalCount =  $this->hasMany(MessageLinks::class, 'broadcast_id', 'id')->count();
+        $query =  $this->hasMany(MessageLinks::class, 'broadcast_id', 'id');
         $visitedCount = $this->hasMany(MessageLinks::class, 'broadcast_id', 'id')->where('message_links.is_visited', 1)->count();
-        if ($totalCount > 0 && $visitedCount > 0) {
-            $clickRate = round((($visitedCount / $totalCount) * 100), '2');
+        if ($query->count() > 0 && $visitedCount > 0) {
+            $clickRate = round((($visitedCount / $query->count()) * 100), '2');
         }
-        return $clickRate;
+        return $query->select('broadcast_id', DB::raw("$clickRate as clickRate"));
     }
     public function responseRate()
     {
         $responsekRate = 0;
-        $totalCount =  $this->hasMany(Messages::class, 'broadcast_id', 'id')->where('status', 'delivered')->count();
+        $query =  $this->hasMany(Messages::class, 'broadcast_id', 'id')->where('status', 'delivered');
         $repliedCount = $this->hasMany(Messages::class, 'broadcast_id', 'id')->where('messages.is_replied', 1)->count();
-        if ($totalCount > 0 && $repliedCount > 0) {
-            $responsekRate = round((($repliedCount / $totalCount) * 100), '2');
+        if ($query->count() > 0 && $repliedCount > 0) {
+            $responsekRate = round((($repliedCount / $query->count()) * 100), '2');
         }
-        return $responsekRate;
+        return $query->select('broadcast_id', DB::raw("$responsekRate as responsekRate"));
+    }
+    public function messages()
+    {
+        return $this->hasMany(MessageLinks::class, 'broadcast_id', 'id');
     }
 }

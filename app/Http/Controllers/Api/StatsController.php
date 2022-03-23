@@ -324,6 +324,7 @@ class StatsController extends ApiController
     {
         $broadCastMessages = BroadCastMessage::where('user_id', $request->user()->id)
             ->select(
+                'id',
                 'broadcast_uuid',
                 'message',
                 'type',
@@ -332,6 +333,29 @@ class StatsController extends ApiController
             ->with('clickRate')
             ->with('responseRate')
             ->paginate(20);
+        return $this->respond([
+            'data' => [
+                'broadCastMessage' => $broadCastMessages
+            ]
+        ]);
+    }
+    public function broadCastMessagesList(Request $request)
+    {
+        $request->validate([
+            'broadcast_uuid' => 'required',
+        ]);
+        $broadCastMessages = BroadCastMessage::where('broadcast_uuid', $request->broadcast_uuid)
+            ->select(
+                'id',
+                'broadcast_uuid',
+                'message',
+                'type',
+                'scheduled_at_local_time'
+            )
+            ->with('clickRate')
+            ->with('responseRate')
+            ->with('messages')
+            ->first();
         return $this->respond([
             'data' => [
                 'broadCastMessage' => $broadCastMessages
