@@ -348,7 +348,6 @@ class FilterController extends ApiController
             ->groupBy('ml.fanclub_id')
             ->get();
 
-        dd($request->all(), $fans);
 
         if (!empty($fans)) {
             $request_data = $request->all();
