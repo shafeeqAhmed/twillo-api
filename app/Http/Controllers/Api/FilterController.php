@@ -360,16 +360,22 @@ class FilterController extends ApiController
             //            $schedule_datetime = empty($request->schedule_date) ? '' : Carbon::createFromFormat('Y-m-d\TH:i', $request->schedule_date);
             try {
                 dispatch(new SendTextMessage($request->message, $request_data, 'multiple'));
+                return $this->respond([
+                    'data' => [
+                        'status' => true,
+                        'message' => 'Follow up message has been submited'
+                    ]
+                ]);
             } catch (ConfigurationException $e) {
                 \Log::info('----job exception catch');
                 \Log::info($e->getMessage());
+                return $this->respond([
+                    'data' => [
+                        'status' => false,
+                        'message' => 'There is something going wrong please try again!'
+                    ]
+                ]);
             }
         }
-
-        return $this->respond([
-            'data' => [
-                'fans' => $fans
-            ]
-        ]);
     }
 }
