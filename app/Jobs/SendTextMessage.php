@@ -135,14 +135,20 @@ class SendTextMessage implements ShouldQueue
             "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
         ];
 
-        if ($this->getValue('scheduled')) {
-            $data['sendAt'] = $this->getValue('scheduled_date_time');
-            $data['scheduleType'] = 'fixed';
+        //if message boradcast
+        if ($this->type == 'multiple') {
+            //if message scheduled
+            if ($this->getValue('scheduled')) {
+                $data['scheduleType'] = 'fixed';
+            }
 
+            $sendAt = $this->getValue('scheduled_date_time');
             $result = $this->client->messages->create($number, $data);
-            updateLocalMessage($fan_id, $user_id, 'send', $message, $result->status, $this->broadCastMessage->id, $result->sid, $data['sendAt']);
+            updateLocalMessage($fan_id, $user_id, 'send', $message, $result->status, $this->broadCastMessage->id, $result->sid, $sendAt);
             $this->updateMessageLink($links, $this->broadCastMessage->id);
         }
+
+
         $result = $this->client->messages->create($number, $data);
         updateLocalMessage($fan_id, $user_id, 'send', $message, $result->status, null, $result->sid, null, '');
     }

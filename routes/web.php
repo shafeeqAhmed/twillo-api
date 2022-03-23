@@ -19,10 +19,14 @@ use App\Http\Traits\CommonHelper;
 
 Route::get('helper-check', function () {
     $encodedMessage = CommonHelper::filterAndReplaceLink([
-        'message' => 'here is the link please follow the link ',
+        'message' => 'here is the link please follow the link https://dankash.com/   https://dankash.co2',
         'receiver_id' => 30,
         'influencer_id' => 13
     ]);
+
+    foreach ($encodedMessage['links'] as $link) {
+        $link->update(['broadcast_id' => 1]);
+    }
 
     dd($encodedMessage);
 });
