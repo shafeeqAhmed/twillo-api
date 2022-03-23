@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Twilio\Rest\Client;
 use Carbon\Carbon;
+use App\Http\Traits\CommonHelper;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,6 +15,17 @@ use Carbon\Carbon;
 |
 */
 
+
+
+Route::get('helper-check', function () {
+    $encodedMessage = CommonHelper::filterAndReplaceLink([
+        'message' => 'here is the link please follow the link ',
+        'receiver_id' => 30,
+        'influencer_id' => 13
+    ]);
+
+    dd($encodedMessage);
+});
 
 
 Route::get('info', function () {

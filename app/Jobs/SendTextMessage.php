@@ -26,6 +26,7 @@ class SendTextMessage implements ShouldQueue
     protected $type;
     protected $client;
     protected $broadCastMessage;
+    protected $links;
 
     /**
      * @var mixed|string
@@ -73,6 +74,12 @@ class SendTextMessage implements ShouldQueue
             return isset($this->request_data['scheduled_date_time']) ? Carbon::parse($this->request_data['scheduled_date_time'])->toIso8601String() : Carbon::now()->toIso8601String();
         }
     }
+    public function updateMessageLink($links, $broadcast_id)
+    {
+        foreach ($links['links'] as $link) {
+            $link->update(['broadcast_id' => $broadcast_id]);
+        }
+    }
     public function updateLocalMessage($fan_id, $user_id, $message, $status, $broadcast_id, $twilio_msg_id, $stander_time)
     {
         Messages::create([
@@ -111,7 +118,8 @@ class SendTextMessage implements ShouldQueue
                     'receiver_id' => $fan->fan_club_id,
                     'influencer_id' => $this->request_data['user']->id
                 ]);
-                $this->send_twilio_message($fan['local_number'], $encodedMessage, $this->request_data['user']->phone_no, $this->request_data['user']->id, $fan->fan_id);
+
+                $this->send_twilio_message($fan['local_number'], $encodedMessage['text'], $this->request_data['user']->phone_no, $this->request_data['user']->id, $fan->fan_id, $encodedMessage['links']);
             }
         }
 
@@ -119,19 +127,21 @@ class SendTextMessage implements ShouldQueue
     }
 
 
-    public function send_twilio_message($number, $message, $from, $user_id, $fan_id)
+    public function send_twilio_message($number, $message, $from, $user_id, $fan_id, $links = [])
     {
         $data =  [
             "body" => $message,
             "from" =>  $from,
             "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
         ];
+
         if ($this->getValue('scheduled')) {
             $data['sendAt'] = $this->getValue('scheduled_date_time');
             $data['scheduleType'] = 'fixed';
 
             $result = $this->client->messages->create($number, $data);
             updateLocalMessage($fan_id, $user_id, 'send', $message, $result->status, $this->broadCastMessage->id, $result->sid, $data['sendAt']);
+            $this->updateMessageLink($links, $this->broadCastMessage->id);
         }
         $result = $this->client->messages->create($number, $data);
         updateLocalMessage($fan_id, $user_id, 'send', $message, $result->status, null, $result->sid, null, '');
