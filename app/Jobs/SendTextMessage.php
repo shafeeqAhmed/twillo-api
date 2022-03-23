@@ -76,7 +76,7 @@ class SendTextMessage implements ShouldQueue
     }
     public function updateMessageLink($links, $broadcast_id)
     {
-        foreach ($links['links'] as $link) {
+        foreach ($links as $link) {
             $link->update(['broadcast_id' => $broadcast_id]);
         }
     }
@@ -102,7 +102,7 @@ class SendTextMessage implements ShouldQueue
         if ($this->type == 'multiple') {
 
             //store broad cast message
-            $this->broadCastMessage = BroadCastMessage::create([
+            $broadCastMessage = BroadCastMessage::create([
                 'broadcast_uuid' => Str::uuid()->toString(),
                 'user_id' => $this->request_data['user']->id,
                 'message' => $this->message,
@@ -119,7 +119,15 @@ class SendTextMessage implements ShouldQueue
                     'influencer_id' => $this->request_data['user']->id
                 ]);
 
-                $this->send_twilio_message($fan['local_number'], $encodedMessage['text'], $this->request_data['user']->phone_no, $this->request_data['user']->id, $fan->fan_id, $encodedMessage['links']);
+                $this->send_twilio_multiple_message(
+                    $fan['local_number'],
+                    $encodedMessage['text'],
+                    $this->request_data['user']->phone_no,
+                    $this->request_data['user']->id,
+                    $fan->fan_id,
+                    $encodedMessage['links'],
+                    $broadCastMessage
+                );
             }
         }
 
@@ -127,7 +135,7 @@ class SendTextMessage implements ShouldQueue
     }
 
 
-    public function send_twilio_message($number, $message, $from, $user_id, $fan_id, $links = [])
+    public function send_twilio_message($number, $message, $from, $user_id, $fan_id,)
     {
         $data =  [
             "body" => $message,
@@ -135,21 +143,31 @@ class SendTextMessage implements ShouldQueue
             "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
         ];
 
-        //if message boradcast
-        if ($this->type == 'multiple') {
-            //if message scheduled
-            if ($this->getValue('scheduled')) {
-                $data['scheduleType'] = 'fixed';
-            }
-
-            $sendAt = $this->getValue('scheduled_date_time');
-            $result = $this->client->messages->create($number, $data);
-            updateLocalMessage($fan_id, $user_id, 'send', $message, $result->status, $this->broadCastMessage->id, $result->sid, $sendAt);
-            $this->updateMessageLink($links, $this->broadCastMessage->id);
-        }
-
 
         $result = $this->client->messages->create($number, $data);
         updateLocalMessage($fan_id, $user_id, 'send', $message, $result->status, null, $result->sid, null, '');
+    }
+    public function send_twilio_multiple_message($number, $message, $from, $user_id, $fan_id, $links = [], $broadCastMessage)
+    {
+        $data =  [
+            "scheduleType" => 'fixed',
+            "sendAt" => $this->getValue('scheduled_date_time'),
+            "body" => $message,
+            "from" =>  $from,
+            "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
+        ];
+
+        $result = $this->client->messages->create($number, $data);
+        updateLocalMessage(
+            $fan_id,
+            $user_id,
+            'send',
+            $message,
+            $result->status,
+            $broadCastMessage->id,
+            $result->sid,
+            $data['sendAt']
+        );
+        $this->updateMessageLink($links, $broadCastMessage->id);
     }
 }
