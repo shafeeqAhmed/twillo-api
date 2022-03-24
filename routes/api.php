@@ -95,6 +95,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('get_fan_by_date/{date}/{type}', [FilterController::class, 'getFanByDate']);
     Route::post('send_message_to_contacts', [FilterController::class, 'sendMessageToContacts']);
 
+    Route::get('influencer-dashboard-counts', [StatsController::class, 'influencerDashboardCount']);
     Route::get('age-group-stats', [StatsController::class, 'getAgeGroupStats']);
     Route::get('gender-group-stats', [StatsController::class, 'getGenderGroupStats']);
     Route::get('city-group-stats', [StatsController::class, 'getCityGroupStats']);

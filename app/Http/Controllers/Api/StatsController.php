@@ -157,13 +157,13 @@ class StatsController extends ApiController
         ]);
         $query_1 =  MessageLinks::where('influencer_id', $request->user()->id);
 
-        if ($request->has('start') && $request->has('start')) {
+        if (!empty($request->start) && !empty($request->end)) {
             $query_1->whereBetween('created_at', [$request->start, $request->end]);
         }
         $totalLinks = $query_1->count();
         $query_2 = MessageLinks::where('influencer_id', $request->user()->id)->where('is_visited', 1);
 
-        if ($request->has('start') && $request->has('start')) {
+        if (!empty($request->start) && !empty($request->end)) {
             $query_2->whereBetween('created_at', [$request->start, $request->end]);
         }
 
@@ -364,6 +364,20 @@ class StatsController extends ApiController
         return $this->respond([
             'data' => [
                 'broadCastMessage' => $broadCastMessages
+            ]
+        ]);
+    }
+    public function influencerDashboardCount(Request $request)
+    {
+        $totalContact = FanClub::where('user_id', $request->user()->id)->where('is_active', 1)->count();
+        $totalSendMessages = Messages::where('user_id', $request->user()->id)->where('type', 'send')->where('status', 'delivered')->count();
+        $totalReceivedCount = Messages::where('user_id', $request->user()->id)->where('type', 'receive')->where('status', 'received')->count();
+
+        return $this->respond([
+            'data' => [
+                'totalContact' => $totalContact,
+                'totalSendMessage' => $totalSendMessages,
+                'totalReceivedCount' => $totalReceivedCount
             ]
         ]);
     }
