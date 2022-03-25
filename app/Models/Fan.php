@@ -10,4 +10,8 @@ class Fan extends Model
     use HasFactory;
     protected $guarded = ['id'];
 
+    public function fanClub()
+    {
+        return $this->hasOne(FanClub::class, 'fan_id', 'id');
+    }
 }

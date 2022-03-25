@@ -27,4 +27,8 @@ class Messages extends Model
     {
         return  Messages::where($column, $value)->update($data);
     }
+    public function fan()
+    {
+        return $this->belongsTo(Fan::class, 'fan_id', 'id');
+    }
 }
