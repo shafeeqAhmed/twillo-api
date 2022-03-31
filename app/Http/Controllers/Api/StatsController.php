@@ -343,7 +343,8 @@ class StatsController extends ApiController
     }
     public function broadCastMessages(Request $request)
     {
-        $broadCastMessages = BroadCastMessage::where('user_id', $request->user()->id)
+        $user = $request->user();
+        $broadCastMessages = BroadCastMessage::where('user_id', $user->id)
             ->select(
                 'id',
                 'broadcast_uuid',
@@ -351,13 +352,35 @@ class StatsController extends ApiController
                 'type',
                 'scheduled_at_local_time'
             )
-            ->with('clickRate')
-            ->with('responseRate')
+            ->with('messageLinks', function ($q1) {
+                $clickRate = 0;
+                $total = $q1->count();
+                $visitedCount = $q1->where('message_links.is_visited', 1)->count();
+                if ($total > 0 && $visitedCount > 0) {
+                    $clickRate = round((($visitedCount / $total) * 100), '2');
+                }
+                return $q1->select('broadcast_id', DB::raw("$clickRate as clickRate"));
+            })
+            ->with('messages', function ($q) use ($user) {
+                $total = $q->where('status', 'delivered')->count();
+                $repliedCount = $q->where('messages.is_replied', 1)
+                    ->where('status', 'received')
+                    ->OrWhere('status', 'receiving')
+                    ->where('user_id', $user->id)
+                    ->groupBy('fan_id')
+                    ->count();
+                $responseRate = 0;
+                if ($total > 0 && $repliedCount > 0) {
+                    $responseRate = round((($repliedCount / $total) * 100), '2');
+                }
+                return $q->select('broadcast_id', DB::raw("$responseRate as responseRate"), DB::raw("$total as totalFan"));
+            })
             ->get();
 
         foreach ($broadCastMessages as &$message) {
-            $message['click_rate_percentate'] = !empty($message['clickRate']) && count($message['clickRate']) > 0 ? $message['clickRate'][0]['clickRate'] . '%' : '0%';
-            $message['response_rate_percentate'] = !empty($message['responseRate']) && count($message['responseRate']) > 0 ? $message['responseRate'][0]['responseRate'] . '%' : '0%';
+            $message['click_rate_percentate'] = !empty($message['messageLinks']) && count($message['messageLinks']) > 0 ? $message['messageLinks'][0]['clickRate'] . '%' : '0%';
+            $message['response_rate_percentate'] = !empty($message['messages']) && count($message['messages']) > 0 ? $message['messages'][0]['responseRate'] . '%' : '0%';
+            $message['totalFan'] = !empty($message['messages']) && count($message['messages']) > 0 ? $message['messages'][0]['totalFan'] : 0;
         }
         return $this->respond([
             'data' => [
@@ -392,7 +415,7 @@ class StatsController extends ApiController
     {
         $totalContact = FanClub::where('user_id', $request->user()->id)->where('is_active', 1)->count();
         $totalSendMessages = Messages::where('user_id', $request->user()->id)->where('type', 'send')->where('status', 'delivered')->count();
-        $totalReceivedCount = Messages::where('user_id', $request->user()->id)->where('type', 'receive')->where('status', 'received')->count();
+        $totalReceivedCount = Messages::where('user_id', $request->user()->id)->where('type', 'receive')->where('status', 'received')->OrWhere('status', 'receiving')->count();
 
         return $this->respond([
             'data' => [
