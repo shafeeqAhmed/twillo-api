@@ -374,7 +374,7 @@ class StatsController extends ApiController
                 if ($total > 0 && $repliedCount > 0) {
                     $responseRate = round((($repliedCount / $total) * 100), '2');
                 }
-                dd($total);
+                // dd($total);
                 return $q->select('broadcast_id', DB::raw("$responseRate as responseRate"), DB::raw("$total as totalFan"));
             })
             ->get();
