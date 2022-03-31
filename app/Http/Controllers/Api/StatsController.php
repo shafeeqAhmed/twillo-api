@@ -345,6 +345,7 @@ class StatsController extends ApiController
     {
         $user = $request->user();
         $broadCastMessages = BroadCastMessage::where('user_id', $user->id)
+            ->where('id', 36)
             ->select(
                 'id',
                 'broadcast_uuid',
@@ -373,6 +374,7 @@ class StatsController extends ApiController
                 if ($total > 0 && $repliedCount > 0) {
                     $responseRate = round((($repliedCount / $total) * 100), '2');
                 }
+                dd($total);
                 return $q->select('broadcast_id', DB::raw("$responseRate as responseRate"), DB::raw("$total as totalFan"));
             })
             ->get();
