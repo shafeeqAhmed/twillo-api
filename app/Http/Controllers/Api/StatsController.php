@@ -374,11 +374,10 @@ class StatsController extends ApiController
                 if ($total > 0 && $repliedCount > 0) {
                     $responseRate = round((($repliedCount / $total) * 100), '2');
                 }
-                // dd($total);
                 return $q->select('broadcast_id', DB::raw("$responseRate as responseRate"), DB::raw("$total as totalFan"));
             })
             ->get();
-
+        dd($broadCastMessages);
         foreach ($broadCastMessages as &$message) {
             $message['click_rate_percentate'] = !empty($message['messageLinks']) && count($message['messageLinks']) > 0 ? $message['messageLinks'][0]['clickRate'] . '%' : '0%';
             $message['response_rate_percentate'] = !empty($message['messages']) && count($message['messages']) > 0 ? $message['messages'][0]['responseRate'] . '%' : '0%';
