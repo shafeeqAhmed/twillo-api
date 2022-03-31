@@ -49,8 +49,18 @@ Route::get('/send-message', function () {
     $client = new Client($sid, $token);
 
 
+    $incoming_phone_number = $client->incomingPhoneNumbers
+        ->create(
+            [
+                // "smsUrl" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook",
+                "phoneNumber" => "+18706176205"
+            ]
+        );
 
-    // $services = $client->messaging->v1->services('MG79f1e88db7e7bb1f3a10da276c895b1e')
+
+    dd($incoming_phone_number);
+
+    // $services = $client->messaging->v1->services('MGb2ce4660ee4c895d76035f6d29f6056d')
     //     ->delete();
 
 
@@ -60,10 +70,18 @@ Route::get('/send-message', function () {
     //     ]);
 
     // dd($service);
+    // add number into services id
+    $phone_number = $client->messaging->v1->services("MGb645b5d1958f8fb855efc80b4341ca39");
+    // ->getPhoneNumbers();
+    // ->phoneNumbers;
 
-    // $services = $client->messaging->v1->services
-    //     ->read(20);
-    // dd($services[0]);
+    // ->create(
+    //     "PNce325ef4744bf5be5142207dba4eb22b" // phoneNumberSid
+    // );
+
+    $services = $client->messaging->v1->services
+        ->read(20);
+    dd($services, $services[0]->phoneNumbers, $phone_number);
 
     $data =  [
         "body" => 'custom test msg',
