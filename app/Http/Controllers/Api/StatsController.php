@@ -345,7 +345,6 @@ class StatsController extends ApiController
     {
         $user = $request->user();
         $broadCastMessages = BroadCastMessage::where('user_id', $user->id)
-            ->where('id', 36)
             ->select(
                 'id',
                 'broadcast_uuid',
@@ -377,6 +376,7 @@ class StatsController extends ApiController
                 return $q->select('broadcast_id', DB::raw("$responseRate as responseRate"), DB::raw("$total as totalFan"));
             })
             ->get();
+
         foreach ($broadCastMessages as &$message) {
             $message['click_rate_percentate'] = !empty($message['messageLinks']) && count($message['messageLinks']) > 0 ? $message['messageLinks'][0]['clickRate'] . '%' : '0%';
             $message['response_rate_percentate'] = !empty($message['messages']) && count($message['messages']) > 0 ? $message['messages'][0]['responseRate'] . '%' : '0%';
