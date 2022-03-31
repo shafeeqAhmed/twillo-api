@@ -202,7 +202,7 @@ class TwilioNumbersController extends ApiController
                 $uuid = Str::uuid()->toString();
 
                 //delete the previous token
-                FanClub::deleteRecord(['is_active' => 0, 'local_number' => $user->id, 'user_id' => $user->id]);
+                FanClub::deleteRecord(['is_active' => 0, 'local_number' => $sender?->local_number, 'user_id' => $user?->id]);
 
                 // create new token
                 FanClub::create([

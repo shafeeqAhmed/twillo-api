@@ -183,7 +183,7 @@ class TwilioChatController extends ApiController
             $request_data = $request->all();
             $request_data['user'] = $request->user();
 
-            dispatch(new SendTextMessage($encodedMessage, $request_data));
+            dispatch(new SendTextMessage($encodedMessage['text'], $request_data));
         } catch (ConfigurationException $e) {
             \Log::info('----job exception catch');
             \Log::info($e->getMessage());
