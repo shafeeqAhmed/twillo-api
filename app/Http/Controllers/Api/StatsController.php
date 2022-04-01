@@ -347,7 +347,6 @@ class StatsController extends ApiController
     {
         $user = $request->user();
         $broadCastMessages = BroadCastMessage::where('user_id', $user->id)
-            ->wherE('id', 49)
             ->select(
                 'id',
                 'broadcast_uuid',
