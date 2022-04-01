@@ -350,37 +350,38 @@ class StatsController extends ApiController
                 'broadcast_uuid',
                 'message',
                 'type',
-                'scheduled_at_local_time'
-            )
-            ->with('messageLinks', function ($q1) {
-                $clickRate = 0;
-                $total = $q1->count();
-                $visitedCount = $q1->where('message_links.is_visited', 1)->count();
-                if ($total > 0 && $visitedCount > 0) {
-                    $clickRate = round((($visitedCount / $total) * 100), '2');
-                }
-                return $q1->select('broadcast_id', DB::raw("$clickRate as clickRate"));
-            })
-            ->with('messages', function ($q) use ($user) {
-                $total = $q->where('status', 'delivered')->count();
-                $repliedCount = $q->where('messages.is_replied', 1)
-                    ->where('status', 'received')
-                    ->OrWhere('status', 'receiving')
-                    ->where('user_id', $user->id)
-                    ->groupBy('fan_id')
-                    ->count();
-                $responseRate = 0;
-                if ($total > 0 && $repliedCount > 0) {
-                    $responseRate = round((($repliedCount / $total) * 100), '2');
-                }
-                return $q->select('broadcast_id', DB::raw("$responseRate as responseRate"), DB::raw("$total as totalFan"));
-            })
-            ->get();
+                'scheduled_at_local_time',
+                DB::raw("(SELECT COUNT(m.id) FROM messages as m
+                                WHERE m.broadcast_id = broadcast_message.id
+                                AND m.status = 'delivered'
+                                GROUP BY m.broadcast_id) as total_deliver_messages_count"),
+                DB::raw("(SELECT COUNT(m.id) FROM messages as m
+                                WHERE m.broadcast_id = broadcast_message.id
+                                AND (m.status = 'receiving' OR m.status = 'received')
+                                AND m.user_id = $user->id
+                GROUP BY m.broadcast_id) as total_replied_messages_count"),
+
+                DB::raw("(SELECT COUNT(ml.id) FROM message_links as ml
+                                WHERE ml.broadcast_id = broadcast_message.id 
+                                AND ml.influencer_id = $user->id
+                GROUP BY ml.broadcast_id) as total_message_link_count"),
+
+                DB::raw("(SELECT COUNT(ml.id) FROM message_links as ml
+                                WHERE ml.broadcast_id = broadcast_message.id
+                                AND ml.is_visited = 1
+                                AND ml.influencer_id = $user->id
+                GROUP BY ml.broadcast_id) as total_visited_message_link_count")
+            )->get();
 
         foreach ($broadCastMessages as &$message) {
-            $message['click_rate_percentate'] = !empty($message['messageLinks']) && count($message['messageLinks']) > 0 ? $message['messageLinks'][0]['clickRate'] . '%' : '0%';
-            $message['response_rate_percentate'] = !empty($message['messages']) && count($message['messages']) > 0 ? $message['messages'][0]['responseRate'] . '%' : '0%';
-            $message['totalFan'] = !empty($message['messages']) && count($message['messages']) > 0 ? $message['messages'][0]['totalFan'] : 0;
+            $message['response_rate_percentate'] = "0%";
+            if ($message['total_deliver_messages_count'] && $message['total_replied_messages_count']) {
+                $message['response_rate_percentate'] = round((($message['total_replied_messages_count'] / $message['total_deliver_messages_count']) * 100), '2') . '%';
+            }
+            $message['click_rate_percentate'] = "0%";
+            if ($message['total_message_link_count'] && $message['total_visited_message_link_count']) {
+                $message['click_rate_percentate'] = round((($message['total_visited_message_link_count'] / $message['total_message_link_count']) * 100), '2') . '%';
+            }
         }
         return $this->respond([
             'data' => [
