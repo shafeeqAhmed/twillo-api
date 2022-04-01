@@ -182,7 +182,6 @@ class TwilioNumbersController extends ApiController
 
         $mess = $this->client->messages($msg_id)
             ->fetch();
-        // dd($mess);
         //inbound mean received message from non twillo number
         // if (strtolower(trim($lookup, ' ')) != 'twilio') {
         //incoming messages
@@ -193,7 +192,6 @@ class TwilioNumbersController extends ApiController
             $sender = FanClub::where('local_number', $mess->from)->first();
 
             $exist_in_fan_club = FanClub::where('is_active', 1)->where('user_id', $user?->id)->where('local_number', $mess->from)->exists();
-
             //new fan
             if (!$exist_in_fan_club) {
                 //generate temp id and send this via message
@@ -215,9 +213,8 @@ class TwilioNumbersController extends ApiController
                 //generate a new messae with link to register as a fan from influencer
                 $message = 'Hey! This is an auto text to let you know I received your message, to join my colony and receive messages from me, please sign up by clicking the link:   ' . $this->generateSignUplink($uuid);
                 $request_data['user'] = $user;
-                $request_data['receiver_number'] = $sender->local_number;
-                $request_data['receiver_id'] = $sender->fan_id;
-
+                $request_data['receiver_number'] = $mess->from;
+                $request_data['receiver_id'] = $sender?->fan_id;
                 dispatch(new SendTextMessage($message, $request_data));
             } else {
                 //if fan already exist inside fan club
