@@ -347,6 +347,7 @@ class StatsController extends ApiController
     {
         $user = $request->user();
         $broadCastMessages = BroadCastMessage::where('user_id', $user->id)
+            ->wherE('id', 49)
             ->select(
                 'id',
                 'broadcast_uuid',
@@ -359,10 +360,9 @@ class StatsController extends ApiController
                                 GROUP BY m.broadcast_id) as total_deliver_messages_count"),
                 DB::raw("(SELECT COUNT(m.id) FROM messages as m
                                 WHERE m.broadcast_id = broadcast_message.id
-                                AND (m.status = 'receiving' OR m.status = 'received')
-                                AND m.user_id = $user->id
-                GROUP BY m.broadcast_id) as total_replied_messages_count"),
-
+                                AND m.status = 'delivered'
+                                AND m.is_replied = 1
+                                GROUP BY m.broadcast_id) as total_replied_messages_count"),
                 DB::raw("(SELECT COUNT(ml.id) FROM message_links as ml
                                 WHERE ml.broadcast_id = broadcast_message.id 
                                 AND ml.influencer_id = $user->id
