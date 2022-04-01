@@ -349,7 +349,7 @@ class FilterController extends ApiController
             ->get();
 
 
-        if (!empty($fans)) {
+        if (count($fans) > 0) {
             $request_data = $request->all();
             $request_data['filter'] = [];
             $request_data['fans'] = $fans;
@@ -375,6 +375,13 @@ class FilterController extends ApiController
                     ]
                 ]);
             }
+        } else {
+            return $this->respond([
+                'data' => [
+                    'status' => true,
+                    'message' => 'There is no contact'
+                ]
+            ]);
         }
     }
 }
