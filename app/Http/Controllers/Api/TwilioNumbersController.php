@@ -182,10 +182,7 @@ class TwilioNumbersController extends ApiController
 
         $mess = $this->client->messages($msg_id)
             ->fetch();
-        // $phone_number =  $this->client->lookups->v1->phoneNumbers($mess->from)
-        //     ->fetch(["type" => ["carrier", "direction"]]);
-        // $lookup = explode('-', $phone_number->carrier['name'])[0];
-
+        // dd($mess);
         //inbound mean received message from non twillo number
         // if (strtolower(trim($lookup, ' ')) != 'twilio') {
         //incoming messages
@@ -195,7 +192,6 @@ class TwilioNumbersController extends ApiController
 
             $sender = FanClub::where('local_number', $mess->from)->first();
 
-
             $exist_in_fan_club = FanClub::where('is_active', 1)->where('user_id', $user?->id)->where('local_number', $mess->from)->exists();
 
             //new fan
@@ -204,13 +200,13 @@ class TwilioNumbersController extends ApiController
                 $uuid = Str::uuid()->toString();
 
                 //delete the previous token
-                FanClub::deleteRecord(['is_active' => 0, 'local_number' => $sender?->local_number, 'user_id' => $user?->id]);
+                FanClub::deleteRecord(['is_active' => 0, 'local_number' => $mess->from, 'user_id' => $user?->id]);
 
                 // create new token
                 FanClub::create([
                     'fan_club_uuid' => Str::uuid()->toString(),
                     'user_id' => $user->id,
-                    'local_number' => $sender->local_number,
+                    'local_number' =>  $mess->from,
                     'fan_id' => 0,
                     'temp_id' => $uuid,
                     'is_active' => 0,
