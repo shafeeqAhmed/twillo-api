@@ -187,15 +187,16 @@ class StatsController extends ApiController
             'end' => 'required|date',
         ]);
 
-        $totalMessages = Messages::where('user_id', $request->user()->id)->whereBetween('created_at', [$request->start, $request->end])->count();
+        $totalMessages = Messages::where('user_id', $request->user()->id)->where('status', 'delivered')->whereBetween('created_at', [$request->start, $request->end])->count();
         $totalRespondedMessage = Messages::where('user_id', $request->user()->id)->whereIsReplied(1)->whereBetween('created_at', [$request->start, $request->end])->count();
-
         $averageRate = 0;
         if ($totalMessages > 0 && $totalRespondedMessage > 0) {
             $averageRate = round(($totalRespondedMessage / $totalMessages) * 100, 2);
         }
         return $this->respond([
             'data' => [
+                'totalMessages' => $totalMessages,
+                'totalRespondedMessage' => $totalRespondedMessage,
                 'averageResponseRate' => $averageRate
             ]
         ]);
