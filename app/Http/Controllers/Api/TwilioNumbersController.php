@@ -149,7 +149,9 @@ class TwilioNumbersController extends ApiController
         DB::table('twilio_response')->insert([
             'body_' => $input
         ]);
-        $this->twilioFeedback($input);
+        if (!empty($input)) {
+            $this->twilioFeedback($input);
+        }
     }
 
     public function insertInFanClub($influencer_id, $fan_phon_number, $uuid)
