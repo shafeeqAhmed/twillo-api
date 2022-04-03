@@ -162,10 +162,21 @@ class TwilioChatController extends ApiController
     public function getInfluencerContacts(Request $request)
     {
         $sender_id = $request->user()->id;
-        $users = FanClub::with('fan')->latest()->select('id', 'fan_club_uuid', 'local_number', 'fan_id', 'temp_id', 'created_at')->groupBy('local_number')->where('user_id', $sender_id)->where('is_active', 1)->orderBy('created_at', 'desc')->get();
+        $query = FanClub::with('fan.country')
+            ->latest()->select('id', 'fan_club_uuid', 'local_number', 'fan_id', 'temp_id', 'created_at')->groupBy('local_number')
+            ->where('user_id', $sender_id)->where('is_active', 1);
 
+        if (!empty($request->search)) {
+            $search = $request->search;
+            $query->whereHas('fan', function ($q)  use ($search) {
+                $q->where('fname', 'like', "%{$search}%");
+            });
+        }
+        $users = $query->orderBy('created_at', 'desc')->get();
         return $this->respond([
-            'data' => ($users)
+            'data' => getInfluencerContactsResponse($users)
+            // 'data' => $users
+
         ]);
     }
 

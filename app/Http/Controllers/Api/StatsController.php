@@ -14,7 +14,7 @@ use Carbon\Carbon;
 
 class StatsController extends ApiController
 {
-    public function getAgeGroupStats()
+    public function getAgeGroupStats(Request $request)
     {
         $ranges = [ // the start of each age-range.
             '13-17' => 13,
@@ -26,19 +26,29 @@ class StatsController extends ApiController
             '65+' => 65,
         ];
 
-        $totalFan = Fan::count();
-        $data = Fan::get()
-            ->map(function ($user) use ($ranges) {
-                $age = Carbon::parse($user->dob)->age;
-                foreach ($ranges as $key => $breakpoint) {
-                    if ($breakpoint >= $age) {
-                        $user->range = $key;
-                        break;
-                    }
-                }
+        // $totalFan = Fan::count();
+        // $data = Fan::get()
 
-                return $user;
-            })
+        $query = Fan::leftJoin('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id');
+
+        $query_1 = Fan::leftJoin('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id');
+        // if user have role influncer
+        if (in_array('influencer', $request->user()->getRoleNames()->toArray())) {
+            $query->where('fc.user_id', $request->user()->id);
+            $query_1->where('fc.user_id', $request->user()->id);
+        }
+        $totalFan = $query_1->count();
+        $data = $query->get()->map(function ($user) use ($ranges) {
+            $age = Carbon::parse($user->dob)->age;
+            foreach ($ranges as $key => $breakpoint) {
+                if ($breakpoint >= $age) {
+                    $user->range = $key;
+                    break;
+                }
+            }
+
+            return $user;
+        })
             ->mapToGroups(function ($user, $key) {
                 return [$user->range => $user];
             })
@@ -54,7 +64,7 @@ class StatsController extends ApiController
             ]
         ]);
     }
-    public function getGenderGroupStats()
+    public function getGenderGroupStats(Request $request)
     {
         $genderType = [ // the start of each age-range.
             'Male' => 'Male',
@@ -62,9 +72,16 @@ class StatsController extends ApiController
             'Non-Binary' => 'Non-Binary',
             'Other' => 'Other',
         ];
+        $query = Fan::leftJoin('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id');
 
-        $totalFan = Fan::count();
-        $data = Fan::get()
+        $query_1 = Fan::leftJoin('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id');
+        // if user have role influncer
+        if (in_array('influencer', $request->user()->getRoleNames()->toArray())) {
+            $query->where('fc.user_id', $request->user()->id);
+            $query_1->where('fc.user_id', $request->user()->id);
+        }
+        $totalFan = $query_1->count();
+        $data = $query->get()
             ->map(function ($user) use ($genderType) {
                 $gender = $user->gender;
                 foreach ($genderType as $key => $breakpoint) {
@@ -89,10 +106,17 @@ class StatsController extends ApiController
             ]
         ]);
     }
-    public function getCityGroupStats()
+    public function getCityGroupStats(Request $request)
     {
-        $cityGroup = Fan::groupBy('city')->select('city', DB::raw('count(*) as total'))->orderBy('total', 'desc')
-            ->get()
+        $query = Fan::groupBy('fans.city')->select('fans.city', DB::raw('count(fans.id) as total'))->orderBy('total', 'desc')
+            ->join('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id');
+
+        // if user have role influncer
+        if (in_array('influencer', $request->user()->getRoleNames()->toArray())) {
+            $query->where('fc.user_id', $request->user()->id);
+        }
+
+        $cityGroup =  $query->get()
             ->take(10);
         $cities = $cityGroup->map(function ($city) {
             return $city->city;
@@ -108,11 +132,16 @@ class StatsController extends ApiController
             ]
         ]);
     }
-    public function getCountryGroupStats()
+    public function getCountryGroupStats(Request $request)
     {
-        $contriesGroup = Fan::groupBy('fans.country_id')->select('fans.country_id', 'c.country_name', DB::raw('count(*) as total'))->orderBy('total', 'desc')
+        $query = Fan::groupBy('fans.country_id')->select('fans.country_id', 'c.country_name', DB::raw('count(*) as total'))->orderBy('total', 'desc')
             ->join('countries as c', 'c.id', '=', 'fans.country_id')
-            ->whereNotNull('country_id')
+            ->join('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id');
+        // if user have role influncer
+        if (in_array('influencer', $request->user()->getRoleNames()->toArray())) {
+            $query->where('fc.user_id', $request->user()->id);
+        }
+        $contriesGroup =   $query->whereNotNull('country_id')
             ->get()
             ->take(10);
         $countries = $contriesGroup->map(function ($country) {
@@ -129,10 +158,16 @@ class StatsController extends ApiController
             ]
         ]);
     }
-    public function getMontyRegistrationStats()
+    public function getMontyRegistrationStats(Request $request)
     {
-        $data = Fan::select(DB::raw("count(*) as total, date_format(created_at, '%M') as month, date_format(created_at, '%m') as numeric_month,date_format(created_at, '%m/%d/%Y') as date"))
-            ->whereYear('created_at', now()->subYear()->year)
+        $query = Fan::select('fc.id as fc_id', 'fc.fan_id', 'fc.user_id', DB::raw("count(fans.id) as total, date_format(fans.created_at, '%M') as month, date_format(fans.created_at, '%m') as numeric_month,date_format(fans.created_at, '%m/%d/%Y') as date"))
+            ->join('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id');
+        //if user have role influncer
+        if (in_array('influencer', $request->user()->getRoleNames()->toArray())) {
+            $query->where('fc.user_id', $request->user()->id);
+        }
+
+        $data = $query->whereYear('fans.created_at', now()->subYear()->year)
             ->groupBy('month')
             ->orderBy('numeric_month', 'asc')
             ->get();
