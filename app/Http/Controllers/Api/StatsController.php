@@ -223,8 +223,8 @@ class StatsController extends ApiController
         ]);
 
         $totalMessages = Messages::where('user_id', $request->user()->id)->where('status', 'delivered')->whereBetween('created_at', [$request->start, $request->end])->count();
-        // $totalRespondedMessage = Messages::where('user_id', $request->user()->id)->whereIsReplied(1)->whereBetween('created_at', [$request->start, $request->end])->count();
-        $totalRespondedMessage = Messages::where('user_id', $request->user()->id)->where('type', 'receive')->where('status', 'received')->OrWhere('status', 'receiving')->count();
+        $totalRespondedMessage = Messages::where('user_id', $request->user()->id)->whereIsReplied(1)->whereBetween('created_at', [$request->start, $request->end])->count();
+        // $totalRespondedMessage = Messages::where('user_id', $request->user()->id)->where('type', 'receive')->where('status', 'received')->OrWhere('status', 'receiving')->count();
         $averageRate = 0;
         if ($totalMessages > 0 && $totalRespondedMessage > 0) {
             $averageRate = round(($totalRespondedMessage / $totalMessages) * 100, 2);
