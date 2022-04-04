@@ -21,6 +21,6 @@ class Fan extends Model
     }
     public function getDobAttribute($value)
     {
-        return  Carbon::parse($value)->diff(Carbon::now())->y . ' Year';
+        return  Carbon::parse($value)->diff(Carbon::now())->y;
     }
 }

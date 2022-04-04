@@ -42,7 +42,11 @@ class TwilioChatController extends ApiController
         $from = $request->user()->phone_no;
         $receiver_id = $id;
 
-        $to = FanClub::where('id', $receiver_id)->first();
+        $to = FanClub::join('fans as f', 'f.id', '=', 'fan_clubs.fan_id')
+            ->where('fan_clubs.id', $receiver_id)
+            ->select('fan_clubs.*', 'f.fname')
+            ->first();
+        $sender_name = $to->fname;
         //        $receiver_image=$to->profile_photo_path;
         $to = $to->local_number;
         //        dd($from,$to);
@@ -93,7 +97,7 @@ class TwilioChatController extends ApiController
                 $message_history[$index]['id'] = 0;
                 $message_history[$index]['to'] = $list['to'];
                 $message_history[$index]['from'] = $list['from'];
-                $message_history[$index]['name'] = '';
+                $message_history[$index]['name'] = $list['direction'] != 'inbound' ? $request->user()->fname : $sender_name;
                 $message_history[$index]['status'] = $list['status'];
                 $message_history[$index]['image'] = $list['direction'] != 'inbound' ? $request->user()->profile_photo_path : $receiver_image;
             }
