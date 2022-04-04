@@ -254,17 +254,20 @@ class StatsController extends ApiController
     public function activeContactResponse($records)
     {
         $response = [];
-        foreach ($records as $record) {
-            $data = [];
-            $data['fan_id'] = $record['fan_id'];
-            $data['totalMessage'] = $record['totalMessage'];
-            $data['name'] = $record['fan']['fname'];
-            $data['email'] = $record['fan']['email'];
-            $data['gender'] = $record['fan']['gender'];
-            $data['dob'] = $record['fan']['dob'];
-            $data['local_number'] = $record['fan']['fanClub']['local_number'];
-            $response[] = $data;
+        if ($records) {
+            foreach ($records as $record) {
+                $data = [];
+                $data['fan_id'] = $record['fan_id'];
+                $data['totalMessage'] = $record['totalMessage'];
+                $data['name'] = $record['fan']['fname'];
+                $data['email'] = $record['fan']['email'];
+                $data['gender'] = $record['fan']['gender'];
+                $data['dob'] = $record['fan']['dob'];
+                $data['local_number'] = $record['fan']['fanClub']['local_number'];
+                $response[] = $data;
+            }
         }
+
         return $response;
     }
 
