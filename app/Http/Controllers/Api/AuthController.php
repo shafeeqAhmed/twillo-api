@@ -40,41 +40,13 @@ class AuthController extends Controller
         ]);
 
         $user = User::where('email', $request->email)->first();
-       /* $fan_club = new FanClub;
-        $from = $user->phone_no;
-        $messages = $this->client->messages
-            ->read(
-                [
-                    "from" => $from,
-                ],
-                100
-           );
 
-        foreach ($messages as $index => $record) {
-
-            $mess = $this->client->messages($record->sid)
-                ->fetch();
-
-
-     $chat_user_record=FanClub::create([
-            'fan_club_uuid'=>0,
-            'user_id'=> $user->id,
-            'local_number'=> $mess->to,
-             'fan_id'=> 0,
-             'temp_id'=>Str::uuid()->toString()
-           ]);
-
-          
-        }*/
-
-
-    
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-        $detail = collect($user)->only(['user_uuid','name','email','phone_no', 'profile_photo_path']);
+        $detail = collect($user)->only(['user_uuid', 'name', 'email', 'phone_no', 'profile_photo_path']);
         if (count($user->getRoleNames()) > 0) {
             $detail['scope'] = $user->getRoleNames();
         } else {
@@ -91,16 +63,16 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        
+
         $auth = new CreateNewUser();
-        
+
         $data = $auth->create($request->all());
-        if(isset($data['is_valid_reference']) && $data['is_valid_reference'] == false) {
+        if (isset($data['is_valid_reference']) && $data['is_valid_reference'] == false) {
             return response()->json(['status' => false, 'message' => 'Your Reference Link Expired', 'data' => $data]);
         }
         ChatUser::dispatch($data);
-        
-//        $data->assignRole('fan');
+
+        //        $data->assignRole('fan');
         return response()->json(['status' => true, 'message' => 'You have been register successfully', 'data' => $data]);
     }
     public function resendVerificationEmail(Request $request)
@@ -170,13 +142,15 @@ class AuthController extends Controller
             return response()->json(['status' => false, 'message' => __($status), 'data' => []]);
         }
     }
-    public function isVerifiedEmail(Request $request) {
+    public function isVerifiedEmail(Request $request)
+    {
         $verify = User::where('id', $request->user()->id)->value('email_verified_at');
         $data['isVerified'] = !is_null($verify);
 
         return response()->json(['status' => true, 'message' => '', 'data' => $data]);
     }
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
 
         $request->user()->currentAccessToken()->delete();
     }

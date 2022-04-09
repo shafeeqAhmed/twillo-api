@@ -251,74 +251,7 @@ class TwilioNumbersController extends ApiController
         } else {
             // msg send by twilio update his status 
             Messages::updateData('twilio_msg_id', $mess->sid, ['status' => $mess->status]);
-
-            // $sender = User::where('phone_no', $mess->from)->first();
-            // if ($sender) {
-            //     sendAndReceiveSms($sender->id, 'send');
-            // }
-            // //update fan count
-            // $receiver = FanClub::where('local_number', $mess->to)->first();
-            // if ($receiver) {
-            //     fanSendAndReceiveSms($receiver->id, 'receive');
-            // }
-
-            //            $receiver_id = Fan::where('phone_no', $mess->to)->first()->id;
-            //
-            //            $message_record = [
-            //                'sms_uuid' => Str::uuid()->toString(),
-            //                'sender_id' => $sender_id,
-            //                'receiver_id' => $receiver_id,
-            //                'message_id' => 0,
-            //                'message' => $mess->body,
-            //                'is_seen' => 0,
-            //                'created_at' => date('d-m-y'),
-            //                'align' => '',
-            //                'direction' => $mess->direction,
-            //            ];
-            //
-            //            ChatEvent::dispatch($message_record);
         }
-
-
-
-        // exit;
-
-        // $input = $input->toArray();
-
-
-        // foreach ($input as $key => $value) {
-
-        //     $to = explode('&', $value->body_)[3];
-        //     $to = explode('=', $to);
-
-        //     $from = explode('&', $value->body_)[6];
-        //     $from = explode('=', $from);
-
-        //     $msg_id = explode('&', $value->body_)[4];
-        //     $msg_id = explode('=', $msg_id);
-
-
-
-        //     $mess = $this->client->messages($msg_id[1])
-        //         ->fetch();
-        //     echo '<br>';
-        //     echo '<br>' . $value->id;
-        //     echo '<br>to= ' . $mess->to;
-        //     echo '<br>from= ' . $mess->from;
-
-        //     $fan_club = FanClub::where('active', 1)->where(['from' => $from, 'to' => $to])->get();
-
-        //     $messages = $this->client->messages
-        //         ->read(
-        //             [
-        //                 "from" => $mess->from,
-        //             ],
-        //             100
-        //         );
-
-        //     echo '<pre>';
-        //     print_r(count($messages));
-        // }
     }
 
     public function twilioFeedbackBackup()

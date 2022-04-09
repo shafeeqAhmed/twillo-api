@@ -111,6 +111,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('broad-cast-messages', [StatsController::class, 'broadCastMessages']);
     Route::get('broad-cast-messages-list', [StatsController::class, 'broadCastMessagesList']);
     Route::post('send-follow-up-message', [FilterController::class, 'sendFollowUpMessage']);
+    Route::post('add-auto-message', [AutoMessageController::class, 'addAutoMessage']);
+    Route::get('get-auto-message', [AutoMessageController::class, 'getAutoMessage']);
 });
 
 Route::get('is-valid-reference/{reference}', [UserController::class, 'isValidReference']);
