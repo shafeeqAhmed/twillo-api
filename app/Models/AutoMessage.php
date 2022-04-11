@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class AutoMessage extends Model
 {
@@ -14,5 +15,13 @@ class AutoMessage extends Model
     public function getStatusAttribute($key)
     {
         return $key == 1 ? 'Active' : 'Inactive';
+    }
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('d/m/Y H:i');
+    }
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('d/m/Y H:i');
     }
 }

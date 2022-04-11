@@ -15,8 +15,9 @@ class CreateAutoMessagesTable extends Migration
     {
         Schema::create('auto_messages', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid');
             $table->foreignId('user_id')->references('id')->on('users');
-            $table->enum('type', ['welcome', 'signup_confirmation', 'keyword'])->default('keyword');
+            // $table->enum('type', ['welcome', 'signup_confirmation', 'keyword'])->default('keyword');
             $table->string('keyword')->nullable();
             $table->text('text');
             $table->boolean('status')->default(true);
