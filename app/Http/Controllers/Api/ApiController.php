@@ -10,7 +10,7 @@ class ApiController extends Controller
 
     /**
      * @return mixed
-    */
+     */
     public function getStatusCode()
     {
         return $this->statusCode;
@@ -19,7 +19,7 @@ class ApiController extends Controller
     /**
      * @param mixed $statusCode
      * @return $this
-    */
+     */
     protected function setStatusCode($statusCode)
     {
         $this->statusCode = $statusCode;
@@ -68,7 +68,6 @@ class ApiController extends Controller
                 'message' => $message
             ]
         ]);
-
     }
 
     public function respondWithError($message)
@@ -78,6 +77,5 @@ class ApiController extends Controller
                 'message' => $message
             ]
         ]);
-
     }
 }

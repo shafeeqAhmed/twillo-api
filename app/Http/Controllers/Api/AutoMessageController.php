@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\AutoMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class AutoMessageController extends ApiController
 {
@@ -12,11 +13,11 @@ class AutoMessageController extends ApiController
     {
         $data = $request->validate([
             'text' => 'required',
-            'keyword' => 'required|unique:auto_messages'
+            'keyword' => 'required|unique:auto_messages',
+            'status' => 'nullable|boolean'
         ]);
         $data['uuid'] = Str::uuid()->toString();
         $data['user_id'] = $request->user()->id;
-        $data['keyword'] = $request->keyword;
 
         AutoMessage::create($data);
 
@@ -33,7 +34,7 @@ class AutoMessageController extends ApiController
         $request->validate([
             'uuid' => 'required',
             'text' => 'required',
-            'keyword' => ['required', 'unique:auto_messages,uuid,' . $request->uuid],
+            'keyword' => ['required', Rule::unique('auto_messages')->ignore($request->uuid, 'uuid')],
             'status' => 'nullable|boolean'
         ]);
 
@@ -55,6 +56,33 @@ class AutoMessageController extends ApiController
                 'status' => true,
                 'message' => '',
                 'autoMessageList' => $list
+            ]
+        ]);
+    }
+    public function deleteAutoMessage(Request $request)
+    {
+        $request->validate([
+            'uuid' => 'required',
+        ]);
+
+
+        AutoMessage::where('uuid', $request->uuid)->where('user_id', $request->user()->id)->delet();
+        return $this->respond([
+            'data' => [
+                'status' => true,
+                'message' => 'Auto Message Has been Updated Successfully!',
+                'data`' => []
+            ]
+        ]);
+    }
+    public function getAutoMessageDetail($uuid, Request $request)
+    {
+        $detail = AutoMessage::where('uuid', $uuid)->where('user_id', $request->user()->id)->first();
+        return $this->respond([
+            'data' => [
+                'status' => true,
+                'message' => '',
+                'detail' => $detail
             ]
         ]);
     }

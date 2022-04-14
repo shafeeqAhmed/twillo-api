@@ -12,13 +12,17 @@ class SettingController extends ApiController
 
     public function addSetting(Request $request)
     {
+        if (!in_array('admin', $request->user()->getRoleNames()->toArray())) {
+            return $this->respondInvalidRequest('Access Denied');
+        }
+
         $data = $request->validate([
-            'name' => 'required|unique:settings,name',
+            'name' => 'required',
             'value' => 'required'
         ]);
         $data['uuid'] = Str::uuid()->toString();
+        Setting::updateOrCreate(['name' => $request->name], $data);
 
-        Setting::create($data);
 
         return $this->respond([
             'data' => [
@@ -28,20 +32,15 @@ class SettingController extends ApiController
             ]
         ]);
     }
-    public function updateSetting(Request $request)
+    public function getSetting(Request $request)
     {
-        $data = $request->validate([
-            'uuid' => 'required',
-            'value' => 'required'
-        ]);
-
-        Setting::where('uuid', $request->uuid)->update($data);
-
+        $list = Setting::get();
         return $this->respond([
+
             'data' => [
                 'status' => true,
-                'message' => 'Setting Has been updated Successfully!',
-                'data`' => []
+                'message' => '',
+                'setting' => $list
             ]
         ]);
     }

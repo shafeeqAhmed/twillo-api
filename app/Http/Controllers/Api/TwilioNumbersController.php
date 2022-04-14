@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
 use App\Http\Resources\ChatUserResource;
 use App\Events\ChatEvent;
 use App\Jobs\SendTextMessage;
+use App\Models\AutoMessage;
 use Carbon\Carbon;
 
 class TwilioNumbersController extends ApiController
@@ -210,7 +211,9 @@ class TwilioNumbersController extends ApiController
                     'is_active' => 0,
                     'temp_id_date_time' => date('Y-m-d H:i:s')
                 ]);
-                //generate a new messae with link to register as a fan from influencer
+                //generate a new messae with link to register as a fan from influencer 
+                //welcome message
+
                 $message = 'Hey! This is an auto text to let you know I received your message, to join my colony and receive messages from me, please sign up by clicking the link:   ' . $this->generateSignUplink($uuid);
                 $request_data['user'] = $user;
                 $request_data['receiver_number'] = $mess->from;
@@ -218,6 +221,7 @@ class TwilioNumbersController extends ApiController
                 dispatch(new SendTextMessage($message, $request_data));
             } else {
                 //if fan already exist inside fan club
+
                 //create pusher list for append message
                 $message_record = [
                     'sms_uuid' => Str::uuid()->toString(),
@@ -247,6 +251,15 @@ class TwilioNumbersController extends ApiController
                     $mess->sid,
                     null,
                 );
+                //auto reply 
+                $autoMessage = AutoMessage::where('keyword', $mess->body)->where('user_id', $user->id)->first();
+                if ($autoMessage) {
+                    $message = $autoMessage->text;
+                    $request_data['user'] = $user;
+                    $request_data['receiver_number'] = $mess->from;
+                    $request_data['receiver_id'] = $sender?->fan_id;
+                    dispatch(new SendTextMessage($message, $request_data));
+                }
             }
         } else {
             // msg send by twilio update his status 

@@ -13,19 +13,12 @@ class PersonalSettingController extends ApiController
     {
 
         $data = $request->validate([
-            'name' => [
-                'required',
-                Rule::unique('personal_settings')->where(function ($query) use ($request) {
-                    return  $query->where('user_id', $request->user()->id)->where('name', $request->name);
-                })
-            ],
+            'name' => 'required',
             'value' => 'required'
         ]);
         $data['uuid'] = Str::uuid()->toString();
         $data['user_id'] = $request->user()->id;
-
-        PersonalSetting::create($data);
-
+        PersonalSetting::updateOrCreate(['name' => $request->name, 'user_id' => $request->user()->id], $data);
         return $this->respond([
             'data' => [
                 'status' => true,
@@ -48,13 +41,24 @@ class PersonalSettingController extends ApiController
             'value' => 'required',
             'status' => 'nullable|boolean'
         ]);
-        // dd($data);
         PersonalSetting::where('uuid', $request->uuid)->update($data);
         return $this->respond([
             'data' => [
                 'status' => true,
                 'message' => 'Personal Setting Has been stored Successfully!',
                 'data`' => []
+            ]
+        ]);
+    }
+    public function getPersonalSetting(Request $request)
+    {
+        $list = PersonalSetting::where('user_id', $request->user()->id)->orderBy('status', 'desc')->get();
+        return $this->respond([
+
+            'data' => [
+                'status' => true,
+                'message' => '',
+                'personalSetting' => $list
             ]
         ]);
     }

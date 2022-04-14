@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
@@ -11,6 +12,14 @@ class AutoMessage extends Model
     use HasFactory;
     protected $table = 'auto_messages';
     protected $guarded = ['id'];
+
+    // protected function status(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: fn ($value) => $value == 1 ? 'Active' : 'Inactive',
+    //         set: fn ($value) => $value == 'Active' ? true : false,
+    //     );
+    // }
 
     public function getStatusAttribute($key)
     {

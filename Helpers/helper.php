@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\FanClub;
 use App\Models\MessageLinks;
 use App\Models\Messages;
+use App\Models\PersonalSetting;
+use App\Models\Setting;
 use Carbon\Carbon;
 
 if (!function_exists('uploadImage')) {

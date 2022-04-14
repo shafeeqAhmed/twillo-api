@@ -17,7 +17,6 @@ class CreateAutoMessagesTable extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->foreignId('user_id')->references('id')->on('users');
-            // $table->enum('type', ['welcome', 'signup_confirmation', 'keyword'])->default('keyword');
             $table->string('keyword')->nullable();
             $table->text('text');
             $table->boolean('status')->default(true);

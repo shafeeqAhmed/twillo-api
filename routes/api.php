@@ -116,12 +116,15 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('add-auto-message', [AutoMessageController::class, 'addAutoMessage']);
     Route::post('update-auto-message', [AutoMessageController::class, 'updateAutoMessage']);
     Route::get('get-auto-message', [AutoMessageController::class, 'getAutoMessage']);
+    Route::delete('delete-auto-message', [AutoMessageController::class, 'deleteAutoMessage']);
+    Route::get('get-auto-message-detail/{uuid}', [AutoMessageController::class, 'getAutoMessageDetail']);
 
 
     Route::post('add-setting', [SettingController::class, 'addSetting']);
-    Route::post('update-setting', [SettingController::class, 'updateSetting']);
+    Route::get('get-setting', [SettingController::class, 'getSetting']);
 
 
+    Route::get('get-personal-setting', [personalSettingController::class, 'getPersonalSetting']);
     Route::post('add-personal-setting', [personalSettingController::class, 'addPersonalSetting']);
     Route::post('update-personal-setting', [personalSettingController::class, 'updatePersonalSetting']);
 });
