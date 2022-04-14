@@ -92,18 +92,18 @@ if (!function_exists('sendSms')) {
     }
 }
 
-if (!function_exists('sendSms')) {
-    function sendSms($from, $to, $body)
-    {
-        $sid = config('general.twilio_sid');
-        $token = config('general.twilio_token');
-        $client = new Client($sid, $token);
-        $client->messages->create(
-            $to,
-            ["body" => $body, "from" =>  $from, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
-        );
-    }
-}
+// if (!function_exists('sendSms')) {
+//     function sendSms($from, $to, $body)
+//     {
+//         $sid = config('general.twilio_sid');
+//         $token = config('general.twilio_token');
+//         $client = new Client($sid, $token);
+//         $client->messages->create(
+//             $to,
+//             ["body" => $body, "from" =>  $from, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
+//         );
+//     }
+// }
 //for influener send and received sms
 if (!function_exists('sendAndReceiveSms')) {
     function sendAndReceiveSms($user_id, $type, $fan_id = null)
@@ -166,5 +166,33 @@ if (!function_exists('updateFanReplies')) {
             ->where('status', 'delivered')
             ->where('is_replied', 0)
             ->update(['is_replied' => 1, 'updated_at' => Carbon::now()]);
+    }
+}
+if (!function_exists('getWelcomeMessage')) {
+    function getWelcomeMessage($user_id, $link)
+    {
+        $welcome =  PersonalSetting::where('user_id', $user_id)
+            ->where('name', 'welcome')
+            ->value('value');
+        if (empty($welcome)) {
+            $welcome =  Setting::where('name', 'default_welcome_message')->value('value');
+        }
+
+        $terms = Setting::where('name', 'term_and_condition')->value('value');
+        return "$welcome :   $link  <br/><b>Terms & Conditions</b><br/>" . $terms;
+    }
+}
+
+if (!function_exists('getSignupConfirmationMessage')) {
+    function getSignupConfirmationMessage($user_id)
+    {
+        $confirmation_message =  PersonalSetting::where('user_id', $user_id)
+            ->where('name', 'signup_confirmation')
+            ->value('value');
+        if (empty($confirmation_message)) {
+            $confirmation_message =  Setting::where('name', 'default_signup_message')->value('value');
+        }
+
+        return $confirmation_message;
     }
 }

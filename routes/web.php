@@ -40,6 +40,7 @@ Route::get('/topUser/{co}', [\App\Http\Controllers\Api\FilterController::class, 
 Route::get('/send-message', [\App\Http\Controllers\Api\FilterController::class, 'testMessage']);
 Route::get('/hook', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'twilioFeedback']);
 Route::get('/link', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'generateSignUplink']);
+Route::get('/welcome/{id}/{link}', [\App\Http\Controllers\Api\TwilioNumbersController::class, 'welcomeMessageTest']);
 Route::get('/pass', function () {
     return \Illuminate\Support\Facades\Hash::make(123456);
 });

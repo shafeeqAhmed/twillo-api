@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 
-use App\Models\Fan;
 use App\Models\FanClub;
 use Illuminate\Http\Request;
 use App\Models\TwilioNumbers;
@@ -11,14 +10,13 @@ use Twilio\Rest\Client;
 use App\Models\Country;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use App\Models\ChatUsers;
 use App\Models\Messages;
 use Illuminate\Support\Str;
-use App\Http\Resources\ChatUserResource;
 use App\Events\ChatEvent;
 use App\Jobs\SendTextMessage;
 use App\Models\AutoMessage;
-use Carbon\Carbon;
+use App\Models\Setting;
+use App\Models\PersonalSetting;
 
 class TwilioNumbersController extends ApiController
 {
@@ -214,7 +212,8 @@ class TwilioNumbersController extends ApiController
                 //generate a new messae with link to register as a fan from influencer 
                 //welcome message
 
-                $message = 'Hey! This is an auto text to let you know I received your message, to join my colony and receive messages from me, please sign up by clicking the link:   ' . $this->generateSignUplink($uuid);
+                // $message = 'Hey! This is an auto text to let you know I received your message, to join my colony and receive messages from me, please sign up by clicking the link:   ' . $this->generateSignUplink($uuid);
+                $message = getWelcomeMessage($user->id, $this->generateSignUplink($uuid));
                 $request_data['user'] = $user;
                 $request_data['receiver_number'] = $mess->from;
                 $request_data['receiver_id'] = $sender?->fan_id;
@@ -266,7 +265,10 @@ class TwilioNumbersController extends ApiController
             Messages::updateData('twilio_msg_id', $mess->sid, ['status' => $mess->status]);
         }
     }
-
+    public function welcomeMessageTest($user_id, $link)
+    {
+        dd(getSignupConfirmationMessage(14));
+    }
     public function twilioFeedbackBackup()
     {
 
