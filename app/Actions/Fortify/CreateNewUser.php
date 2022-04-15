@@ -52,7 +52,7 @@ class CreateNewUser implements CreatesNewUsers
         if (!($age > $minAge)) {
             $data['min_age_error'] = false;
             $data['fan_age'] = $age;
-            $data['min_fan_age'] = $age;
+            $data['min_fan_age'] = $minAge;
             return $data;
         }
 
