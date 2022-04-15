@@ -179,7 +179,7 @@ if (!function_exists('getWelcomeMessage')) {
         }
 
         $terms = Setting::where('name', 'term_and_condition')->value('value');
-        return "$welcome:- \n$link\n\n*Terms & Conditions*\n\n" . $terms;
+        return "$welcome:-\n\n$link\n\n*Terms & Conditions*\n\n" . $terms;
     }
 }
 
