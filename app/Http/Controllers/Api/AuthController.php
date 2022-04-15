@@ -74,7 +74,7 @@ class AuthController extends Controller
         // check minimum age of fan
 
         if (isset($data['min_age_error']) && $data['min_age_error'] == false) {
-            return response()->json(['status' => false, 'message' => "Your age is " . $data['fan_age'] . " year it should be atleast " . $data['min_fan_age'] . " year", 'data' => $data]);
+            return response()->json(['status' => false, 'message' => "Your age is " . $data['fan_age'] . " year it should be at least " . $data['min_fan_age'] . " year", 'data' => $data]);
         }
         ChatUser::dispatch($data);
 

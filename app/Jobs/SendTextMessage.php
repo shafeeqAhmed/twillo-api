@@ -59,6 +59,7 @@ class SendTextMessage implements ShouldQueue
     public function getValue($type)
     {
         if ($type == 'receiver_id') {
+            //it is the id of fan table
             return  $this->request_data['receiver_id'];
         }
         if ($type == 'receiver') {
@@ -135,7 +136,7 @@ class SendTextMessage implements ShouldQueue
     }
 
 
-    public function send_twilio_message($number, $message, $from, $user_id, $fan_id,)
+    public function send_twilio_message($number, $message, $from, $user_id, $fan_id)
     {
         $data =  [
             "body" => $message,
