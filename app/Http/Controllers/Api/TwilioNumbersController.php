@@ -251,7 +251,7 @@ class TwilioNumbersController extends ApiController
                     null,
                 );
                 //auto reply 
-                $autoMessage = AutoMessage::where('keyword', $mess->body)->where('user_id', $user->id)->first();
+                $autoMessage = AutoMessage::where('keyword', $mess->body)->where('user_id', $user->id)->where('status', 1)->first();
                 if ($autoMessage) {
                     $message = $autoMessage->text;
                     $request_data['user'] = $user;
