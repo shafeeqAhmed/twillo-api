@@ -66,7 +66,7 @@ class AutoMessageController extends ApiController
         ]);
 
 
-        AutoMessage::where('uuid', $request->uuid)->where('user_id', $request->user()->id)->delet();
+        AutoMessage::where('uuid', $request->uuid)->where('user_id', $request->user()->id)->delete();
         return $this->respond([
             'data' => [
                 'status' => true,
