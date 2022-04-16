@@ -198,7 +198,13 @@ class TwilioChatController extends ApiController
             $request_data = $request->all();
 
             $request_data['user'] = $request->user();
-            $request_data['receiver_id'] = FanClub::where('id', $request->receiver_id)->value('fan_id');
+            $fanClub = FanClub::where('id', $request->receiver_id)->first();
+            //check if fan is blocked
+            if (!$fanClub->is_active) {
+                exit;
+            }
+
+            $request_data['receiver_id'] = $fanClub->fan_id;
             dispatch(new SendTextMessage($encodedMessage['text'], $request_data));
         } catch (ConfigurationException $e) {
             \Log::info('----job exception catch');
