@@ -190,7 +190,7 @@ class TwilioNumbersController extends ApiController
 
             $sender = FanClub::where('local_number', $mess->from)->first();
 
-            if (!$sender->is_active) {
+            if ($sender->is_blocked) {
                 exit;
             }
 

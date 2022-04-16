@@ -34,7 +34,7 @@ class FanController extends ApiController
         $fansClub = FanClub::where("fan_club_uuid", $request->fan_club_uuid)->first();
         $fan_id = $fansClub->fan_id;
         $fan_club_id = $fansClub->id;
-        $fansClub->update(['is_active' => 0]);
+        $fansClub->update(['is_active' => 0, 'is_blocked' => 1]);
 
         Messages::where('fan_id', $fan_id)->where('user_id', $request->user()->id)->update(['is_active' => 0]);
         MessageLinks::where('influencer_id', $request->user()->id)->where('fanclub_id', $fan_club_id)->update(['is_active' => 0]);

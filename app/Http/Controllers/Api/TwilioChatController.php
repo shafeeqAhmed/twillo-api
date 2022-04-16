@@ -200,7 +200,7 @@ class TwilioChatController extends ApiController
             $request_data['user'] = $request->user();
             $fanClub = FanClub::where('id', $request->receiver_id)->first();
             //check if fan is blocked
-            if (!$fanClub->is_active) {
+            if ($fanClub->is_blocked) {
                 exit;
             }
 
