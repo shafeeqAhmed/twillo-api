@@ -194,14 +194,14 @@ class TwilioNumbersController extends ApiController
                 exit;
             }
 
-            $exist_in_fan_club = FanClub::where('is_active', 1)->where('user_id', $user?->id)->where('local_number', $mess->from)->exists();
+            $exist_in_fan_club = FanClub::where('is_active', 1)->where('user_id', $user->id)->where('local_number', $mess->from)->exists();
             //new fan
             if (!$exist_in_fan_club) {
                 //generate temp id and send this via message
                 $uuid = Str::uuid()->toString();
 
                 //delete the previous token
-                FanClub::deleteRecord(['is_active' => 0, 'local_number' => $mess->from, 'user_id' => $user?->id]);
+                FanClub::deleteRecord(['is_active' => 0, 'local_number' => $mess->from, 'user_id' => $user->id]);
 
                 // create new token
                 FanClub::create([
