@@ -31,6 +31,7 @@ class FilterController extends ApiController
         $rawQuery = "(send_count+received_count)";
         return  FanClub::select('*')
             ->selectRaw("{$rawQuery} AS rate")
+            ->where('is_active', 1)
             ->orderBy("rate", 'desc')
             ->limit(10)
             ->take($noOfRecord)
@@ -345,6 +346,7 @@ class FilterController extends ApiController
             ->select('fc.local_number', 'fc.id as fan_club_id', 'fc.fan_id as fan_id', 'ml.id as message_link_id', 'ml.is_visited')
             ->where('broadcast_message.broadcast_uuid', $request->broadcast_uuid)
             ->where('ml.is_visited', $request->is_visited)
+            ->where('fc.is_active', 1)
             ->groupBy('ml.fanclub_id')
             ->get();
 

@@ -127,6 +127,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('get-personal-setting', [PersonalSettingController::class, 'getPersonalSetting']);
     Route::post('add-personal-setting', [PersonalSettingController::class, 'addPersonalSetting']);
     Route::post('update-personal-setting', [PersonalSettingController::class, 'updatePersonalSetting']);
+
+    Route::get('get-fans', [FanController::class, 'getFans']);
+    Route::post('block-fan', [FanController::class, 'blockFan']);
 });
+
 
 Route::get('is-valid-reference/{reference}', [UserController::class, 'isValidReference']);

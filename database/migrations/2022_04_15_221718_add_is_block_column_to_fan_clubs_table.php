@@ -1,10 +1,11 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddNewColumnToFanClubsTable extends Migration
+class AddIsBlockColumnToFanClubsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +15,7 @@ class AddNewColumnToFanClubsTable extends Migration
     public function up()
     {
         Schema::table('fan_clubs', function (Blueprint $table) {
-            $table->integer('send_count')->after('is_active')->default(true);
-            $table->integer('received_count')->after('is_active')->default(0);
+            $table->boolean('is_blocked')->after('is_active')->default(false);
         });
     }
 
@@ -27,8 +27,7 @@ class AddNewColumnToFanClubsTable extends Migration
     public function down()
     {
         Schema::table('fan_clubs', function (Blueprint $table) {
-            $table->dropColumn('send_count');
-            $table->dropColumn('received_count');
+            $table->dropColumn('is_blocked');
         });
     }
 }

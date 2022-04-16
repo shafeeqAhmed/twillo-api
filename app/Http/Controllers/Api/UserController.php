@@ -22,7 +22,6 @@ class UserController extends ApiController
         return $this->respond([
             'data' => $data
         ]);
-
     }
 
     public function getUserDetail($user_uuid)
@@ -40,7 +39,6 @@ class UserController extends ApiController
         return $this->respond([
             'data' => $data
         ]);
-
     }
 
 
@@ -54,8 +52,6 @@ class UserController extends ApiController
 
     public function updateProfile(Request $request)
     {
-
-
         $user_record = User::where('user_uuid', $request->user_uuid)->first();
 
         $data['fname'] = $request->fname;
@@ -100,22 +96,19 @@ class UserController extends ApiController
         return $this->respond([
             'data' => $status
         ]);
-
     }
 
- public function getInfluencerDashboardInfo(Request $request)
+    public function getInfluencerDashboardInfo(Request $request)
     {
-        $data['user'] = User::where('id',$request->user()->id)->select('send_message_count','received_message_count')->first();
+        $data['user'] = User::where('id', $request->user()->id)->select('send_message_count', 'received_message_count')->first();
         $total_contact = FanClub::with('fan')->latest()
             ->select('id', 'fan_club_uuid', 'local_number', 'fan_id', 'temp_id', 'created_at')
-            ->groupBy('local_number')->where('user_id', $request->user()->id)
             ->where('is_active', 1)
+            ->groupBy('local_number')->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc')->get();
         $data['total_contacts'] = count($total_contact);
         return $this->respond([
             'data' => $data
         ]);
     }
-
-
 }

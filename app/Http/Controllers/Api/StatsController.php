@@ -29,9 +29,9 @@ class StatsController extends ApiController
         // $totalFan = Fan::count();
         // $data = Fan::get()
 
-        $query = Fan::leftJoin('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id');
+        $query = Fan::leftJoin('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id')->where('fc.is_active', 1);
 
-        $query_1 = Fan::leftJoin('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id');
+        $query_1 = Fan::leftJoin('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id')->where('fc.is_active', 1);
         // if user have role influncer
         if (in_array('influencer', $request->user()->getRoleNames()->toArray())) {
             $query->where('fc.user_id', $request->user()->id);
@@ -72,9 +72,9 @@ class StatsController extends ApiController
             'Non-Binary' => 'Non-Binary',
             'Other' => 'Other',
         ];
-        $query = Fan::leftJoin('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id');
+        $query = Fan::leftJoin('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id')->where('fc.is_active', 1);
 
-        $query_1 = Fan::leftJoin('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id');
+        $query_1 = Fan::leftJoin('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id')->where('fc.is_active', 1);
         // if user have role influncer
         if (in_array('influencer', $request->user()->getRoleNames()->toArray())) {
             $query->where('fc.user_id', $request->user()->id);
@@ -109,7 +109,8 @@ class StatsController extends ApiController
     public function getCityGroupStats(Request $request)
     {
         $query = Fan::groupBy('fans.city')->select('fans.city', DB::raw('count(fans.id) as total'))->orderBy('total', 'desc')
-            ->join('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id');
+            ->join('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id')
+            ->where('fc.is_active', 1);
 
         // if user have role influncer
         if (in_array('influencer', $request->user()->getRoleNames()->toArray())) {
@@ -136,7 +137,8 @@ class StatsController extends ApiController
     {
         $query = Fan::groupBy('fans.country_id')->select('fans.country_id', 'c.country_name', DB::raw('count(*) as total'))->orderBy('total', 'desc')
             ->join('countries as c', 'c.id', '=', 'fans.country_id')
-            ->join('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id');
+            ->join('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id')
+            ->where('fc.is_active', 1);
         // if user have role influncer
         if (in_array('influencer', $request->user()->getRoleNames()->toArray())) {
             $query->where('fc.user_id', $request->user()->id);
@@ -161,7 +163,8 @@ class StatsController extends ApiController
     public function getMontyRegistrationStats(Request $request)
     {
         $query = Fan::select('fc.id as fc_id', 'fc.fan_id', 'fc.user_id', DB::raw("count(fans.id) as total, date_format(fans.created_at, '%M') as month, date_format(fans.created_at, '%m') as numeric_month,date_format(fans.created_at, '%m/%d/%Y') as date"))
-            ->join('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id');
+            ->join('fan_clubs as fc', 'fc.fan_id', '=', 'fans.id')
+            ->where('fc.is_active', 1);
         //if user have role influncer
         if (in_array('influencer', $request->user()->getRoleNames()->toArray())) {
             $query->where('fc.user_id', $request->user()->id);
@@ -357,6 +360,7 @@ class StatsController extends ApiController
         ]);
         $totalContact = 0;
         $query = FanClub::join('fans as f', 'f.id', '=', 'fan_clubs.fan_id')
+            ->where('fan_clubs.is_active', 1)
             ->where('fan_clubs.user_id', $request->user()->id);
         if ($request->has('start') && $request->has('end') && !$request->has('duration')) {
             $query->whereBetween('f.created_at', [$request->start, $request->end]);

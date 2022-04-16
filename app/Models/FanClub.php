@@ -35,4 +35,8 @@ class FanClub extends Model
     {
         return FanClub::where($where)->delete();
     }
+    public function getIsActiveAttribute($key)
+    {
+        return $key == 1 ? 'Active' : 'Blocked';
+    }
 }
