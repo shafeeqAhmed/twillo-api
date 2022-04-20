@@ -45,7 +45,7 @@ class CreateNewUser implements CreatesNewUsers
             return $data;
         }
 
-        $minAge = PersonalSetting::where('name', 'min_age')->value('value');
+        $minAge = PersonalSetting::where('user_id', $fan_club->user_id)->where('name', 'min_age')->value('value');
         $age = Carbon::parse($input['dob'])->diff(Carbon::now())->y;
 
         //check fan minimum a age

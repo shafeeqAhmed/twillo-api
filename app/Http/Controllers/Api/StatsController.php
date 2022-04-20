@@ -221,13 +221,23 @@ class StatsController extends ApiController
     public function averageResponseRate(Request $request)
     {
         $request->validate([
-            'start' => 'required|date',
-            'end' => 'required|date',
+            'start' => 'nullable|date',
+            'end' => 'nullable|date',
         ]);
 
-        $totalMessages = Messages::where('user_id', $request->user()->id)->where('status', 'delivered')->whereBetween('created_at', [$request->start, $request->end])->count();
-        $totalRespondedMessage = Messages::where('user_id', $request->user()->id)->whereIsReplied(1)->whereBetween('created_at', [$request->start, $request->end])->count();
-        // $totalRespondedMessage = Messages::where('user_id', $request->user()->id)->where('type', 'receive')->where('status', 'received')->OrWhere('status', 'receiving')->count();
+        // $totalMessages = Messages::where('user_id', $request->user()->id)->where('status', 'delivered')->whereBetween('created_at', [$request->start, $request->end])->count();
+        // $totalRespondedMessage = Messages::where('user_id', $request->user()->id)->whereIsReplied(1)->whereBetween('created_at', [$request->start, $request->end])->count();
+
+        $query = Messages::where('user_id', $request->user()->id)->where('status', 'delivered');
+        $query_1 = Messages::where('user_id', $request->user()->id)->whereIsReplied(1);
+        if (!empty($request->start) && !empty($request->start)) {
+            $query->whereBetween('created_at', [$request->start, $request->end]);
+            $query_1->whereBetween('created_at', [$request->start, $request->end]);
+        }
+        $totalMessages = $query->count();
+        $totalRespondedMessage = $query_1->count();
+
+
         $averageRate = 0;
         if ($totalMessages > 0 && $totalRespondedMessage > 0) {
             $averageRate = round(($totalRespondedMessage / $totalMessages) * 100, 2);
@@ -243,10 +253,16 @@ class StatsController extends ApiController
     public function fanReach(Request $request)
     {
         $request->validate([
-            'start' => 'required|date',
-            'end' => 'required|date',
+            'start' => 'nullable|date',
+            'end' => 'nullable|date',
         ]);
-        $totalMessages = Messages::where('user_id', $request->user()->id)->whereBetween('created_at', [$request->start, $request->end])->count();
+        // $totalMessages = Messages::where('user_id', $request->user()->id)->whereBetween('created_at', [$request->start, $request->end])->count();
+        $query = Messages::where('user_id', $request->user()->id);
+
+        if (!empty($request->start) && !empty($request->start)) {
+            $query->whereBetween('created_at', [$request->start, $request->end]);
+        }
+        $totalMessages = $query->count();
         return $this->respond([
             'data' => [
                 'fanReached' => $totalMessages
@@ -260,14 +276,16 @@ class StatsController extends ApiController
         if ($records) {
             foreach ($records as $record) {
                 $data = [];
-                $data['fan_id'] = $record['fan_id'];
-                $data['totalMessage'] = $record['totalMessage'];
-                $data['name'] = $record['fan']['fname'];
-                $data['email'] = $record['fan']['email'];
-                $data['gender'] = $record['fan']['gender'];
-                $data['dob'] = $record['fan']['dob'];
-                $data['local_number'] = $record['fan']['fanClub']['local_number'];
-                $response[] = $data;
+                if ($record['fan']) {
+                    $data['fan_id'] = $record['fan_id'];
+                    $data['totalMessage'] = $record['totalMessage'];
+                    $data['name'] = $record['fan']['fname'];
+                    $data['email'] = $record['fan']['email'];
+                    $data['gender'] = $record['fan']['gender'];
+                    $data['dob'] = $record['fan']['dob'];
+                    $data['local_number'] = $record['fan']['fanClub']['local_number'];
+                    $response[] = $data;
+                }
             }
         }
 
@@ -277,18 +295,23 @@ class StatsController extends ApiController
     public function topActiveContact(Request $request)
     {
         $request->validate([
-            'start' => 'required|date',
-            'end' => 'required|date',
+            'start' => 'nullable|date',
+            'end' => 'nullable|date',
         ]);
-        $totalMessages = Messages::where('user_id', $request->user()->id)
-            ->whereBetween('created_at', [$request->start, $request->end])
-            ->select(DB::raw('count(*) as totalMessage'), 'fan_id', 'id')
+
+        $query = Messages::where('user_id', $request->user()->id);
+
+        if (!empty($query->start) && !empty($query->end)) {
+            $query->whereBetween('created_at', [$request->start, $request->end]);
+        }
+
+        $query->select(DB::raw('count(*) as totalMessage'), 'fan_id', 'id')
             ->groupBy('fan_id')
             ->orderBy('totalMessage', 'desc')
             ->where('is_replied', 1)
             ->with('fan.fanClub')
-            ->take(10)
-            ->get();
+            ->take(10);
+        $totalMessages =  $query->get();
         return $this->respond([
             'data' => [
                 'topActiveContact' => $this->activeContactResponse($totalMessages)
@@ -298,18 +321,21 @@ class StatsController extends ApiController
     public function topInActiveContact(Request $request)
     {
         $request->validate([
-            'start' => 'required|date',
-            'end' => 'required|date',
+            'start' => 'nullable|date',
+            'end' => 'nullable|date',
         ]);
-        $totalMessages = Messages::where('user_id', $request->user()->id)
-            ->whereBetween('created_at', [$request->start, $request->end])
-            ->select(DB::raw('count(*) as totalMessage'), 'fan_id', 'id')
+
+        $query = Messages::where('user_id', $request->user()->id);
+        if (!empty($query->start) && !empty($query->end)) {
+            $query->whereBetween('created_at', [$request->start, $request->end]);
+        }
+        $query->select(DB::raw('count(*) as totalMessage'), 'fan_id', 'id')
             ->groupBy('fan_id')
             ->orderBy('totalMessage', 'desc')
             ->where('is_replied', 0)
             ->with('fan.fanClub')
-            ->take(10)
-            ->get();
+            ->take(10);
+        $totalMessages = $query->get();
         return $this->respond([
             'data' => [
                 'topInActiveContact' => $this->activeContactResponse($totalMessages)

