@@ -352,21 +352,21 @@ class StatsController extends ApiController
         $totalMessages = 0;
         $query = Messages::where('user_id', $request->user()->id);
 
-        if (!empty($request->start) && !empty($request->end) && empty($request->duration)) {
+        if (!empty($request->start) && !empty($request->end)) {
             $query->whereBetween('created_at', [$request->start, $request->end]);
         }
 
-        if (!empty($request->duration)) {
-            if ($request->duration == 'week') {
-                $query->whereBetween('created_at', [Carbon::now()->subWeek()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
-            }
-            if ($request->duration == 'month') {
-                $query->whereBetween('created_at', [Carbon::now()->subMonth()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
-            }
-            if ($request->duration == 'year') {
-                $query->whereBetween('created_at', [Carbon::now()->subYear()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
-            }
-        }
+        // if (!empty($request->duration)) {
+        //     if ($request->duration == 'week') {
+        //         $query->whereBetween('created_at', [Carbon::now()->subWeek()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
+        //     }
+        //     if ($request->duration == 'month') {
+        //         $query->whereBetween('created_at', [Carbon::now()->subMonth()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
+        //     }
+        //     if ($request->duration == 'year') {
+        //         $query->whereBetween('created_at', [Carbon::now()->subYear()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
+        //     }
+        // }
 
         $totalMessages = $query->count();
         return $this->respond([
@@ -388,21 +388,21 @@ class StatsController extends ApiController
         $query = FanClub::join('fans as f', 'f.id', '=', 'fan_clubs.fan_id')
             ->where('fan_clubs.is_active', 1)
             ->where('fan_clubs.user_id', $request->user()->id);
-        if ($request->has('start') && $request->has('end') && !$request->has('duration')) {
+        if ($request->has('start') && $request->has('end')) {
             $query->whereBetween('f.created_at', [$request->start, $request->end]);
         }
 
-        if ($request->has('duration')) {
-            if ($request->duration == 'week') {
-                $query->whereBetween('f.created_at', [Carbon::now()->subWeek()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
-            }
-            if ($request->duration == 'month') {
-                $query->whereBetween('f.created_at', [Carbon::now()->subMonth()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
-            }
-            if ($request->duration == 'year') {
-                $query->whereBetween('f.created_at', [Carbon::now()->subYear()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
-            }
-        }
+        // if ($request->has('duration')) {
+        //     if ($request->duration == 'week') {
+        //         $query->whereBetween('f.created_at', [Carbon::now()->subWeek()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
+        //     }
+        //     if ($request->duration == 'month') {
+        //         $query->whereBetween('f.created_at', [Carbon::now()->subMonth()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
+        //     }
+        //     if ($request->duration == 'year') {
+        //         $query->whereBetween('f.created_at', [Carbon::now()->subYear()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
+        //     }
+        // }
 
         $totalContact = $query->select('f.id')->count();
         return $this->respond([
