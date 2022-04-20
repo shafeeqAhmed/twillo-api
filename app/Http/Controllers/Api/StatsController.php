@@ -347,7 +347,6 @@ class StatsController extends ApiController
         $request->validate([
             'start' => 'nullable|date',
             'end' => 'nullable|date',
-            'duration' => ['nullable', "in:week,month,year"]
         ]);
         $totalMessages = 0;
         $query = Messages::where('user_id', $request->user()->id);
@@ -356,17 +355,6 @@ class StatsController extends ApiController
             $query->whereBetween('created_at', [$request->start, $request->end]);
         }
 
-        // if (!empty($request->duration)) {
-        //     if ($request->duration == 'week') {
-        //         $query->whereBetween('created_at', [Carbon::now()->subWeek()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
-        //     }
-        //     if ($request->duration == 'month') {
-        //         $query->whereBetween('created_at', [Carbon::now()->subMonth()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
-        //     }
-        //     if ($request->duration == 'year') {
-        //         $query->whereBetween('created_at', [Carbon::now()->subYear()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
-        //     }
-        // }
 
         $totalMessages = $query->count();
         return $this->respond([
@@ -382,27 +370,16 @@ class StatsController extends ApiController
         $request->validate([
             'start' => 'nullable|date',
             'end' => 'nullable|date',
-            'duration' => ['nullable', "in:week,month,year"]
         ]);
         $totalContact = 0;
         $query = FanClub::join('fans as f', 'f.id', '=', 'fan_clubs.fan_id')
             ->where('fan_clubs.is_active', 1)
             ->where('fan_clubs.user_id', $request->user()->id);
-        if ($request->has('start') && $request->has('end')) {
+        if (!empty($request->start) && !empty($request->end)) {
             $query->whereBetween('f.created_at', [$request->start, $request->end]);
         }
 
-        // if ($request->has('duration')) {
-        //     if ($request->duration == 'week') {
-        //         $query->whereBetween('f.created_at', [Carbon::now()->subWeek()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
-        //     }
-        //     if ($request->duration == 'month') {
-        //         $query->whereBetween('f.created_at', [Carbon::now()->subMonth()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
-        //     }
-        //     if ($request->duration == 'year') {
-        //         $query->whereBetween('f.created_at', [Carbon::now()->subYear()->format('Y-m-d'), Carbon::now()->format('Y-m-d')]);
-        //     }
-        // }
+
 
         $totalContact = $query->select('f.id')->count();
         return $this->respond([
