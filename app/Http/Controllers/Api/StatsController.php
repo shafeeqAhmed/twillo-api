@@ -243,10 +243,16 @@ class StatsController extends ApiController
     public function fanReach(Request $request)
     {
         $request->validate([
-            'start' => 'required|date',
-            'end' => 'required|date',
+            'start' => 'nullable|date',
+            'end' => 'nullable|date',
         ]);
-        $totalMessages = Messages::where('user_id', $request->user()->id)->whereBetween('created_at', [$request->start, $request->end])->count();
+        // $totalMessages = Messages::where('user_id', $request->user()->id)->whereBetween('created_at', [$request->start, $request->end])->count();
+        $query = Messages::where('user_id', $request->user()->id);
+
+        if (!empty($request->start) && !empty($request->start)) {
+            $query->whereBetween('created_at', [$request->start, $request->end]);
+        }
+        $totalMessages = $query->count();
         return $this->respond([
             'data' => [
                 'fanReached' => $totalMessages
@@ -260,14 +266,16 @@ class StatsController extends ApiController
         if ($records) {
             foreach ($records as $record) {
                 $data = [];
-                $data['fan_id'] = $record['fan_id'];
-                $data['totalMessage'] = $record['totalMessage'];
-                $data['name'] = $record['fan']['fname'];
-                $data['email'] = $record['fan']['email'];
-                $data['gender'] = $record['fan']['gender'];
-                $data['dob'] = $record['fan']['dob'];
-                $data['local_number'] = $record['fan']['fanClub']['local_number'];
-                $response[] = $data;
+                if ($record['fan']) {
+                    $data['fan_id'] = $record['fan_id'];
+                    $data['totalMessage'] = $record['totalMessage'];
+                    $data['name'] = $record['fan']['fname'];
+                    $data['email'] = $record['fan']['email'];
+                    $data['gender'] = $record['fan']['gender'];
+                    $data['dob'] = $record['fan']['dob'];
+                    $data['local_number'] = $record['fan']['fanClub']['local_number'];
+                    $response[] = $data;
+                }
             }
         }
 
@@ -292,6 +300,7 @@ class StatsController extends ApiController
         return $this->respond([
             'data' => [
                 'topActiveContact' => $this->activeContactResponse($totalMessages)
+                // 'topActiveContact' => $totalMessages
             ]
         ]);
     }

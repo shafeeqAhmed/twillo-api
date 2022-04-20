@@ -46,6 +46,14 @@ class TwilioChatController extends ApiController
             ->where('fan_clubs.id', $receiver_id)
             ->select('fan_clubs.*', 'f.fname')
             ->first();
+
+        // if user block then don't find any messages 
+        if ($to->is_blocked) {
+            return $this->respond([
+                'data' => []
+            ]);
+        }
+
         $sender_name = $to->fname;
         //        $receiver_image=$to->profile_photo_path;
         $to = $to->local_number;
