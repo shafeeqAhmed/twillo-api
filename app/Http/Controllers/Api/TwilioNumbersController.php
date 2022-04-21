@@ -182,7 +182,6 @@ class TwilioNumbersController extends ApiController
 
         $mess = $this->client->messages($msg_id)
             ->fetch();
-        dd($mess);
         //inbound mean received message from non twillo number
         // if (strtolower(trim($lookup, ' ')) != 'twilio') {
         //incoming messages
@@ -197,6 +196,7 @@ class TwilioNumbersController extends ApiController
             }
 
             $exist_in_fan_club = FanClub::where('is_active', 1)->where('user_id', $user->id)->where('local_number', $mess->from)->exists();
+            dd($user, $sender, $exist_in_fan_club);
             //new fan
             if (!$exist_in_fan_club) {
                 //generate temp id and send this via message
