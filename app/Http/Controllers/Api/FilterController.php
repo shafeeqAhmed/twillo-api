@@ -32,6 +32,7 @@ class FilterController extends ApiController
         return  FanClub::select('*')
             ->selectRaw("{$rawQuery} AS rate")
             ->where('is_active', 1)
+            ->where('user_id', request()->user()->id)
             ->orderBy("rate", 'desc')
             ->limit(10)
             ->take($noOfRecord)
