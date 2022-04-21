@@ -195,8 +195,8 @@ class TwilioNumbersController extends ApiController
                 exit;
             }
 
-            $exist_in_fan_club = FanClub::where('is_active', 1)->where('user_id', $user->id)->where('local_number', $mess->from)->exists();
-            $exist_in_fan_club1 = FanClub::where('is_active', 1111)->where('user_id', $user->id)->where('local_number', $mess->from)->exists();
+            $exist_in_fan_club = FanClub::where('is_active', 1)->where('user_id', $user->id)->where('local_number', $mess->from)->first();
+            $exist_in_fan_club1 = FanClub::where('is_active', 1111)->where('user_id', $user->id)->where('local_number', $mess->from)->first();
             dd($user, $sender, $exist_in_fan_club, $exist_in_fan_club1);
             //new fan
             if (!$exist_in_fan_club) {
