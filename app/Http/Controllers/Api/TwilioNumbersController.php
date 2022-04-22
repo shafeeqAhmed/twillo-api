@@ -189,17 +189,16 @@ class TwilioNumbersController extends ApiController
 
             $user = User::where('phone_no', $mess->to)->first();
 
-            $sender = FanClub::where('local_number', $mess->from)->first();
-
-            if ($sender->is_blocked) {
+            //check fan is blocked or not
+            $fan_club_instance = FanClub::where('user_id', $user->id)->where('local_number', $mess->from)->first();
+            if ($fan_club_instance && $fan_club_instance->is_blocked) {
                 exit;
             }
 
-            $exist_in_fan_club = FanClub::where('is_active', 1)->where('user_id', $user->id)->where('local_number', $mess->from)->first();
-            $exist_in_fan_club1 = FanClub::where('is_active', 1111)->where('user_id', $user->id)->where('local_number', $mess->from)->first();
-            dd($user, $sender, $exist_in_fan_club, $exist_in_fan_club1);
+            $sender = FanClub::where('is_active', 1)->where('user_id', $user->id)->where('local_number', $mess->from)->first();
+
             //new fan
-            if (!$exist_in_fan_club) {
+            if (!$sender) {
                 //generate temp id and send this via message
                 $uuid = Str::uuid()->toString();
 
