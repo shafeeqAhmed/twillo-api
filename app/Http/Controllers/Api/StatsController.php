@@ -184,11 +184,11 @@ class StatsController extends ApiController
         if (in_array('influencer', $request->user()->getRoleNames()->toArray())) {
             $query->where('fc.user_id', $request->user()->id);
         }
-
-        $data = $query->whereYear('fans.created_at', now()->subYear()->year)
+        $data = $query->whereYear('fans.created_at', '>=', now()->subYear()->year)
             ->groupBy('month')
             ->orderBy('numeric_month', 'asc')
             ->get();
+        // dd($query->get(), $data);
         $dates = $data->map(function ($fan) {
             return $fan->date;
         });
