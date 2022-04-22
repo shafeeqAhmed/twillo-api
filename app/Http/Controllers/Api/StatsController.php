@@ -65,6 +65,13 @@ class StatsController extends ApiController
                 return round((count($group) / $totalFan) * 100, 2);
             })
             ->sortKeys();
+        // delete empty array
+        $ageGroup = [];
+        foreach ($data as $key => $value) {
+            if ($key == "") {
+                unset($data[$key]);
+            }
+        }
 
         return $this->respond([
             'data' => [
