@@ -41,12 +41,20 @@ class StatsController extends ApiController
         $data = $query->get()->map(function ($user) use ($ranges) {
             // $age = Carbon::parse($user->dob)->age;
             foreach ($ranges as $key => $breakpoint) {
-                if ($breakpoint >= $user->dob) {
-                    $user->range = $key;
-                    break;
+                if ($breakpoint == 65) {
+
+                    if ($user->dob >= $breakpoint) {
+                        $user->range = $key;
+                        break;
+                    }
+                } else {
+                    $k = explode('-', $key);
+                    if ($user->dob >= $k[0] && $user->dob <= $k[1]) {
+                        $user->range = $key;
+                        break;
+                    }
                 }
             }
-
             return $user;
         })
             ->mapToGroups(function ($user, $key) {
