@@ -20,7 +20,7 @@ class StatsController extends ApiController
             '13-17' => 13,
             '18-24' => 18,
             '25-34' => 25,
-            '35-44' => 25,
+            '35-44' => 35,
             '45-54' => 45,
             '55-64' => 55,
             '65+' => 65,
@@ -39,9 +39,9 @@ class StatsController extends ApiController
         }
         $totalFan = $query_1->count();
         $data = $query->get()->map(function ($user) use ($ranges) {
-            $age = Carbon::parse($user->dob)->age;
+            // $age = Carbon::parse($user->dob)->age;
             foreach ($ranges as $key => $breakpoint) {
-                if ($breakpoint >= $age) {
+                if ($breakpoint >= $user->dob) {
                     $user->range = $key;
                     break;
                 }
@@ -53,7 +53,7 @@ class StatsController extends ApiController
                 return [$user->range => $user];
             })
             ->map(function ($group) use ($totalFan) {
-                //                return count($group);
+                // return count($group);
                 return round((count($group) / $totalFan) * 100, 2);
             })
             ->sortKeys();
@@ -227,7 +227,6 @@ class StatsController extends ApiController
 
         // $totalMessages = Messages::where('user_id', $request->user()->id)->where('status', 'delivered')->whereBetween('created_at', [$request->start, $request->end])->count();
         // $totalRespondedMessage = Messages::where('user_id', $request->user()->id)->whereIsReplied(1)->whereBetween('created_at', [$request->start, $request->end])->count();
-
         $query = Messages::where('user_id', $request->user()->id)->where('status', 'delivered');
         $query_1 = Messages::where('user_id', $request->user()->id)->whereIsReplied(1);
         if (!empty($request->start) && !empty($request->start)) {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\PersonalSetting;
+use App\Models\Setting;
 use Illuminate\Validation\Rule;
 
 class PersonalSettingController extends ApiController
@@ -59,6 +60,18 @@ class PersonalSettingController extends ApiController
                 'status' => true,
                 'message' => '',
                 'personalSetting' => $list
+            ]
+        ]);
+    }
+    public function getPersonDefaultSetting($name)
+    {
+        $list = Setting::where('name', $name)->select('name', 'value')->first();
+        return $this->respond([
+
+            'data' => [
+                'status' => true,
+                'message' => '',
+                'defaultSetting' => $list
             ]
         ]);
     }
