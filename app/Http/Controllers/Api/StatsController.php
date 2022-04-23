@@ -194,7 +194,7 @@ class StatsController extends ApiController
         });
 
         $series = $data->map(function ($fan) {
-            return $fan->total * rand(12, 30);
+            return $fan->total;
         });
         return $this->respond([
             'data' => [
@@ -270,16 +270,15 @@ class StatsController extends ApiController
             'start' => 'nullable|date',
             'end' => 'nullable|date',
         ]);
-        // $totalMessages = Messages::where('user_id', $request->user()->id)->whereBetween('created_at', [$request->start, $request->end])->count();
-        $query = Messages::where('user_id', $request->user()->id);
+        $query = Messages::where('user_id', $request->user()->id)->where('type', 'send')->where('status', 'delivered');
 
         if (!empty($request->start) && !empty($request->start)) {
             $query->whereBetween('created_at', [$request->start, $request->end]);
         }
-        $totalMessages = $query->count();
+        $totalMessages = $query->groupBy('fan_id')->get();
         return $this->respond([
             'data' => [
-                'fanReached' => $totalMessages
+                'fanReached' => count($totalMessages)
             ]
         ]);
     }
@@ -363,7 +362,7 @@ class StatsController extends ApiController
             'end' => 'nullable|date',
         ]);
         $totalMessages = 0;
-        $query = Messages::where('user_id', $request->user()->id);
+        $query = Messages::where('user_id', $request->user()->id)->where('type', 'send')->where('status', 'delivered');
 
         if (!empty($request->start) && !empty($request->end)) {
             $query->whereBetween('created_at', [$request->start, $request->end]);
@@ -431,7 +430,9 @@ class StatsController extends ApiController
                                 AND ml.is_visited = 1
                                 AND ml.influencer_id = $user->id
                 GROUP BY ml.broadcast_id) as total_visited_message_link_count")
-            )->get();
+            )
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         foreach ($broadCastMessages as &$message) {
             $message['response_rate_percentate'] = "0%";
@@ -476,7 +477,7 @@ class StatsController extends ApiController
     {
         $totalContact = FanClub::where('user_id', $request->user()->id)->where('is_active', 1)->count();
         $totalSendMessages = Messages::where('user_id', $request->user()->id)->where('type', 'send')->where('status', 'delivered')->count();
-        $totalReceivedCount = Messages::where('user_id', $request->user()->id)->where('type', 'receive')->where('status', 'received')->OrWhere('status', 'receiving')->count();
+        $totalReceivedCount = Messages::where('user_id', $request->user()->id)->where('type', 'receive')->where('status', 'receiving')->count();
 
         return $this->respond([
             'data' => [
