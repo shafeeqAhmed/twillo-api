@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 
 
 Route::get('helper-check', function () {
+    dd(config('general.web_hook'));
     $encodedMessage = CommonHelper::filterAndReplaceLink([
         'message' => 'here is the link please follow the link https://dankash.com/   https://dankash.co2',
         'receiver_id' => 30,
