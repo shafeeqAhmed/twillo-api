@@ -143,6 +143,7 @@ class TwilioNumbersController extends ApiController
 
     public function twilioWebhook()
     {
+        dd(config('general.web_hook'));
         $input = (file_get_contents('php://input'));
 
         DB::table('twilio_response')->insert([
