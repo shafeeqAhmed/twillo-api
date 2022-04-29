@@ -56,7 +56,7 @@ Route::get('/send-message', function () {
     $incoming_phone_number = $client->incomingPhoneNumbers
         ->create(
             [
-                // "smsUrl" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook",
+                // "smsUrl" => config('general.web_hook'),
                 "phoneNumber" => "+18706176205"
             ]
         );
@@ -70,7 +70,7 @@ Route::get('/send-message', function () {
 
     // $service = $client->messaging->v1->services
     //     ->create('scheduled_message', [
-    //         "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
+    //         "statusCallback" => config('general.web_hook')
     //     ]);
 
     // dd($service);
@@ -91,7 +91,7 @@ Route::get('/send-message', function () {
         "body" => 'custom test msg',
         // "from" =>  '+18706176205',
         "from" =>  '+19289854272',
-        "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
+        "statusCallback" => config('general.web_hook')
     ];
     $data['sendAt'] = Carbon::now()->addMinute(65)->toIso8601String();
     $data['scheduleType'] = 'fixed';

@@ -87,7 +87,7 @@ class TwilioNumbersController extends ApiController
         //  if($address_sid!=0){
         $this->client->incomingPhoneNumbers->create([
             'phoneNumber' => $twilioPhoneNumber,
-            "smsUrl" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook",
+            "smsUrl" => config('general.web_hook'),
             "addressSid" => $address_sid,
         ]);
         TwilioNumbers::create([
@@ -331,7 +331,7 @@ class TwilioNumbersController extends ApiController
                     $message = $this->client->messages
                         ->create(
                             $mess->to,
-                            ["body" => $body, "from" =>  $mess->from, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
+                            ["body" => $body, "from" =>  $mess->from, "statusCallback" => config('general.web_hook')]
                         );
                 }
             }

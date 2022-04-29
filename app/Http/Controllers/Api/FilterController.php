@@ -43,7 +43,7 @@ class FilterController extends ApiController
         $message = $this->client->messages
             ->create(
                 '+18454098524',
-                ["body" => 'Test message local', "from" =>  '+447897037950', "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
+                ["body" => 'Test message local', "from" =>  '+447897037950', "statusCallback" => config('general.web_hook')]
             );
         dd($message);
     }
