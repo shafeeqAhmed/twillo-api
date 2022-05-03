@@ -19,6 +19,9 @@ use Spatie\Permission\Models\Role;
 use Twilio\Rest\Client;
 use App\Models\FanClub;
 use App\Events\ChatUser;
+use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -34,7 +37,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
+        $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
@@ -45,6 +48,9 @@ class AuthController extends Controller
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
+        }
+        if (Auth::attempt($credentials)) {
+            // $request->session()->regenerate();
         }
         $detail = collect($user)->only(['user_uuid', 'name', 'email', 'phone_no', 'profile_photo_path']);
         if (count($user->getRoleNames()) > 0) {
@@ -159,5 +165,23 @@ class AuthController extends Controller
     {
 
         $request->user()->currentAccessToken()->delete();
+    }
+    // public function enabled2fa()
+    // {
+    //     return $this->respond([
+    //         'status' => true,
+    //         'message' => 'Setting Has been stored Successfully!',
+    //         'data`' => []
+    //     ]);
+    // }
+
+    public function enabled2fa(Request $request, EnableTwoFactorAuthentication $enable)
+    {
+        $enable($request->user());
+        return         $request->user()->twoFactorQrCodeSvg();
+
+        return $request->wantsJson()
+            ? new JsonResponse('', 200)
+            : back()->with('status', 'two-factor-authentication-enabled');
     }
 }
