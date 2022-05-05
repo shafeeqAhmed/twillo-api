@@ -50,7 +50,7 @@ class AutoMessageController extends ApiController
     }
     public function getAutoMessage(Request $request)
     {
-        $list = AutoMessage::where('user_id', $request->user()->id)->orderBy('status', 'desc')->get();
+        $list = AutoMessage::where('user_id', $request->user()->id)->orderBy('id', 'desc')->get();
         return $this->respond([
             'data' => [
                 'status' => true,

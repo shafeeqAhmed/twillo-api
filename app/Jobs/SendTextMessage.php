@@ -141,7 +141,7 @@ class SendTextMessage implements ShouldQueue
         $data =  [
             "body" => $message,
             "from" =>  $from,
-            "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
+            "statusCallback" => config('general.web_hook')
         ];
 
 
@@ -155,7 +155,7 @@ class SendTextMessage implements ShouldQueue
             "sendAt" => $this->getValue('scheduled_date_time'),
             "body" => $message,
             "from" =>  $from,
-            "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
+            "statusCallback" => config('general.web_hook')
         ];
 
         $result = $this->client->messages->create($number, $data);

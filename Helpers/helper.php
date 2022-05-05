@@ -86,7 +86,7 @@ if (!function_exists('sendSms')) {
             [
                 "body" => $body,
                 "from" =>  $from,
-                "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"
+                "statusCallback" => config('general.web_hook')
             ]
         );
     }
@@ -100,7 +100,7 @@ if (!function_exists('sendSms')) {
 //         $client = new Client($sid, $token);
 //         $client->messages->create(
 //             $to,
-//             ["body" => $body, "from" =>  $from, "statusCallback" => "https://text-app.tkit.co.uk/twillo-api/api/twilio_webhook"]
+//             ["body" => $body, "from" =>  $from, "statusCallback" => config('general.web_hook')]
 //         );
 //     }
 // }
@@ -179,7 +179,7 @@ if (!function_exists('getWelcomeMessage')) {
         }
 
         $terms = Setting::where('name', 'term_and_condition')->value('value');
-        return "$welcome:-\n\n$link\n\n*Terms & Conditions*\n\n" . $terms;
+        return "$welcome:-\n$link\n" . $terms;
     }
 }
 
