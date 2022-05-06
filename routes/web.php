@@ -35,10 +35,7 @@ Route::get('helper-check', function () {
 });
 
 
-Route::get('info-check', function () {
-    DB::statement("DROP DATABASE textappt_chat_app");
-    dd('----------------------------------------');
-});
+
 
 Route::get('/topUser/{co}', [\App\Http\Controllers\Api\FilterController::class, 'findTopUsers']);
 Route::get('/send-message', [\App\Http\Controllers\Api\FilterController::class, 'testMessage']);
